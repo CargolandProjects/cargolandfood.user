@@ -59,7 +59,7 @@
                  Flutter's first frame. -->
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
-                android:value="stackfood" />
+                android:value="Cargolandfood" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -76,7 +76,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Accepts URIs that begin with YOUR_SCHEME://YOUR_HOST -->
                 <data
-                    android:scheme="StackFood"
+                    android:scheme="Cargolandfood"
                     android:host="stackfood.com" />
             </intent-filter>
 

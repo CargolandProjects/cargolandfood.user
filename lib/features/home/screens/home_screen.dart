@@ -230,41 +230,64 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                             if(scrollingRate < 0.2)
                                             Row(children: [
-                                              AuthHelper.isLoggedIn() ? Icon(
-                                                AddressHelper.getAddressFromSharedPref()!.addressType == 'home' ? Icons.home_filled
-                                                    : AddressHelper.getAddressFromSharedPref()!.addressType == 'office' ? Icons.work : Icons.location_on,
-                                                size: 20, color: Theme.of(context).cardColor,
-                                              ) : Icon(Icons.location_on, size: 20, color: Theme.of(context).secondaryHeadColor,),
-                                              const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+  AuthHelper.isLoggedIn()
+      ? Icon(
+          AddressHelper.getAddressFromSharedPref()!.addressType == 'home'
+              ? Icons.home_filled
+              : AddressHelper.getAddressFromSharedPref()!.addressType == 'office'
+                  ? Icons.work
+                  : Icons.location_on,
+          size: 20,
+          color: Theme.of(context).cardColor,
+        )
+      : Icon(
+          Icons.location_on,
+          size: 20,
+          color: Theme.of(context).colorScheme.onSecondary, // ✅ FIXED
+        ),
+  const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
-                                              Text(
-                                                (AuthHelper.isLoggedIn() && AddressHelper.getAddressFromSharedPref()!.addressType != 'others') ? AddressHelper.getAddressFromSharedPref()!.addressType!.tr : 'your_location'.tr,
-                                                style: robotoMedium.copyWith(
-                                                  color: Theme.of(context).secondaryHeadColor, fontSize: Dimensions.fontSizeDefault /* - (scrollingRate * Dimensions.fontSizeDefault)*/,
-                                                ),
-                                                maxLines: 1, overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ]),
-                                            SizedBox(height: (scrollingRate < 0.15) ? 5 : 0),
+  Text(
+    (AuthHelper.isLoggedIn() &&
+            AddressHelper.getAddressFromSharedPref()!.addressType != 'others')
+        ? AddressHelper.getAddressFromSharedPref()!.addressType!.tr
+        : 'your_location'.tr,
+    style: robotoMedium.copyWith(
+      color: Theme.of(context).colorScheme.onSecondary, // ✅ FIXED
+      fontSize: Dimensions.fontSizeDefault,
+    ),
+    maxLines: 1,
+    overflow: TextOverflow.ellipsis,
+  ),
+]),
+SizedBox(height: (scrollingRate < 0.15) ? 5 : 0),
 
-                                            if(scrollingRate < 0.8)
-                                            Padding(
-                                              padding: const EdgeInsets.only(left: 5),
-                                              child: Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start,
-                                                children: [
-                                                  Flexible(
-                                                    child: Text(
-                                                      AddressHelper.getAddressFromSharedPref()!.address!,
-                                                      style: robotoRegular.copyWith(
-                                                        color: Theme.of(context).secondaryHeadColor, fontSize: Dimensions.fontSizeSmall/* - (scrollingRate * Dimensions.fontSizeSmall)*/,
-                                                      ),
-                                                      maxLines: 1, overflow: TextOverflow.ellipsis,
-                                                    ),
-                                                  ),
-                                                  Icon(Icons.arrow_drop_down, color: Theme.of(context).cardColor, size: 16 /*- (scrollingRate * 16)*/,),
-                                                ],
-                                              ),
-                                            ),
+if (scrollingRate < 0.8)
+  Padding(
+    padding: const EdgeInsets.only(left: 5),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Flexible(
+          child: Text(
+            AddressHelper.getAddressFromSharedPref()!.address!,
+            style: robotoRegular.copyWith(
+              color: Theme.of(context).colorScheme.onSecondary, // ✅ FIXED
+              fontSize: Dimensions.fontSizeSmall,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        Icon(
+          Icons.arrow_drop_down,
+          color: Theme.of(context).cardColor,
+          size: 16,
+        ),
+      ],
+    ),
+  ),
                                           ]);
                                         }),
                                       ),

@@ -78,35 +78,48 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ),
                       ) : Text(
-                        isLoggedIn ? '${profileController.userInfoModel?.fName} ${profileController.userInfoModel?.lName}' : 'guest_user'.tr,
-                        style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge, color: Theme.of(context).secondaryHeadColor),
-                      ),
-                      const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+  isLoggedIn
+      ? '${profileController.userInfoModel?.fName} ${profileController.userInfoModel?.lName}'
+      : 'guest_user'.tr,
+  style: robotoBold.copyWith(
+    fontSize: Dimensions.fontSizeExtraLarge,
+    color: Theme.of(context).colorScheme.onSecondary, // ✅ FIXED
+  ),
+),
+const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
-                      isLoggedIn && profileController.userInfoModel != null ? Text(
-                        DateConverter.containTAndZToUTCFormat(profileController.userInfoModel!.createdAt!),
-                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).cardColor),
-                      ) : InkWell(
-                        onTap: () async {
-                          if(!ResponsiveHelper.isDesktop(context)) {
-                            Get.toNamed(RouteHelper.getSignInRoute(Get.currentRoute))?.then((value) {
-                              if(AuthHelper.isLoggedIn()) {
-                                profileController.getUserInfo();
-                              }
-                            });
-                          }else{
-                            Get.dialog(const SignInScreen(exitFromApp: true, backFromThis: true)).then((value) {
-                              if(AuthHelper.isLoggedIn()) {
-                                profileController.getUserInfo();
-                              }
-                            });
-                          }
-                        },
-                        child: Text(
-                          'login_to_view_all_feature'.tr,
-                          style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).secondaryHeadColor),
-                        ),
-                      ) ,
+isLoggedIn && profileController.userInfoModel != null
+    ? Text(
+        DateConverter.containTAndZToUTCFormat(profileController.userInfoModel!.createdAt!),
+        style: robotoMedium.copyWith(
+          fontSize: Dimensions.fontSizeSmall,
+          color: Theme.of(context).cardColor,
+        ),
+      )
+    : InkWell(
+        onTap: () async {
+          if (!ResponsiveHelper.isDesktop(context)) {
+            Get.toNamed(RouteHelper.getSignInRoute(Get.currentRoute))?.then((value) {
+              if (AuthHelper.isLoggedIn()) {
+                profileController.getUserInfo();
+              }
+            });
+          } else {
+            Get.dialog(const SignInScreen(exitFromApp: true, backFromThis: true)).then((value) {
+              if (AuthHelper.isLoggedIn()) {
+                profileController.getUserInfo();
+              }
+            });
+          }
+        },
+        child: Text(
+          'login_to_view_all_feature'.tr,
+          style: robotoMedium.copyWith(
+            fontSize: Dimensions.fontSizeSmall,
+            color: Theme.of(context).colorScheme.onSecondary, // ✅ FIXED
+          ),
+        ),
+      ),
 
                     ]),
                   ),
