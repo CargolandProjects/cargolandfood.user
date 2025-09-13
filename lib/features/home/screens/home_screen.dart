@@ -234,13 +234,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                 AddressHelper.getAddressFromSharedPref()!.addressType == 'home' ? Icons.home_filled
                                                     : AddressHelper.getAddressFromSharedPref()!.addressType == 'office' ? Icons.work : Icons.location_on,
                                                 size: 20, color: Theme.of(context).cardColor,
-                                              ) : Icon(Icons.location_on, size: 20, color: Theme.of(context).cardColor,),
+                                              ) : Icon(Icons.location_on, size: 20, color: Theme.of(context).secondaryHeadColor,),
                                               const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
                                               Text(
                                                 (AuthHelper.isLoggedIn() && AddressHelper.getAddressFromSharedPref()!.addressType != 'others') ? AddressHelper.getAddressFromSharedPref()!.addressType!.tr : 'your_location'.tr,
                                                 style: robotoMedium.copyWith(
-                                                  color: Theme.of(context).cardColor, fontSize: Dimensions.fontSizeDefault /* - (scrollingRate * Dimensions.fontSizeDefault)*/,
+                                                  color: Theme.of(context).secondaryHeadColor, fontSize: Dimensions.fontSizeDefault /* - (scrollingRate * Dimensions.fontSizeDefault)*/,
                                                 ),
                                                 maxLines: 1, overflow: TextOverflow.ellipsis,
                                               ),
@@ -256,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     child: Text(
                                                       AddressHelper.getAddressFromSharedPref()!.address!,
                                                       style: robotoRegular.copyWith(
-                                                        color: Theme.of(context).cardColor, fontSize: Dimensions.fontSizeSmall/* - (scrollingRate * Dimensions.fontSizeSmall)*/,
+                                                        color: Theme.of(context).secondaryHeadColor, fontSize: Dimensions.fontSizeSmall/* - (scrollingRate * Dimensions.fontSizeSmall)*/,
                                                       ),
                                                       maxLines: 1, overflow: TextOverflow.ellipsis,
                                                     ),
@@ -340,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Image.asset(Images.searchIcon, width: 25, height: 25),
                                 const SizedBox(width: Dimensions.paddingSizeExtraSmall),
                                 Expanded(child: Text('are_you_hungry'.tr, style: robotoRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor.withValues(alpha: 0.6),
+                                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor.withValues(alpha: 0.6),
                                 ))),
                               ]),
                             ),

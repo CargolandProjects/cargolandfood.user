@@ -3,15 +3,16 @@ import 'package:flutter/material.dart';
 
 ThemeData light = ThemeData(
   fontFamily: AppConstants.fontFamily,
-  primaryColor: const Color(0xFF130854),
+  primaryColor: const Color(0xfff25c05),
   secondaryHeaderColor: const Color(0xFFEF2222),
-  disabledColor: const Color(0xFF9B9B9B),
+  secondaryHeadColor: const Color(0xFFFFFFFF),
+  disabledColor: const Color(0xFF737171),
   brightness: Brightness.light,
   hintColor: const Color(0xFF5E6472),
   cardColor: Colors.white,
   shadowColor: Colors.black.withValues(alpha: 0.03),
   textButtonTheme: TextButtonThemeData(style: TextButton.styleFrom(foregroundColor: const Color(
-      0xFF130854))),
+      0xfff25c05))),
   colorScheme: const ColorScheme.light(primary: Color(0xFF006699),
     tertiary: Color(0xff006699),
     tertiaryContainer: Color(0xff8195DB),

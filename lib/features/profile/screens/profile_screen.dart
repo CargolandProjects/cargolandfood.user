@@ -259,7 +259,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       Text(
                         'guest_user'.tr,
-                        style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge),
+                        style: robotoBold.copyWith(
+                          fontSize: Dimensions.fontSizeExtraLarge,
+                          color: Theme.of(context).textTheme.bodyLarge?.color,
+                        ),
                       ),
                       const SizedBox(height: Dimensions.paddingSizeSmall),
 
@@ -267,7 +270,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: context.width * 0.6,
                         child: Text(
                           'currently_you_are_in_guest_mode_please_login_to_view_all_the_features'.tr,
-                          style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
+                          style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall,
+                              color: Theme.of(context).disabledColor),
                           textAlign: TextAlign.center,
                         ),
                       ),
