@@ -74,13 +74,24 @@ class AuthController extends GetxController implements GetxService {
   }
 
   void _getUserAndCartData(ResponseModel responseModel) {
-    if(responseModel.isSuccess && responseModel.authResponseModel != null && responseModel.authResponseModel!.isPhoneVerified!
-        && responseModel.authResponseModel!.isEmailVerified! && responseModel.authResponseModel!.isPersonalInfo!
-        && responseModel.authResponseModel!.isExistUser == null) {
+  if (responseModel.isSuccess &&
+      responseModel.authResponseModel != null) {
+
+    final auth = responseModel.authResponseModel!;
+    final isAppleLogin = auth.loginType == 'apple'; 
+    // 👆 depends on what your backend sends, sometimes it's `authResponseModel!.loginType`
+
+    if ((auth.isPhoneVerified! &&
+        auth.isEmailVerified! &&
+        auth.isPersonalInfo! &&
+        auth.isExistUser == null) || isAppleLogin) {
+      // ✅ For Apple login, skip extra info requests
       Get.find<ProfileController>().getUserInfo();
       Get.find<CartController>().getCartDataOnline();
     }
   }
+}
+
 
   Future<ResponseModel> registration(SignUpBodyModel signUpModel) async {
     _isLoading = true;
