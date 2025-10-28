@@ -204,7 +204,7 @@ class OrderDetailsScreenState extends State<OrderDetailsScreen>
             deliveryCharge! -
             couponDiscount! +
             dmTips! +
-            ((additionalCharge * subTotal) / 100) +
+            ((additionalCharge * itemsPrice) / 100) +
             extraPackagingCharge -
             referrerBonusAmount;
 
