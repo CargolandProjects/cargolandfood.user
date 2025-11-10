@@ -1,4 +1,4 @@
-
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_button_widget.dart';
@@ -9,12 +9,14 @@ import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.
 import 'package:stackfood_multivendor/features/auth/widgets/sign_up_widget.dart';
 import 'package:stackfood_multivendor/features/auth/widgets/social_login_widget.dart';
 import 'package:stackfood_multivendor/features/auth/widgets/trams_conditions_check_box_widget.dart';
+import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/verification/screens/forget_pass_screen.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
+
 class ManualLoginWidget extends StatelessWidget {
   final TextEditingController phoneController;
   final TextEditingController passwordController;
@@ -32,156 +34,159 @@ class ManualLoginWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     bool isDesktop = ResponsiveHelper.isDesktop(context);
-    return GetBuilder<AuthController>(
-        builder: (authController) {
-          if(isDesktop) {
-            return webView(isDesktop, context, authController);
-          }
-          return Column(mainAxisSize: MainAxisSize.min, children: [
-            Align(
-              alignment: Alignment.topLeft,
-              child: Text('login'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
-            ),
-            const SizedBox(height: Dimensions.paddingSizeDefault),
+    return GetBuilder<AuthController>(builder: (authController) {
+      if(isDesktop) {
+        return webView(isDesktop, context, authController);
+      }
+      return Column(mainAxisSize: MainAxisSize.min, children: [
+        Align(
+          alignment: Alignment.topLeft,
+          child: Text('login'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
+        ),
+        const SizedBox(height: Dimensions.paddingSizeDefault),
 
-            CustomTextFieldWidget(
-              onCountryChanged: (countryCode) => authController.countryDialCode = countryCode.dialCode!,
-              countryDialCode: authController.isNumberLogin ? authController.countryDialCode : null,
-              labelText: 'email_or_phone'.tr,
-              hintText: 'enter_email_or_password'.tr,
-              controller: phoneController,
-              focusNode: phoneFocus,
-              nextFocus: passwordFocus,
-              inputType: TextInputType.emailAddress,
-              prefixIcon: authController.isNumberLogin ? null : Icons.email,
-              // prefixImage: authController.isNumberLogin ? null : Images.emailOrPhone,
-              onChanged: (String text){
-                final numberRegExp = RegExp(r'^[+]?[0-9]+$');
+        CustomTextFieldWidget(
+          onCountryChanged: (countryCode) => authController.countryDialCode = countryCode.dialCode!,
+          countryDialCode: authController.isNumberLogin ? CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).code : null,
+          labelText: 'email_or_phone'.tr,
+          hintText: 'enter_email_or_phone'.tr,
+          controller: phoneController,
+          focusNode: phoneFocus,
+          nextFocus: passwordFocus,
+          inputType: TextInputType.emailAddress,
+          prefixIcon: authController.isNumberLogin ? null : Icons.email,
+          onChanged: (String text){
+            final numberRegExp = RegExp(r'^[+]?[0-9]+$');
 
-                if(text.isEmpty && authController.isNumberLogin){
-                  authController.toggleIsNumberLogin();
-                }
-                if(text.startsWith(numberRegExp) && !authController.isNumberLogin ){
-                  authController.toggleIsNumberLogin();
-                  phoneController.text = text.replaceAll("+", "");
-                }
-                final emailRegExp = RegExp(r'@');
-                if(text.contains(emailRegExp) && authController.isNumberLogin){
-                  authController.toggleIsNumberLogin();
-                }
+            if(text.isEmpty && authController.isNumberLogin){
+              authController.toggleIsNumberLogin();
+            }
+            if(text.startsWith(numberRegExp) && !authController.isNumberLogin ){
+              authController.toggleIsNumberLogin();
+              phoneController.text = text.replaceAll("+", "");
+            }
+            final emailRegExp = RegExp(r'@');
+            if(text.contains(emailRegExp) && authController.isNumberLogin){
+              authController.toggleIsNumberLogin();
+            }
 
-              },
-              validator: (String? value){
+          },
+          validator: (String? value){
 
-                if(authController.isNumberLogin && ValidateCheck.getValidPhone(authController.countryDialCode+value!) == ""){
-                  return "enter_valid_phone_number".tr;
-                }
-                return (GetUtils.isPhoneNumber(value!.tr) || GetUtils.isEmail(value.tr)) ? null : 'enter_email_address_or_phone_number'.tr;
-              },
-            ),
+            if(authController.isNumberLogin && ValidateCheck.getValidPhone(authController.countryDialCode+value!) == ""){
+              return "enter_valid_phone_number".tr;
+            }
+            return (GetUtils.isPhoneNumber(authController.countryDialCode+value!) || GetUtils.isEmail(value.tr)) ? null : 'enter_email_address_or_phone_number'.tr;
+          },
+        ),
 
-            const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+        const SizedBox(height: Dimensions.paddingSizeExtraLarge),
 
-            CustomTextFieldWidget(
-              hintText: '8_character'.tr,
-              controller: passwordController,
-              focusNode: passwordFocus,
-              inputAction: TextInputAction.done,
-              inputType: TextInputType.visiblePassword,
-              prefixIcon: Icons.lock,
-              isPassword: true,
-              onSubmit: (text) => (GetPlatform.isWeb) ? onWebSubmit : null,
-              labelText: 'password'.tr,
-              required: true,
-              validator: (value) => ValidateCheck.validateEmptyText(value, "please_enter_password".tr),
-            ),
-            SizedBox(height: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeExtraSmall),
+        CustomTextFieldWidget(
+          hintText: '8_character'.tr,
+          controller: passwordController,
+          focusNode: passwordFocus,
+          inputAction: TextInputAction.done,
+          inputType: TextInputType.visiblePassword,
+          prefixIcon: Icons.lock,
+          isPassword: true,
+          onSubmit: (text) => (GetPlatform.isWeb) ? onWebSubmit : null,
+          labelText: 'password'.tr,
+          required: true,
+          validator: (value) => ValidateCheck.validateEmptyText(value, "please_enter_password".tr),
+        ),
+        SizedBox(height: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeExtraSmall),
 
 
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              InkWell(
-                onTap: () => authController.toggleRememberMe(),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    SizedBox(
-                      height: 24, width: 24,
-                      child: Checkbox(
-                        side: BorderSide(color: Theme.of(context).hintColor),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        activeColor: Theme.of(context).primaryColor,
-                        value: authController.isActiveRememberMe,
-                        onChanged: (bool? isChecked) => authController.toggleRememberMe(),
-                      ),
-                    ),
-                    const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                    Text('remember_me'.tr, style: robotoRegular),
-                  ],
+        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+          InkWell(
+            onTap: () => authController.toggleRememberMe(),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  height: 24, width: 24,
+                  child: Checkbox(
+                    side: BorderSide(color: Theme.of(context).hintColor),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    activeColor: Theme.of(context).primaryColor,
+                    value: authController.isActiveRememberMe,
+                    onChanged: (bool? isChecked) => authController.toggleRememberMe(),
+                  ),
                 ),
-              ),
+                const SizedBox(width: Dimensions.paddingSizeSmall),
 
-              TextButton(
-                style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                onPressed: () {
-                  Get.toNamed(RouteHelper.getForgotPassRoute());
-                },
-                child: Text('${'forgot_password'.tr}?', style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
-              ),
-            ]),
-
-            const SizedBox(height: Dimensions.paddingSizeLarge),
-
-            TramsConditionsCheckBoxWidget(authController: authController),
-            const SizedBox(height: Dimensions.paddingSizeExtraLarge),
-
-            CustomButtonWidget(
-              height: isDesktop ? 50 : null,
-              width:  isDesktop ? 250 : null,
-              buttonText: 'login'.tr,
-              radius: isDesktop ? Dimensions.radiusSmall : Dimensions.radiusDefault,
-              isBold: isDesktop ? false : true,
-              isLoading: authController.isLoading,
-              onPressed: onClickLoginButton,
+                Text('remember_me'.tr, style: robotoRegular),
+              ],
             ),
-            const SizedBox(height: Dimensions.paddingSizeLarge),
+          ),
 
-            Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-              Text('do_not_have_account'.tr, style: robotoRegular.copyWith(color: Theme.of(context).hintColor)),
+          TextButton(
+            style: TextButton.styleFrom(padding: EdgeInsets.zero),
+            onPressed: () {
+              if (FocusScope.of(context).hasFocus) {
+                FocusScope.of(context).unfocus();
+              }
 
-              InkWell(
-                onTap: authController.isLoading ? null : () {
-                  Get.toNamed(RouteHelper.getSignUpRoute());
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                  child: Text('sign_up'.tr, style: robotoMedium.copyWith(color: Theme.of(context).primaryColor)),
-                ),
-              ),
-            ]),
+              Future.delayed(const Duration(milliseconds: 250), () {
+                Get.toNamed(RouteHelper.getForgotPassRoute());
+              });
+            },
+            child: Text('${'forgot_password'.tr}?', style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
+          ),
+        ]),
 
-            SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : 0),
+        const SizedBox(height: Dimensions.paddingSizeLarge),
 
-            onOtpViewClick != null ? Column(children: [
-              Text('or'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
-              const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+        TramsConditionsCheckBoxWidget(authController: authController),
+        const SizedBox(height: Dimensions.paddingSizeExtraLarge),
 
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                Text('sign_in_with'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
-                const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+        CustomButtonWidget(
+          height: isDesktop ? 50 : null,
+          width:  isDesktop ? 250 : null,
+          buttonText: 'login'.tr,
+          radius: isDesktop ? Dimensions.radiusSmall : Dimensions.radiusDefault,
+          isBold: isDesktop ? false : true,
+          isLoading: authController.isLoading,
+          onPressed: onClickLoginButton,
+        ),
+        const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                InkWell(
-                  onTap: onOtpViewClick,
-                  child: Text('otp'.tr, style: robotoRegular.copyWith(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline)),
-                ),
-              ]),
-            ]) : const SizedBox(),
+        Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          Text('do_not_have_account'.tr, style: robotoRegular.copyWith(color: Theme.of(context).hintColor)),
 
-            socialEnable ? const SocialLoginWidget(onlySocialLogin: false) : const SizedBox(),
+          InkWell(
+            onTap: authController.isLoading ? null : () {
+              Get.toNamed(RouteHelper.getSignUpRoute());
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
+              child: Text('sign_up'.tr, style: robotoMedium.copyWith(color: Theme.of(context).primaryColor)),
+            ),
+          ),
+        ]),
 
-          ]);
-        }
-    );
+        SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : 0),
+
+        onOtpViewClick != null ? Column(children: [
+          Text('or'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
+          const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+
+          Row(mainAxisSize: MainAxisSize.min, children: [
+            Text('sign_in_with'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
+            const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+            InkWell(
+              onTap: onOtpViewClick,
+              child: Text('otp'.tr, style: robotoRegular.copyWith(color: Theme.of(context).primaryColor, decoration: TextDecoration.underline)),
+            ),
+          ]),
+        ]) : const SizedBox(),
+
+        socialEnable ? const SocialLoginWidget(onlySocialLogin: false) : const SizedBox(),
+
+      ]);
+    });
   }
 
   Widget webView(bool isDesktop, BuildContext context, AuthController authController) {
@@ -201,9 +206,9 @@ class ManualLoginWidget extends StatelessWidget {
 
             CustomTextFieldWidget(
               onCountryChanged: (countryCode) => authController.countryDialCode = countryCode.dialCode!,
-              countryDialCode: authController.isNumberLogin ? authController.countryDialCode : null,
+              countryDialCode: authController.isNumberLogin ? CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).code : null,
               labelText: 'email_or_phone'.tr,
-              hintText: 'enter_email_or_password'.tr,
+              hintText: 'enter_email_or_phone'.tr,
               controller: phoneController,
               focusNode: phoneFocus,
               nextFocus: passwordFocus,
@@ -234,7 +239,7 @@ class ManualLoginWidget extends StatelessWidget {
                 if(authController.isNumberLogin && ValidateCheck.getValidPhone(authController.countryDialCode+value!) == ""){
                   return "enter_valid_phone_number".tr;
                 }
-                return (GetUtils.isPhoneNumber(value!.tr) || GetUtils.isEmail(value.tr)) ? null : 'enter_email_address_or_phone_number'.tr;
+                return (GetUtils.isPhoneNumber(authController.countryDialCode+value!) || GetUtils.isEmail(value.tr)) ? null : 'enter_email_address_or_phone_number'.tr;
               },
             ),
             const SizedBox(height: Dimensions.paddingSizeExtraLarge),

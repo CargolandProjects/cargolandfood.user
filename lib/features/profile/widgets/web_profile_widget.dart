@@ -120,11 +120,11 @@ class WebProfileWidget extends StatelessWidget {
                   )),
                   const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                  Text(
+                  profileController.userInfoModel?.createdAt != null ? Text(
                     DateConverter.containTAndZToUTCFormat(profileController.userInfoModel!.createdAt!), textDirection: TextDirection.ltr,
                     style: robotoMedium.copyWith(fontSize: ResponsiveHelper.isDesktop(context) ? Dimensions.fontSizeDefault : Dimensions.fontSizeExtraLarge),
-                  ),
-                  const SizedBox(height: Dimensions.paddingSizeSmall),
+                  ) : const SizedBox(),
+                  SizedBox(height: profileController.userInfoModel?.createdAt != null ? Dimensions.paddingSizeSmall : 0),
 
                   Text(
                     'since_joining'.tr,
@@ -184,7 +184,6 @@ class WebProfileWidget extends StatelessWidget {
               }) : const SizedBox(),
 
               isLoggedIn ? ProfileButtonWidget(icon: Icons.lock, title: 'change_password'.tr, onTap: () {
-                // Get.toNamed(RouteHelper.getResetPasswordRoute('', '', 'password-change'));
                 Get.dialog(NewPassScreen(fromPasswordChange: true, fromDialog: true, resetToken: '', number: ''));
               }) : const SizedBox(),
 

@@ -67,7 +67,7 @@ class PaymentFailedDialog extends StatelessWidget {
                 radius: Dimensions.radiusSmall, height: 40,
               ) : const SizedBox(),
               SizedBox(height: Get.find<SplashController>().configModel!.cashOnDelivery! ? Dimensions.paddingSizeLarge : 0),
-              TextButton(
+              !orderController.isCancelLoading ? TextButton(
                 onPressed: () {
                   Get.find<OrderController>().cancelOrder(int.parse(orderID!), 'Digital payment issue').then((success) {
                     if(success) {
@@ -80,7 +80,7 @@ class PaymentFailedDialog extends StatelessWidget {
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
                 ),
                 child: Text('cancel_order'.tr, textAlign: TextAlign.center, style: robotoBold.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color)),
-              ),
+              ) : const Center(child: CircularProgressIndicator()),
             ]) : const Center(child: CircularProgressIndicator());
           }),
 

@@ -7,7 +7,6 @@ import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
-import 'package:stackfood_multivendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/footer_view_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/menu_drawer_widget.dart';
@@ -29,7 +28,18 @@ class _SupportScreenState extends State<SupportScreen> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: CustomAppBarWidget(title: 'help_support'.tr, bgColor: Theme.of(context).primaryColor),
+      appBar: ResponsiveHelper.isDesktop(context) ? null : AppBar(
+        title: Text('help_support'.tr, style: robotoMedium.copyWith(color: Theme.of(context).cardColor, fontSize: Dimensions.fontSizeLarge)),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).primaryColor,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          color: Theme.of(context).cardColor,
+          onPressed: () => Navigator.pop(context),
+        ),
+        actions: [SizedBox()],
+      ),
       endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
       body: Center(
         child: ResponsiveHelper.isDesktop(context) ? SingleChildScrollView(

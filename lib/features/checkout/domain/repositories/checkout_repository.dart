@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:stackfood_multivendor/api/api_client.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/offline_method_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
@@ -10,7 +11,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class CheckoutRepository implements CheckoutRepositoryInterface {
   final ApiClient apiClient;
-  CheckoutRepository({required this.apiClient});
+  final SharedPreferences sharedPreferences;
+  CheckoutRepository({required this.apiClient, required this.sharedPreferences});
 
   @override
   Future<int?> getDmTipMostTapped() async {
@@ -62,9 +64,13 @@ class CheckoutRepository implements CheckoutRepositoryInterface {
 
   @override
   Future<Response> getDistanceInMeter(LatLng originLatLng, LatLng destinationLatLng) async {
-    return await apiClient.getData('${AppConstants.distanceMatrixUri}'
-        '?origin_lat=${originLatLng.latitude}&origin_lng=${originLatLng.longitude}'
-        '&destination_lat=${destinationLatLng.latitude}&destination_lng=${destinationLatLng.longitude}');
+
+    final response = await apiClient.getData(
+      '${AppConstants.distanceMatrixUri}?origin_lat=${originLatLng.latitude}&origin_lng=${originLatLng.longitude}'
+        '&destination_lat=${destinationLatLng.latitude}&destination_lng=${destinationLatLng.longitude}&mode=WALK',
+    );
+
+    return response;
   }
 
   @override
@@ -74,34 +80,50 @@ class CheckoutRepository implements CheckoutRepositoryInterface {
   }
 
   @override
+  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data}) async {
+    Response response = await apiClient.postData(AppConstants.checkRestaurantValidation, data, handleError: false);
+    return (response.statusCode == 200);
+  }
+
+  @override
+  Future<Response> getOrderTax(PlaceOrderBodyModel orderBody) async {
+    Response response = await apiClient.postData(AppConstants.getOrderTaxUri, orderBody.toJson());
+    return response;
+  }
+
+  @override
+  Future<bool> saveDmTipIndex(String index) async {
+    return await sharedPreferences.setString(AppConstants.dmTipIndex, index);
+  }
+
+  @override
+  String getDmTipIndex() {
+    return sharedPreferences.getString(AppConstants.dmTipIndex) ?? "";
+  }
+
+  @override
   Future add(value) {
-    // TODO: implement add
     throw UnimplementedError();
   }
 
   @override
   Future delete(int? id) {
-    // TODO: implement delete
     throw UnimplementedError();
   }
 
   @override
   Future get(String? id) {
-    // TODO: implement get
     throw UnimplementedError();
   }
 
   @override
   Future getList({int? offset}) {
-    // TODO: implement getList
     throw UnimplementedError();
   }
 
   @override
   Future update(Map<String, dynamic> body, int? id) {
-    // TODO: implement update
     throw UnimplementedError();
   }
-
   
 }

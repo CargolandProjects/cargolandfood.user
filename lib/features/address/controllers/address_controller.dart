@@ -39,7 +39,7 @@ class AddressController extends GetxController implements GetxService {
     }
   }
 
-  _prepareAddressList(List<AddressModel>? addressList, {bool canInsertAddress = false}) {
+  void _prepareAddressList(List<AddressModel>? addressList, {bool canInsertAddress = false}) {
     if (addressList != null) {
       _addressList = [];
       _allAddressList = [];

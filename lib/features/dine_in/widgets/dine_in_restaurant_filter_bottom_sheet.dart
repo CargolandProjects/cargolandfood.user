@@ -249,19 +249,17 @@ class FilterRadioButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () => onTap(),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: robotoRegular),
-          Radio(
-            value: isSelected,
-            groupValue: true,
-            onChanged: (bool? value) {
-              onTap();
-            },
-          ),
-        ],
-      ),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        Text(title, style: robotoRegular),
+
+        RadioGroup(
+          groupValue: true,
+          onChanged: (bool? value) {
+            onTap();
+          },
+          child: Radio(value: isSelected),
+        ),
+      ]),
     );
   }
 }

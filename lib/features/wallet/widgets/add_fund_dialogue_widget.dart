@@ -79,13 +79,13 @@ class _AddFundDialogueWidgetState extends State<AddFundDialogueWidget> {
                 CustomTextFieldWidget(
                   hintText: 'enter_amount'.tr,
                   showLabelText: false,
+                  isAmount: true,
                   inputType: TextInputType.number,
                   focusNode: focusNode,
                   inputAction: TextInputAction.done,
                   controller: inputAmountController,
                   textAlign: TextAlign.center,
                   onChanged: (String value){
-                    _checkFormatters(value);
                     try{
                       if(double.parse(value) > 0){
                         walletController.isTextFieldEmpty(value);
@@ -176,22 +176,6 @@ class _AddFundDialogueWidgetState extends State<AddFundDialogueWidget> {
         )
       ]),
     );
-  }
-
-  void _checkFormatters(String value) {
-    String test = '';
-    if(value.contains('-')) {
-      test = value.replaceAll('-', '');
-    } else if(value.contains(' ')) {
-      test = value.replaceAll(' ', '');
-    } else if(value.contains(',')) {
-      test = value.replaceAll(',', '');
-    } else {
-      test = value;
-    }
-    setState(() {
-      inputAmountController.text = test;
-    });
   }
 
   void _onAddFundButtonClicked(WalletController walletController) {

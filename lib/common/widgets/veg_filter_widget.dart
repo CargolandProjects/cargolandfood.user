@@ -29,13 +29,17 @@ class VegFilterWidget extends StatelessWidget {
           borderRadius: BorderRadius.all(Radius.circular(Dimensions.radiusDefault)),
         ),
         child: Container(
-          decoration: fromAppBar ? const BoxDecoration() : BoxDecoration(
-              borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-              color: Theme.of(context).cardColor,
-              border: Border.all(color: iconColor ?? Theme.of(context).textTheme.bodyMedium!.color!, width: 0.5)
+          decoration: fromAppBar ? BoxDecoration(
+            borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+            color: Theme.of(context).cardColor,
+            border: Border.all(color: Theme.of(context).primaryColor, width: 1.2),
+          ) : BoxDecoration(
+            borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+            color: Theme.of(context).cardColor,
+            border: Border.all(color: iconColor ?? Theme.of(context).textTheme.bodyMedium!.color!, width: 0.5),
           ),
           padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-          child: Icon(Icons.tune_sharp, size: 24, color: iconColor ?? Theme.of(context).textTheme.bodyMedium!.color),
+          child: Icon(Icons.tune_sharp, size: fromAppBar ? 18 : 24, color: iconColor ?? Theme.of(context).textTheme.bodyMedium!.color),
         ),
       ),
     ) : const SizedBox();

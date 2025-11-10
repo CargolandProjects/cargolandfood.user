@@ -141,10 +141,10 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                 child: SingleChildScrollView(
                   controller: scrollController, 
                   physics: const BouncingScrollPhysics(), 
-                  padding: EdgeInsets.all(isDesktop ? 0 : Dimensions.paddingSizeSmall),
+                  padding: EdgeInsets.all(isDesktop ? 0 : Dimensions.paddingSizeDefault),
                   child: Column(children: [
                     WebScreenTitleWidget(title: widget.address == null ? 'add_new_address'.tr : 'update_address'.tr),
-                    const SizedBox(height: Dimensions.paddingSizeLarge),
+                    SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : 0),
                     
                     FooterViewWidget(
                       child: Center(

@@ -3,7 +3,7 @@ import 'package:stackfood_multivendor/data_source/cache_response.dart';
 final database = AppDatabase();
 
 class DbHelper{
-  static insertOrUpdate({required String id, required CacheResponseCompanion data}) async {
+  static Future<void> insertOrUpdate({required String id, required CacheResponseCompanion data}) async {
     final response = await database.getCacheResponseById(id);
 
     if(response != null){

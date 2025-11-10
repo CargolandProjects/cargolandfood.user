@@ -151,7 +151,7 @@ class _WebConversationListViewWidgetState extends State<WebConversationListViewW
                               const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                               widget.conversation!.conversations![index]!.lastMessage != null ? Text(
-                                lastMessage ?? 'start_conversation'.tr,
+                                lastMessage ?? 'start_conversation'.tr, maxLines: 2, overflow: TextOverflow.ellipsis,
                                 style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
                               ) : const SizedBox(),
                             ])),

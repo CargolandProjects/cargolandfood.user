@@ -1,2 +1,0 @@
-C:/Users/pomok/Documents/Cargo_CODEBASE/cargolandfoodApp/android/app/.cxx/Debug/l3y5f121/x86/CMakeFiles/edit_cache.dir
-C:/Users/pomok/Documents/Cargo_CODEBASE/cargolandfoodApp/android/app/.cxx/Debug/l3y5f121/x86/CMakeFiles/rebuild_cache.dir

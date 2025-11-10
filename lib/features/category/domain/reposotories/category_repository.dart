@@ -30,13 +30,17 @@ class CategoryRepository implements CategoryRepositoryInterface {
   }
 
   @override
-  Future<List<CategoryModel>?> getList({int? offset, DataSourceEnum? source}) async {
+  Future<List<CategoryModel>?> getList({int? offset, DataSourceEnum? source, String? search}) async {
     List<CategoryModel>? categoryList;
     String cacheId = AppConstants.categoryUri;
 
     switch(source!){
       case DataSourceEnum.client:
-        Response response = await apiClient.getData(AppConstants.categoryUri);
+        String uri = AppConstants.categoryUri;
+        if (search != null && search.isNotEmpty) {
+          uri += '?name=$search';
+        }
+        Response response = await apiClient.getData(uri);
 
         if(response.statusCode == 200){
           categoryList = [];
@@ -89,23 +93,6 @@ class CategoryRepository implements CategoryRepositoryInterface {
     }
     return restaurantModel;
   }
-
-  // @override
-  // Future<dynamic> getSearchData(String? query, String? categoryID, bool isRestaurant, String type) async {
-  //   RestaurantModel? searchRestaurantModel;
-  //   ProductModel? searchProductModel;
-  //   Response response = await apiClient.getData(
-  //     '${AppConstants.searchUri}${isRestaurant ? 'restaurants' : 'products'}/search?name=$query&category_id=$categoryID&type=$type&offset=1&limit=50',
-  //   );
-  //   if (response.statusCode == 200) {
-  //       if (isRestaurant) {
-  //         searchRestaurantModel = RestaurantModel.fromJson(response.body);
-  //       } else {
-  //         searchProductModel = ProductModel.fromJson(response.body);
-  //       }
-  //   }
-  //   return isRestaurant ? searchRestaurantModel : searchProductModel;
-  // }
 
   @override
   Future<Response> getSearchData(String? query, String? categoryID, bool isRestaurant, String type) async {

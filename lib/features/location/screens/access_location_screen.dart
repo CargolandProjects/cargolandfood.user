@@ -60,7 +60,6 @@ class _AccessLocationScreenState extends State<AccessLocationScreen> {
           child: PickMapDialog(
             fromSignUp: widget.fromSignUp, canRoute: widget.route != null, fromAddAddress: false, route: widget.route
               ?? (widget.fromSignUp ? RouteHelper.signUp : RouteHelper.accessLocation),
-            // canTakeCurrentLocation: false /*(!AuthHelper.isLoggedIn() || route == '/?from-splash=false')*/,
           ),
         );
       });
@@ -78,11 +77,11 @@ class _AccessLocationScreenState extends State<AccessLocationScreen> {
         Get.find<AuthController>().guestLogin().then((response) {
           if(response.isSuccess) {
             Get.find<ProfileController>().setForceFullyUserEmpty();
-            Get.find<LocationController>().saveAddressAndNavigate(address, false, null, false, ResponsiveHelper.isDesktop(Get.context));
+            Get.find<LocationController>().saveAddressAndNavigate(address, false, null, false, ResponsiveHelper.isDesktop(Get.context!));
           }
         });
       } else {
-        Get.find<LocationController>().saveAddressAndNavigate(address, false, null, false, ResponsiveHelper.isDesktop(Get.context));
+        Get.find<LocationController>().saveAddressAndNavigate(address, false, null, false, ResponsiveHelper.isDesktop(Get.context!));
       }
     } else {
       showCustomSnackBar('service_not_available_in_current_location'.tr);
@@ -109,6 +108,7 @@ class _AccessLocationScreenState extends State<AccessLocationScreen> {
       endDrawer: const MenuDrawerWidget(),endDrawerEnableOpenDragGesture: false,
       body: SafeArea(child: GetBuilder<AddressController>(builder: (addressController) {
         return isLoggedIn ? SingleChildScrollView(
+          physics: addressController.addressList != null && addressController.addressList!.isNotEmpty ? const AlwaysScrollableScrollPhysics() : const NeverScrollableScrollPhysics(),
           child: FooterViewWidget(
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
 
@@ -128,7 +128,10 @@ class _AccessLocationScreenState extends State<AccessLocationScreen> {
                     },
                   )));
                 },
-              ) : NoDataScreen(title: 'no_saved_address_found'.tr, isEmptyAddress: true) : const Center(child: CircularProgressIndicator()),
+              ) : NoDataScreen(title: 'no_saved_address_found'.tr, isEmptyAddress: true) : const Center(child: Padding(
+                padding: EdgeInsets.only(top: 250),
+                child: CircularProgressIndicator(),
+              )),
               SizedBox(height: (addressController.addressList != null && addressController.addressList!.length < 4) ? 200 : Dimensions.paddingSizeLarge),
 
               ResponsiveHelper.isDesktop(context) ? BottomButton(addressController: addressController, fromSignUp: widget.fromSignUp, route: widget.route) : const SizedBox(),

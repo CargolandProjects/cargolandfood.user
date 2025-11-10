@@ -1,4 +1,3 @@
-
 import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/date_month_body_model.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/slot_widget.dart';
@@ -84,186 +83,178 @@ class _TimeSlotBottomSheetState extends State<TimeSlotBottomSheet> {
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: ResponsiveHelper.isMobile(context) ? const BorderRadius.vertical(top: Radius.circular(Dimensions.radiusExtraLarge))
-            : const BorderRadius.all(Radius.circular(Dimensions.radiusExtraLarge)),
+         : const BorderRadius.all(Radius.circular(Dimensions.radiusExtraLarge)),
       ),
       child: SafeArea(
         child: GetBuilder<CheckoutController>(builder: (checkoutController) {
           return GetBuilder<RestaurantController>(builder: (restaurantController) {
-             return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-
-                !ResponsiveHelper.isDesktop(context) ? Align(
-                  alignment: Alignment.center,
-                  child: InkWell(
-                    onTap: ()=> Get.back(),
-                    child: Container(
-                      height: 4, width: 35,
-                      margin: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                      decoration: BoxDecoration(color: Theme.of(context).disabledColor, borderRadius: BorderRadius.circular(10)),
-                    ),
+            return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+              !isDesktop ? Align(
+                alignment: Alignment.center,
+                child: InkWell(
+                  onTap: ()=> Get.back(),
+                  child: Container(
+                    height: 4, width: 35,
+                    margin: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
+                    decoration: BoxDecoration(color: Theme.of(context).disabledColor, borderRadius: BorderRadius.circular(10)),
                   ),
-                ) : const SizedBox(),
+                ),
+              ) : const SizedBox(),
 
-                Container(
-                  width: isDesktop ? 300 : double.infinity,
-                  padding: const EdgeInsets.only(top: Dimensions.paddingSizeLarge),
-                  child: Row(children: [
-                    Expanded(
-                      child: tabView(context:context, title: 'today'.tr, isSelected: selectedDateSlotIndex == 0, onTap: (){
-                        setState(() {
-                          selectedDateSlotIndex = 0;
-                        });
-                        initializeTimeSlots(false);
-                      }),
-                    ),
+              Container(
+                width: isDesktop ? 300 : double.infinity,
+                padding: const EdgeInsets.only(top: Dimensions.paddingSizeLarge),
+                child: Row(children: [
+                  Expanded(
+                    child: tabView(context:context, title: 'today'.tr, isSelected: selectedDateSlotIndex == 0, onTap: (){
+                      setState(() {
+                        selectedDateSlotIndex = 0;
+                      });
+                      initializeTimeSlots(false);
+                    }),
+                  ),
 
-                    Expanded(
-                      child: tabView(context:context, title: 'tomorrow'.tr, isSelected: selectedDateSlotIndex == 1, onTap: (){
-                        setState(() {
-                          selectedDateSlotIndex = 1;
-                        });
-                        initializeTimeSlots(false);
-                      }),
-                    ),
+                  Expanded(
+                    child: tabView(context:context, title: 'tomorrow'.tr, isSelected: selectedDateSlotIndex == 1, onTap: (){
+                      setState(() {
+                        selectedDateSlotIndex = 1;
+                      });
+                      initializeTimeSlots(false);
+                    }),
+                  ),
 
-                    (isRestaurantSelfDeliveryOn ? widget.restaurant.customerDateOrderStatus! : Get.find<SplashController>().configModel!.customerDateOrderStatus!) ? Expanded(
-                      child: tabView(context: context, title: 'custom_date'.tr, isSelected: selectedDateSlotIndex == 2, onTap: (){
-                        setState(() {
-                          selectedDateSlotIndex = 2;
-                        });
-                        initializeTimeSlots(false);
+                  (isRestaurantSelfDeliveryOn ? widget.restaurant.customerDateOrderStatus! : Get.find<SplashController>().configModel!.customerDateOrderStatus!) ? Expanded(
+                    child: tabView(context: context, title: 'custom_date'.tr, isSelected: selectedDateSlotIndex == 2, onTap: (){
+                      setState(() {
+                        selectedDateSlotIndex = 2;
+                      });
+                      initializeTimeSlots(false);
+                    }),
+                  ) : const SizedBox(),
+                ]),
+              ),
+
+              Flexible(
+                child: SingleChildScrollView(
+                  padding: isDesktop ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeLarge),
+                  child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
+
+                    selectedDateSlotIndex == 2 ? Column(children: [
+                      Center(child: Text('set_date_and_time'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge))),
+                      const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                      SfDateRangePicker(
+                        initialSelectedDate: selectCustomDate ?? DateTime.now(),
+                        selectionShape: DateRangePickerSelectionShape.rectangle,
+                        onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
+                          DateTime selectedDate = DateConverter.dateTimeStringToDate(args.value.toString());
+                          setState(() {
+                            selectCustomDate = selectedDate;
+                          });
+                          initializeTimeSlots(false);
+                        },
+                        showNavigationArrow: true,
+                        selectableDayPredicate: (DateTime val) {
+                          return _canSelectDate(duration: isRestaurantSelfDeliveryOn ? widget.restaurant.customerOrderDate! : Get.find<SplashController>().configModel!.customerOrderDate!, value: val);
+                        },
+                      ),
+
+                      Builder(builder: (context) {
+                        return SizedBox(
+                          height: 50,
+                          child: (selectedDateSlotIndex == 2 && checkoutController.customDateRestaurantClose) ? Center(
+                            child: Text('restaurant_is_closed'.tr ),
+                          ) : ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: checkoutController.timeSlots!.length,
+                            padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall),
+                            itemBuilder: (context, index) {
+                              String time = _createCustomTime(index);
+                              return SlotWidget(
+                                title: time, fromCustomDate: true,
+                                isSelected: selectedTimeSlotIndex == index,
+                                onTap: () {
+                                  setState(() {
+                                    selectedTimeSlotIndex = index;
+                                    selectedTimeSlot = time;
+                                  });
+                                },
+                              );
+                            },
+                          ),
+                        );
                       }),
-                    ) : const SizedBox(),
+
+                      const Padding(
+                        padding: EdgeInsets.only(top: Dimensions.paddingSizeLarge),
+                        child: Divider(),
+                      ),
+
+                    ]) : ((selectedDateSlotIndex == 0 && widget.todayClosed) || (selectedDateSlotIndex == 1 && widget.tomorrowClosed)) ? Center(
+                      child: Text('restaurant_is_closed'.tr ),
+                    ) : checkoutController.timeSlots != null ? checkoutController.timeSlots!.isNotEmpty ? GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: isDesktop ? 5 : 3,
+                        mainAxisSpacing: Dimensions.paddingSizeSmall,
+                        crossAxisSpacing: Dimensions.paddingSizeExtraSmall,
+                        childAspectRatio: isDesktop ? 3.5 : 3,
+                      ),
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: checkoutController.timeSlots!.length,
+                      itemBuilder: (context, index){
+                        String time = _createTime(index);
+                        return SlotWidget(
+                          title: time,
+                          isSelected: selectedTimeSlotIndex == index,
+                          onTap: () {
+                            setState(() {
+                              selectedTimeSlotIndex = index;
+                              selectedTimeSlot = time;
+                            });
+                          },
+                        );
+                      }) : Center(child: Text('no_slot_available'.tr)) : const Center(child: CircularProgressIndicator()),
                   ]),
                 ),
+              ),
+              SizedBox(height: isDesktop ? Dimensions.paddingSizeDefault : 0),
 
-                Flexible(
-                  child: SingleChildScrollView(
-                    padding: isDesktop ? EdgeInsets.zero : const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeLarge),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
-
-                      selectedDateSlotIndex == 2 ? Column(children: [
-                        Center(child: Text('set_date_and_time'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge))),
-                        const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                        SfDateRangePicker(
-                            initialSelectedDate: selectCustomDate ?? DateTime.now(),
-                            selectionShape: DateRangePickerSelectionShape.rectangle,
-                            onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
-                              DateTime selectedDate = DateConverter.dateTimeStringToDate(args.value.toString());
-                              setState(() {
-                                selectCustomDate = selectedDate;
-                              });
-                              initializeTimeSlots(false);
-                            },
-                            showNavigationArrow: true,
-                            selectableDayPredicate: (DateTime val) {
-                              return _canSelectDate(duration: isRestaurantSelfDeliveryOn ? widget.restaurant.customerOrderDate! : Get.find<SplashController>().configModel!.customerOrderDate!, value: val);
-                            }
+              GetBuilder<CheckoutController>(builder: (checkoutController) {
+               return GetBuilder<RestaurantController>(builder: (restaurantController) {
+                 return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraLarge, vertical: Dimensions.paddingSizeSmall),
+                    child: Row(children: [
+                      Expanded(
+                        child: CustomButtonWidget(
+                          buttonText: 'cancel'.tr,
+                          color: Theme.of(context).disabledColor,
+                          onPressed: () => Get.back(),
                         ),
+                      ),
+                      const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                        Builder(
-                            builder: (context) {
-                              return SizedBox(
-                                height: 50,
-                                child: (selectedDateSlotIndex == 2 && checkoutController.customDateRestaurantClose)
-                                  ? Center(child: Text('restaurant_is_closed'.tr )) : ListView.builder(
-                                    scrollDirection: Axis.horizontal,
-                                    itemCount: checkoutController.timeSlots!.length,
-                                    padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall),
-                                    itemBuilder: (context, index) {
-                                      String time = _createCustomTime(index);
-                                      return SlotWidget(
-                                        title: time, fromCustomDate: true,
-                                        isSelected: selectedTimeSlotIndex == index,
-                                        onTap: () {
-                                          setState(() {
-                                            selectedTimeSlotIndex = index;
-                                            selectedTimeSlot = time;
-                                          });
-                                        },
-                                      );
-                                    }),
-                              );
-                            }
+                      Expanded(
+                        child: CustomButtonWidget(
+                          buttonText: 'schedule'.tr,
+                          onPressed: () {
+                            checkoutController.updateDateSlotIndex(selectedDateSlotIndex);
+                            checkoutController.updateTimeSlot(selectedTimeSlotIndex, selectedTimeSlot != 'Not Available');
+                            checkoutController.setPreferenceTimeForView(selectedTimeSlot, selectedTimeSlot != 'Not Available');
+                            checkoutController.showHideTimeSlot();
+                            checkoutController.setCustomDate(selectCustomDate, _instanceOrder && DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).isAtSameMomentAs(selectCustomDate ?? DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)));
+
+                            if(!isDesktop) Get.back();
+                          },
                         ),
-
-                        const Padding(
-                          padding: EdgeInsets.only(top: Dimensions.paddingSizeLarge),
-                          child: Divider(),
-                        ),
-
-                      ]) : ((selectedDateSlotIndex == 0 && widget.todayClosed) || (selectedDateSlotIndex == 1 && widget.tomorrowClosed))
-                        ? Center(child: Text('restaurant_is_closed'.tr ))
-                        : checkoutController.timeSlots != null
-                        ? checkoutController.timeSlots!.isNotEmpty ? GridView.builder(
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: isDesktop ? 5 : 3,
-                              mainAxisSpacing: Dimensions.paddingSizeSmall,
-                              crossAxisSpacing: Dimensions.paddingSizeExtraSmall,
-                              childAspectRatio: isDesktop ? 3.5 : 3
-                          ),
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: checkoutController.timeSlots!.length,
-                          itemBuilder: (context, index){
-                            String time = _createTime(index);
-                            return SlotWidget(
-                              title: time,
-                              isSelected: selectedTimeSlotIndex == index,
-                              onTap: () {
-                                setState(() {
-                                  selectedTimeSlotIndex = index;
-                                  selectedTimeSlot = time;
-                                });
-                              },
-                            );
-                          }) : Center(child: Text('no_slot_available'.tr)) : const Center(child: CircularProgressIndicator()),
-
+                      ),
                     ]),
-                  ),
-                ),
-
-               !isDesktop ? GetBuilder<CheckoutController>(builder: (checkoutController) {
-                   return GetBuilder<RestaurantController>(builder: (restaurantController) {
-                       return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraLarge, vertical: Dimensions.paddingSizeSmall),
-                          child: Row(children: [
-                            Expanded(
-                              child: CustomButtonWidget(
-                                buttonText: 'cancel'.tr,
-                                color: Theme.of(context).disabledColor,
-                                onPressed: () => Get.back(),
-                              ),
-                            ),
-                            const SizedBox(width: Dimensions.paddingSizeSmall),
-                            Expanded(
-                              child: CustomButtonWidget(
-                                buttonText: 'schedule'.tr,
-                                onPressed: () {
-                                  checkoutController.updateDateSlotIndex(selectedDateSlotIndex);
-
-                                  checkoutController.updateTimeSlot(selectedTimeSlotIndex, selectedTimeSlot != 'Not Available');
-                                  checkoutController.setPreferenceTimeForView(selectedTimeSlot, selectedTimeSlot != 'Not Available');
-                                  checkoutController.showHideTimeSlot();
-                                  checkoutController.setCustomDate(selectCustomDate, _instanceOrder && DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).isAtSameMomentAs(selectCustomDate ?? DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day)));
-
-
-                                  Get.back();
-                                },
-                              ),
-                            ),
-                          ]),
-                        );
-                     });
-                 }) : const SizedBox(),
-              ]);
-              }
-            );
-          }
-        ),
+                  );
+               });
+             }),
+            ]);
+          });
+        }),
       ),
     );
   }
@@ -301,21 +292,20 @@ class _TimeSlotBottomSheetState extends State<TimeSlotBottomSheet> {
 
   String _createCustomTime(int index) {
     String time = (index == 0 && selectedDateSlotIndex == 2
-        && Get.find<RestaurantController>().isRestaurantOpenNow(Get.find<CheckoutController>().restaurant!.active!, Get.find<CheckoutController>().restaurant!.schedules)
-        && DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).isAtSameMomentAs(selectCustomDate?? DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))
-        ? _instanceOrder
-        ? 'now'.tr : 'not_available'.tr : '${DateConverter.dateToTimeOnly(Get.find<CheckoutController>().timeSlots![index].startTime!)} '
-        '- ${DateConverter.dateToTimeOnly(Get.find<CheckoutController>().timeSlots![index].endTime!)}');
-
+      && Get.find<RestaurantController>().isRestaurantOpenNow(Get.find<CheckoutController>().restaurant!.active!, Get.find<CheckoutController>().restaurant!.schedules)
+      && DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day).isAtSameMomentAs(selectCustomDate?? DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))
+      ? _instanceOrder
+      ? 'now'.tr : 'not_available'.tr : '${DateConverter.dateToTimeOnly(Get.find<CheckoutController>().timeSlots![index].startTime!)} '
+      '- ${DateConverter.dateToTimeOnly(Get.find<CheckoutController>().timeSlots![index].endTime!)}');
     return time;
   }
 
   String _createTime(int index) {
     String time = (index == 0 && selectedDateSlotIndex == 0
-        && Get.find<RestaurantController>().isRestaurantOpenNow(Get.find<CheckoutController>().restaurant!.active!, Get.find<CheckoutController>().restaurant!.schedules)
-        ? _instanceOrder
-        ? 'now'.tr : 'not_available'.tr : '${DateConverter.dateToTimeOnly(Get.find<CheckoutController>().timeSlots![index].startTime!)} '
-        '- ${DateConverter.dateToTimeOnly(Get.find<CheckoutController>().timeSlots![index].endTime!)}');
+      && Get.find<RestaurantController>().isRestaurantOpenNow(Get.find<CheckoutController>().restaurant!.active!, Get.find<CheckoutController>().restaurant!.schedules)
+      ? _instanceOrder
+      ? 'now'.tr : 'not_available'.tr : '${DateConverter.dateToTimeOnly(Get.find<CheckoutController>().timeSlots![index].startTime!)} '
+      '- ${DateConverter.dateToTimeOnly(Get.find<CheckoutController>().timeSlots![index].endTime!)}');
     return time;
   }
 }

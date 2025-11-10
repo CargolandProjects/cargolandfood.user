@@ -83,7 +83,7 @@ class OrderPricingSection extends StatelessWidget {
             Divider(thickness: 1, color: Theme.of(context).hintColor.withValues(alpha: 0.5)),
 
             !subscription ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-              Text('${'subtotal'.tr} ${taxIncluded ? 'tax_included'.tr : ''}', style: robotoMedium),
+              Text('subtotal'.tr, style: robotoMedium),
               Text(PriceConverter.convertPrice(subTotal), style: robotoMedium, textDirection: TextDirection.ltr),
             ]) : const SizedBox(),
             SizedBox(height: !subscription ? Dimensions.paddingSizeSmall : 0),
@@ -96,7 +96,7 @@ class OrderPricingSection extends StatelessWidget {
 
             (order.additionalCharge != null && order.additionalCharge! > 0) ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text(Get.find<SplashController>().configModel!.additionalChargeName!, style: robotoRegular),
-              Text('(+) ${PriceConverter.convertPrice((order.additionalCharge! * subTotal) /100)}', style: robotoRegular, textDirection: TextDirection.ltr),
+              Text('(+) ${PriceConverter.convertPrice(order.additionalCharge)}', style: robotoRegular, textDirection: TextDirection.ltr),
             ]) : const SizedBox(),
             (order.additionalCharge != null && order.additionalCharge! > 0) ? const SizedBox(height: 10) : const SizedBox(),
 
@@ -118,11 +118,17 @@ class OrderPricingSection extends StatelessWidget {
             ) : const SizedBox(),
             SizedBox(height: referrerBonusAmount > 0 ? 10 : 0),
 
-            !taxIncluded ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            (tax == 0) || taxIncluded ? const SizedBox() : Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+              Text('vat_tax'.tr, style: robotoRegular),
+              Text('(+) ${PriceConverter.convertPrice(tax)}', style: robotoRegular, textDirection: TextDirection.ltr),
+            ]),
+            SizedBox(height: (tax == 0) || taxIncluded ? 0 : Dimensions.paddingSizeSmall),
+
+            /*!taxIncluded ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
               Text('vat_tax'.tr, style: robotoRegular),
               Text('(+) ${PriceConverter.convertPrice(tax)}', style: robotoRegular, textDirection: TextDirection.ltr),
             ]) : const SizedBox(),
-            SizedBox(height: taxIncluded ? 0 : Dimensions.paddingSizeSmall),
+            SizedBox(height: taxIncluded ? 0 : Dimensions.paddingSizeSmall),*/
 
             (!subscription && !isDineIn && order.orderType != 'take_away' && Get.find<SplashController>().configModel!.dmTipsStatus == 1) ? Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -160,19 +166,27 @@ class OrderPricingSection extends StatelessWidget {
                 borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
               ),
               child: DottedBorder(
-                color: Theme.of(context).primaryColor,
-                strokeWidth: 1,
-                strokeCap: StrokeCap.butt,
-                dashPattern: const [8, 5],
-                padding: const EdgeInsets.all(8),
-                borderType: BorderType.RRect,
-                radius: const Radius.circular(Dimensions.radiusDefault),
+                options: RoundedRectDottedBorderOptions(
+                  color: Theme.of(context).primaryColor,
+                  strokeWidth: 1,
+                  strokeCap: StrokeCap.butt,
+                  dashPattern: const [8, 5],
+                  padding: const EdgeInsets.all(8),
+                  radius: const Radius.circular(Dimensions.radiusDefault),
+                ),
                 child: Column(children: [
 
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Row(children: [
                     Text('total_amount'.tr, style: robotoMedium.copyWith(
                       fontSize: ResponsiveHelper.isDesktop(context) ? Dimensions.fontSizeSmall : Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor,
                     )),
+
+                    taxIncluded ? Text(' ${'vat_tax_inc'.tr}', style: robotoMedium.copyWith(
+                      fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).primaryColor,
+                    )) : const SizedBox(),
+
+                    const Expanded(child: SizedBox()),
+
                     Text(
                       PriceConverter.convertPrice(total), textDirection: TextDirection.ltr,
                       style: robotoMedium.copyWith(fontSize: ResponsiveHelper.isDesktop(context) ? Dimensions.fontSizeSmall : Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor),
@@ -202,10 +216,17 @@ class OrderPricingSection extends StatelessWidget {
 
                 ]),
               ),
-            ) : Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            ) : Row(children: [
               Text(subscription ? 'subtotal'.tr : 'total_amount'.tr, style: robotoMedium.copyWith(
                 fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor,
               )),
+
+              taxIncluded ? Text(' ${'vat_tax_inc'.tr}', style: robotoMedium.copyWith(
+                fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).primaryColor,
+              )) : const SizedBox(),
+
+              const Expanded(child: SizedBox()),
+
               Text(
                 PriceConverter.convertPrice(total), textDirection: TextDirection.ltr,
                 style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor),

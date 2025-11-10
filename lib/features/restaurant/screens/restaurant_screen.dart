@@ -59,7 +59,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     }
     await Get.find<RestaurantController>().getRestaurantDetails(Restaurant(id: widget.restaurant!.id), slug: widget.slug);
     if(Get.find<CategoryController>().categoryList == null) {
-      Get.find<CategoryController>().getCategoryList(true);
+      Get.find<CategoryController>().getCategoryList(true, search: '');
     }
     Get.find<CouponController>().getRestaurantCouponList(restaurantId: widget.restaurant!.id ?? Get.find<RestaurantController>().restaurant!.id!);
     Get.find<RestaurantController>().getRestaurantRecommendedItemList(widget.restaurant!.id ?? Get.find<RestaurantController>().restaurant!.id!, false);
@@ -95,7 +95,6 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                   width: Dimensions.webMaxWidth,
                   color: Theme.of(context).cardColor,
                   child: Column(children: [
-                    // isDesktop ? const SizedBox() : RestaurantDescriptionView(restaurant: restaurant),
                     restaurant.discount != null ? Container(
                       width: context.width,
                       margin: const EdgeInsets.symmetric(
@@ -226,7 +225,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                     ),
                     padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall),
                     child: Column(children: [
-                      Padding(padding: const EdgeInsets.only(left: Dimensions.paddingSizeLarge, right: Dimensions.paddingSizeLarge, top: Dimensions.paddingSizeSmall),
+                      Padding(padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeDefault, top: Dimensions.paddingSizeSmall),
                         child: Row(children: [
 
                           Text('all_food_items'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault)),
@@ -296,8 +295,8 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                                 borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                                 color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                               ),
-                              padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                              child: Image.asset(Images.search, height: 25, width: 25, color: Theme.of(context).primaryColor, fit: BoxFit.cover),
+                              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall - 2),
+                              child: Image.asset(Images.search, height: 20, width: 20, color: Theme.of(context).primaryColor, fit: BoxFit.cover),
                             ),
                           ),
 
@@ -318,7 +317,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
                           itemCount: restController.categoryList!.length,
-                          padding: const EdgeInsets.only(left: Dimensions.paddingSizeLarge),
+                          padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault),
                           physics: const BouncingScrollPhysics(),
                           itemBuilder: (context, index) {
                             return InkWell(
@@ -370,10 +369,6 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
                         restaurants: null,
                         products: restController.isSearching ? restController.restaurantSearchProductModel?.products : restController.categoryList!.isNotEmpty ? restController.restaurantProducts : null,
                         inRestaurantPage: true,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: Dimensions.paddingSizeSmall,
-                          vertical: Dimensions.paddingSizeLarge,
-                        ),
                       ),
                     ),
                   )),

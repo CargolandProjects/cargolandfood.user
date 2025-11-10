@@ -54,24 +54,24 @@ class CategoryController extends GetxController implements GetxService {
   int _offset = 1;
   int get offset => _offset;
 
-  Future<void> getCategoryList(bool reload, {DataSourceEnum dataSource = DataSourceEnum.local, bool fromRecall = false}) async {
+  Future<void> getCategoryList(bool reload, {String? search, DataSourceEnum dataSource = DataSourceEnum.local, bool fromRecall = false}) async {
     if(_categoryList == null || reload || fromRecall) {
       if(!fromRecall) {
         _categoryList = null;
       }
       List<CategoryModel>? categoryList;
       if(dataSource == DataSourceEnum.local) {
-        categoryList = await categoryServiceInterface.getCategoryList(source: DataSourceEnum.local);
+        categoryList = await categoryServiceInterface.getCategoryList(source: DataSourceEnum.local, search: search);
         _prepareCategoryList(categoryList);
-        getCategoryList(false, dataSource: DataSourceEnum.client, fromRecall: true);
+        getCategoryList(false, dataSource: DataSourceEnum.client, fromRecall: true, search: search);
       }else {
-        categoryList = await categoryServiceInterface.getCategoryList(source: DataSourceEnum.client);
+        categoryList = await categoryServiceInterface.getCategoryList(source: DataSourceEnum.client, search: search);
         _prepareCategoryList(categoryList);
       }
     }
   }
 
-  _prepareCategoryList(List<CategoryModel>? categoryList) {
+  void _prepareCategoryList(List<CategoryModel>? categoryList) {
     if(categoryList != null) {
       _categoryList = [];
       _categoryList!.addAll(categoryList);
@@ -198,6 +198,13 @@ class CategoryController extends GetxController implements GetxService {
   void setRestaurant(bool isRestaurant) {
     _isRestaurant = isRestaurant;
     update();
+  }
+
+  void clearSearch({bool isUpdate = true}) {
+    getCategoryList(isUpdate, search: '');
+    if(isUpdate) {
+      update();
+    }
   }
 
 }

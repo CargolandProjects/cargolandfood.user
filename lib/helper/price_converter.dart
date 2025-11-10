@@ -16,16 +16,16 @@ class PriceConverter {
 
     int digitAfterDecimalPoint = Get.find<SplashController>().configModel!.digitAfterDecimalPoint ?? 2;
 
-    int tempPrice = price!.floor();
+  /* int tempPrice = price!.floor();
     if((price - tempPrice) == 0) {
       digitAfterDecimalPoint = 0;
-    }
+    }*/
 
     bool isRightSide = Get.find<SplashController>().configModel!.currencySymbolDirection == 'right';
     return '${isRightSide ? '' : '${Get.find<SplashController>().configModel!.currencySymbol!} '}'
-        '${(toFixed(price)).toStringAsFixed(forDM ? 0 : digitAfterDecimalPoint)
-        .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
-        '${isRightSide ? ' ${Get.find<SplashController>().configModel!.currencySymbol!}' : ''}';
+      '${(toFixed(price!)).toStringAsFixed(forDM ? 0 : digitAfterDecimalPoint)
+      .replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')}'
+      '${isRightSide ? ' ${Get.find<SplashController>().configModel!.currencySymbol!}' : ''}';
   }
 
   static Widget convertAnimationPrice(double? price, {double? discount, String? discountType, bool forDM = false, TextStyle? textStyle}) {

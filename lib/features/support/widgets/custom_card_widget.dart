@@ -1,6 +1,7 @@
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:flutter/material.dart';
+
 class CustomCardWidget extends StatelessWidget {
   final Widget child;
   const CustomCardWidget({super.key, required this.child});

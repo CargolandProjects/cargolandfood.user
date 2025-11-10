@@ -178,15 +178,13 @@ class MapScreenState extends State<MapScreen> {
 
   void _setMarker({AddressModel? address, bool fromCurrentLocation = false}) async {
     BitmapDescriptor destinationImageData = await MarkerHelper.convertAssetToBitmapDescriptor(
-      width: 120,
+      width: 50,
       imagePath: widget.fromRestaurant || widget.fromOrder ? Images.restaurantMarker : Images.locationMarker,
     );
     BitmapDescriptor myLocationMarkerIcon = await MarkerHelper.convertAssetToBitmapDescriptor(
-      width: 120,
+      width: 50,
       imagePath: Images.myLocationMarker,
     );
-    // Uint8List destinationImageData = await convertAssetToUnit8List(widget.fromRestaurant ? Images.restaurantMarker : Images.locationMarker, width: 120);
-    // final Uint8List myLocationMarkerIcon = await convertAssetToUnit8List(Images.myLocationMarker, width: 130);
 
     ///Marker set
 
@@ -207,7 +205,7 @@ class MapScreenState extends State<MapScreen> {
             markerId: const MarkerId('id--1'),
             visible: true,
             draggable: false,
-            zIndex: 2,
+            zIndexInt: 2,
             flat: true,
             anchor: const Offset(0.5, 0.5),
             position: LatLng(
@@ -270,7 +268,7 @@ class MapScreenState extends State<MapScreen> {
         markerId: const MarkerId('id--2'),
         visible: true,
         draggable: false,
-        zIndex: 2,
+        zIndexInt: 2,
         flat: true,
         anchor: const Offset(0.5, 0.5),
         position: LatLng(

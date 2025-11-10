@@ -313,7 +313,7 @@ class _SelectLocationViewWidgetState extends State<SelectLocationViewWidget> {
     ) : const SizedBox();
   }
 
-  _setPolygon(ZoneModel zoneModel) {
+  void _setPolygon(ZoneModel zoneModel) {
     List<Polygon> polygonList = [];
     List<LatLng> zoneLatLongList = [];
 

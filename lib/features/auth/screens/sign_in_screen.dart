@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:stackfood_multivendor/common/widgets/custom_image_widget.dart';
+import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/auth/widgets/sign_in/sign_in_view.dart';
+import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
-import 'package:stackfood_multivendor/util/images.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -26,7 +28,7 @@ class SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: Navigator.canPop(context),
+      canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
         if(widget.exitFromApp) {
           if (_canExit) {
@@ -37,7 +39,6 @@ class SignInScreenState extends State<SignInScreen> {
             } else {
               Navigator.pushNamed(context, RouteHelper.getInitialRoute());
             }
-            // return Future.value(false);
           } else {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text('back_press_again_to_exit'.tr, style: const TextStyle(color: Colors.white)),
@@ -50,17 +51,25 @@ class SignInScreenState extends State<SignInScreen> {
             Timer(const Duration(seconds: 2), () {
               _canExit = false;
             });
-            // return Future.value(false);
           }
         }else {
-          return;
-          // Get.back(result: false);
+          if(Get.find<AuthController>().isOtpViewEnable){
+            Get.find<AuthController>().enableOtpView(enable: false);
+          }else{
+            Get.back();
+          }
         }
       },
       child: Scaffold(
         backgroundColor: ResponsiveHelper.isDesktop(context) ? Colors.transparent : Theme.of(context).cardColor,
         appBar: ResponsiveHelper.isDesktop(context) ? null : !widget.exitFromApp ? AppBar(leading: IconButton(
-          onPressed: () => Get.back(result: false),
+          onPressed: () {
+            if(Get.find<AuthController>().isOtpViewEnable){
+              Get.find<AuthController>().enableOtpView(enable: false);
+            }else{
+              Get.back(result: false);
+            }
+          },
           icon: Icon(Icons.arrow_back_ios_rounded, color: Theme.of(context).textTheme.bodyLarge!.color),
         ), elevation: 0, backgroundColor: Theme.of(context).cardColor) : null,
         body: SafeArea(child: Align(
@@ -84,18 +93,10 @@ class SignInScreenState extends State<SignInScreen> {
                   ),
                 ) : const SizedBox(),
 
-                // Image.asset(Images.logo, width: 60),
-                // const SizedBox(height: Dimensions.paddingSizeSmall),
-                // Image.asset(Images.logoName, width: 100),
-                // const SizedBox(height: Dimensions.paddingSizeExtraLarge),
-
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  Image.asset(Images.logo, height: 40, width: 40),
-                  const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-                  Image.asset(Images.logoName, height: 50, width: 120),
-                ]),
-
-
+                CustomImageWidget(
+                  image: Get.find<SplashController>().configModel?.logoFullUrl ?? '',
+                  height: 50, width: 200, fit: BoxFit.contain,
+                ),
                 const SizedBox(height: Dimensions.paddingSizeOverLarge),
 
                 SignInView(exitFromApp: widget.exitFromApp, backFromThis: widget.backFromThis, fromResetPassword: widget.fromResetPassword, isOtpViewEnable: (v){},),

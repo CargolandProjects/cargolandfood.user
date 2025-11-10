@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_button_widget.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_image_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_text_field_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/validate_check.dart';
@@ -10,11 +11,13 @@ import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.
 import 'package:stackfood_multivendor/features/auth/domain/centralize_login_enum.dart';
 import 'package:stackfood_multivendor/features/language/controllers/localization_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
+import 'package:stackfood_multivendor/helper/custom_validator.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
+
 class NewUserSetupScreen extends StatefulWidget {
   final String name;
   final String loginType;
@@ -48,9 +51,6 @@ class _NewUserSetupScreenState extends State<NewUserSetupScreen> {
     _isSocial = widget.loginType == CentralizeLoginType.social.name;
     _formKeyInfo = GlobalKey<FormState>();
     _countryDialCode = CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode;
-    // _nameController.text = widget.name;
-    // _emailController.text = widget.email??'';
-    // _phoneController.text = widget.phone??'';
   }
 
   @override
@@ -84,11 +84,10 @@ class _NewUserSetupScreenState extends State<NewUserSetupScreen> {
                   ),
                 ) : const SizedBox(),
 
-                Row(mainAxisSize: MainAxisSize.min, children: [
-                  Image.asset(Images.logo, height: 40, width: 40),
-                  const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-                  Image.asset(Images.logoName, height: 50, width: 120),
-                ]),
+                CustomImageWidget(
+                  image: Get.find<SplashController>().configModel?.logoFullUrl ?? '',
+                  height: 50, width: 200, fit: BoxFit.contain,
+                ),
                 const SizedBox(height: Dimensions.paddingSizeLarge),
 
                 Text('just_one_step_away'.tr, style: robotoMedium.copyWith(color: Theme.of(context).disabledColor), textAlign: TextAlign.center),
@@ -155,37 +154,57 @@ class _NewUserSetupScreenState extends State<NewUserSetupScreen> {
                 ) : const SizedBox(),
                 const SizedBox(height: Dimensions.paddingSizeExtraOverLarge),
 
-                GetBuilder<AuthController>(
-                  builder: (authController) {
-                    return CustomButtonWidget(
-                      height: ResponsiveHelper.isDesktop(context) ? 50 : null,
-                      width:  ResponsiveHelper.isDesktop(context) ? 250 : null,
-                      radius: ResponsiveHelper.isDesktop(context) ? Dimensions.radiusSmall : Dimensions.radiusDefault,
-                      isBold: !ResponsiveHelper.isDesktop(context),
-                      fontSize: ResponsiveHelper.isDesktop(context) ? Dimensions.fontSizeSmall : null,
-                      buttonText: 'done'.tr,
-                      isLoading: authController.isLoading,
-                      onPressed: () {
-                        if(_formKeyInfo!.currentState!.validate()) {
+                GetBuilder<AuthController>(builder: (authController) {
+                  return CustomButtonWidget(
+                    height: ResponsiveHelper.isDesktop(context) ? 50 : null,
+                    width:  ResponsiveHelper.isDesktop(context) ? 250 : null,
+                    radius: ResponsiveHelper.isDesktop(context) ? Dimensions.radiusSmall : Dimensions.radiusDefault,
+                    isBold: !ResponsiveHelper.isDesktop(context),
+                    fontSize: ResponsiveHelper.isDesktop(context) ? Dimensions.fontSizeSmall : null,
+                    buttonText: 'done'.tr,
+                    isLoading: authController.isLoading,
+                    onPressed: () async {
+                      String name = _nameController.text.trim();
+                      String referCode = _referCodeController.text.trim();
+                      String number = _phoneController.text.trim();
 
-                          String name = _nameController.text.trim();
-                          authController.updatePersonalInfo(
-                            name: name.isNotEmpty ? name : widget.name, phone: (widget.phone != null && widget.phone!.isNotEmpty) ?  widget.phone : _countryDialCode! + _phoneController.text.trim(),
-                            loginType: widget.loginType, email: widget.email ?? _emailController.text.trim(),
-                            referCode: _referCodeController.text.trim(),
-                          ).then((response) {
-                            if(response.isSuccess) {
-                              Get.offAllNamed(RouteHelper.getAccessLocationRoute('sign-in'));
-                            } else {
-                              showCustomSnackBar(response.message);
+                      String? countryCode = _countryDialCode;
+                      String numberWithCountryCode = countryCode! + number;
+                      PhoneValid phoneValid = await CustomValidator.isPhoneValid(numberWithCountryCode);
+                      numberWithCountryCode = phoneValid.phone;
+
+                      if (_isSocial && number.isEmpty && !_formKeyInfo!.currentState!.validate()) {
+                        showCustomSnackBar('enter_phone_number'.tr);
+                      } else if (_isSocial && !phoneValid.isValid && !_formKeyInfo!.currentState!.validate()) {
+                        showCustomSnackBar('invalid_phone_number'.tr);
+                      } else if(referCode.isNotEmpty && referCode.length != 10){
+                        showCustomSnackBar('invalid_refer_code'.tr);
+                      }else if(_formKeyInfo!.currentState!.validate()) {
+                        authController.updatePersonalInfo(
+                          name: name.isNotEmpty ? name : widget.name, phone: (widget.phone != null && widget.phone!.isNotEmpty) ?  widget.phone : _countryDialCode! + _phoneController.text.trim(),
+                          loginType: widget.loginType, email: widget.email ?? _emailController.text.trim(),
+                          referCode: _referCodeController.text.trim(),
+                        ).then((response) {
+                          if(response.isSuccess) {
+                            Get.offAllNamed(RouteHelper.getAccessLocationRoute('sign-in'));
+                          } else {
+
+                            if(response.code == 'email'){
+                              FocusScope.of(Get.context!).requestFocus(_emailFocus);
+                            }else if(response.code == 'phone'){
+                              FocusScope.of(Get.context!).requestFocus(_phoneFocus);
+                            }else if(response.code == 'ref_code'){
+                              FocusScope.of(Get.context!).requestFocus(_referCodeFocus);
                             }
-                          });
 
-                        }
-                      },
-                    );
-                  }
-                ),
+                            showCustomSnackBar(response.message);
+                          }
+                        });
+                      }
+
+                    },
+                  );
+                }),
 
               ]),
             ),

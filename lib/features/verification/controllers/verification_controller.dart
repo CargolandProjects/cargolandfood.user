@@ -15,28 +15,28 @@ class VerificationController extends GetxController implements GetxService {
   String _verificationCode = '';
   String get verificationCode => _verificationCode;
 
-  Future<ResponseModel> forgetPassword(String? phone) async {
+  Future<ResponseModel> forgetPassword({String? phone, String? email}) async {
     _isLoading = true;
     update();
-    ResponseModel responseModel = await verificationServiceInterface.forgetPassword(phone);
+    ResponseModel responseModel = await verificationServiceInterface.forgetPassword(phone: phone, email: email);
     _isLoading = false;
     update();
     return responseModel;
   }
 
-  Future<ResponseModel> verifyToken(String? phone) async {
+  Future<ResponseModel> verifyToken({String? phone, String? email}) async {
     _isLoading = true;
     update();
-    ResponseModel responseModel = await verificationServiceInterface.verifyToken(phone, _verificationCode);
+    ResponseModel responseModel = await verificationServiceInterface.verifyToken(phone: phone, email: email, token: _verificationCode);
     _isLoading = false;
     update();
     return responseModel;
   }
 
-  Future<ResponseModel> resetPassword(String? resetToken, String number, String password, String confirmPassword) async {
+  Future<ResponseModel> resetPassword({String? resetToken, String? phone, String? email, required String password, required String confirmPassword}) async {
     _isLoading = true;
     update();
-    ResponseModel responseModel = await verificationServiceInterface.resetPassword(resetToken, number, password, confirmPassword);
+    ResponseModel responseModel = await verificationServiceInterface.resetPassword(resetToken: resetToken, phone: phone, email: email, password: password, confirmPassword: confirmPassword);
     _isLoading = false;
     update();
     return responseModel;

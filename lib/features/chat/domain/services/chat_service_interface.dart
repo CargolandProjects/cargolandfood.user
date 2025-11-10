@@ -7,10 +7,10 @@ import 'package:get/get_connect/http/src/response/response.dart';
 import 'package:image_picker/image_picker.dart';
 
 abstract class ChatServiceInterface{
-  Future<ConversationsModel?> getConversationList(offset, type);
+  Future<ConversationsModel?> getConversationList(int offset, String type);
   bool checkSender(List<Conversation?>? conversations);
   int setIndex(List<Conversation?>? conversations);
-  Future<ConversationsModel> searchConversationList(name);
+  Future<ConversationsModel> searchConversationList(String name);
   Future<Response> getMessages(int offset, int? userID, UserType userType, int? conversationID);
   int findOutConversationUnreadIndex(List<Conversation?>? conversations, int? conversationID);
   Future<XFile> compressImage(XFile file);

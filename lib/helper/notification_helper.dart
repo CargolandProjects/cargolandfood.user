@@ -7,7 +7,9 @@ import 'package:stackfood_multivendor/features/dashboard/screens/dashboard_scree
 import 'package:stackfood_multivendor/features/notification/controllers/notification_controller.dart';
 import 'package:stackfood_multivendor/features/notification/domain/models/notification_body_model.dart';
 import 'package:stackfood_multivendor/features/order/controllers/order_controller.dart';
+import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
+import 'package:stackfood_multivendor/features/wallet/controllers/wallet_controller.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/common/enums/user_type.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -79,6 +81,11 @@ class NotificationHelper {
           Get.find<ChatController>().getConversationList(1, fromTab: false);
         }
         NotificationHelper.showNotification(message, flutterLocalNotificationsPlugin);
+      }else if(message.data['type'] == 'add_fund'){
+        if(Get.find<AuthController>().isLoggedIn()) {
+          Get.find<ProfileController>().getUserInfo();
+          Get.find<WalletController>().getWalletTransactionList('1', false, 'all');
+        }
       }else if(message.data['type'] == 'maintenance'){
       }else if(message.data['type'] == AppConstants.demoResetTopic){
       }else {

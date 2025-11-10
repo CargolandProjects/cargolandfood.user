@@ -87,6 +87,7 @@ class OrderModel {
   double? extraPackagingAmount;
   double? referrerBonusAmount;
   OrderReference? orderReference;
+  double? bringChangeAmount;
 
   OrderModel({
     this.id,
@@ -142,6 +143,7 @@ class OrderModel {
     this.extraPackagingAmount,
     this.referrerBonusAmount,
     this.orderReference,
+    this.bringChangeAmount,
   });
 
   OrderModel.fromJson(Map<String, dynamic> json) {
@@ -215,6 +217,7 @@ class OrderModel {
     orderReference = json['order_reference'] != null
         ? OrderReference.fromJson(json['order_reference'])
         : null;
+    bringChangeAmount = json['bring_change_amount']?.toDouble();
   }
 
   Map<String, dynamic> toJson() {
@@ -285,6 +288,7 @@ class OrderModel {
     if (orderReference != null) {
       data['order_reference'] = orderReference!.toJson();
     }
+    data['bring_change_amount'] = bringChangeAmount;
     return data;
   }
 }

@@ -1,4 +1,3 @@
-import 'package:stackfood_multivendor/features/location/domain/models/place_details_model.dart';
 import 'package:stackfood_multivendor/features/location/domain/models/prediction_model.dart';
 import 'package:stackfood_multivendor/features/location/domain/models/zone_response_model.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
@@ -75,10 +74,15 @@ class LocationService implements LocationServiceInterface{
     LatLng latLng = const LatLng(0, 0);
     Response? response = await locationRepoInterface.get(id);
     if(response?.statusCode == 200) {
-      PlaceDetailsModel placeDetails = PlaceDetailsModel.fromJson(response?.body);
+      /*PlaceDetailsModel placeDetails = PlaceDetailsModel.fromJson(response?.body);
       if(placeDetails.status == 'OK') {
         latLng = LatLng(placeDetails.result!.geometry!.location!.lat!, placeDetails.result!.geometry!.location!.lng!);
-      }
+      }*/
+      final data = response?.body;
+      final location = data['location'];
+      final double lat = location['latitude'];
+      final double lng = location['longitude'];
+      latLng = LatLng(lat, lng);
     }
     return latLng;
   }
@@ -92,9 +96,9 @@ class LocationService implements LocationServiceInterface{
   Future<List<PredictionModel>> searchLocation(String text) async {
     List<PredictionModel> predictionList = [];
     Response response = await locationRepoInterface.searchLocation(text);
-    if (response.statusCode == 200 && response.body['status'] == 'OK') {
+    if (response.statusCode == 200 /*&& response.body['status'] == 'OK'*/) {
       predictionList = [];
-      response.body['predictions'].forEach((prediction) => predictionList.add(PredictionModel.fromJson(prediction)));
+      response.body['suggestions'].forEach((prediction) => predictionList.add(PredictionModel.fromJson(prediction)));
     } else {
       showCustomSnackBar(response.body['error_message'] ?? response.bodyString);
     }

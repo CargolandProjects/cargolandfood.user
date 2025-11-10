@@ -123,9 +123,9 @@ class RestaurantsCardWidget extends StatelessWidget {
                               isNewOnStackFood! ? const SizedBox(width : Dimensions.paddingSizeExtraSmall) : restaurant.freeDelivery! ? const SizedBox(width: Dimensions.paddingSizeSmall) : const SizedBox(),
 
                               isNewOnStackFood! ? ImageWithTextRowWidget(
-                                  widget: Image.asset(Images.itemCount, height: 20, width: 20),
-                                  text: '${restaurant.foodsCount} + ${'item'.tr}',
-                                  style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall)
+                                widget: Image.asset(Images.itemCount, height: 20, width: 20),
+                                text: '${restaurant.foodsCount! > 8 ? '8 +' : '${restaurant.foodsCount}'} ${'item'.tr}',
+                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
                               ) : IconWithTextRowWidget(
                                 icon: Icons.access_time_outlined,
                                 text: restaurant.deliveryTime!,

@@ -1,6 +1,7 @@
 import 'package:stackfood_multivendor/common/widgets/custom_button_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
+import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:stackfood_multivendor/features/coupon/controllers/coupon_controller.dart';
 import 'package:stackfood_multivendor/features/restaurant/controllers/restaurant_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
@@ -12,6 +13,7 @@ import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 class CheckoutButtonWidget extends StatelessWidget {
   final CartController cartController;
   final List<bool> availableList;
@@ -32,12 +34,13 @@ class CheckoutButtonWidget extends StatelessWidget {
       ),
       child: SafeArea(
         child: GetBuilder<RestaurantController>(builder: (restaurantController) {
-          if(Get.find<RestaurantController>().restaurant != null && Get.find<RestaurantController>().restaurant!.freeDelivery != null && !Get.find<RestaurantController>().restaurant!.freeDelivery! &&  Get.find<SplashController>().configModel!.freeDeliveryOver != null){
-            percentage = cartController.subTotal/Get.find<SplashController>().configModel!.freeDeliveryOver!;
+          if(restaurantController.restaurant != null && restaurantController.restaurant!.freeDelivery != null && !restaurantController.restaurant!.freeDelivery!
+           && (Get.find<SplashController>().configModel?.adminFreeDelivery?.status == true && (Get.find<SplashController>().configModel?.adminFreeDelivery?.type != null && Get.find<SplashController>().configModel?.adminFreeDelivery?.type == 'free_delivery_by_specific_criteria') && (Get.find<SplashController>().configModel!.adminFreeDelivery?.freeDeliveryOver != null))){
+            percentage = cartController.subTotal/Get.find<SplashController>().configModel!.adminFreeDelivery!.freeDeliveryOver!;
           }
           return Column(mainAxisSize: MainAxisSize.min, children: [
             (restaurantController.restaurant != null && restaurantController.restaurant!.freeDelivery != null && !restaurantController.restaurant!.freeDelivery!
-            && Get.find<SplashController>().configModel!.freeDeliveryOver != null && percentage < 1)
+             && (Get.find<SplashController>().configModel?.adminFreeDelivery?.status == true && (Get.find<SplashController>().configModel?.adminFreeDelivery?.type != null && Get.find<SplashController>().configModel?.adminFreeDelivery?.type == 'free_delivery_by_specific_criteria') && (Get.find<SplashController>().configModel!.adminFreeDelivery?.freeDeliveryOver != null)) && percentage < 1)
             ? Padding(
               padding: EdgeInsets.only(bottom: isDesktop ? Dimensions.paddingSizeLarge : 0),
               child: Column(children: [
@@ -46,7 +49,7 @@ class CheckoutButtonWidget extends StatelessWidget {
                   const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
                   PriceConverter.convertAnimationPrice(
-                    Get.find<SplashController>().configModel!.freeDeliveryOver! - cartController.subTotal,
+                    Get.find<SplashController>().configModel!.adminFreeDelivery!.freeDeliveryOver! - cartController.subTotal,
                     textStyle: robotoMedium.copyWith(color: Theme.of(context).primaryColor),
                   ),
                   const SizedBox(width: Dimensions.paddingSizeExtraSmall),
@@ -80,6 +83,7 @@ class CheckoutButtonWidget extends StatelessWidget {
                   radius: 10,
                   buttonText: 'confirm_delivery_details'.tr,
                   onPressed: cartController.isLoading || restaurantController.restaurant == null ? null : () {
+                    Get.find<CheckoutController>().updateFirstTime();
                     _processToCheckoutButtonPressed(restaurantController);
                   },
                 );

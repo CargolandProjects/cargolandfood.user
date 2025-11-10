@@ -27,7 +27,7 @@ class AllRestaurantFilterWidget extends StatelessWidget {
 
                     Text(
                       '${restaurantController.restaurantModel != null ? restaurantController.restaurantModel!.totalSize : 0} ${'restaurants_near_you'.tr}',
-                      style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
+                      style: robotoRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
                     ),
                   ]),
 
@@ -42,7 +42,7 @@ class AllRestaurantFilterWidget extends StatelessWidget {
           ) : Container(
             transform: Matrix4.translationValues(0, -2, 0),
             color: Theme.of(context).colorScheme.surface,
-            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeExtraSmall),
+            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, /*vertical: Dimensions.paddingSizeExtraSmall*/),
             child: Column(children: [
 
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
@@ -51,13 +51,16 @@ class AllRestaurantFilterWidget extends StatelessWidget {
                   child: Text(
                     '${restaurantController.restaurantModel != null ? restaurantController.restaurantModel!.totalSize : 0} ${'restaurants_near_you'.tr}',
                     maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
+                    style: robotoRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
                   ),
                 ),
               ]),
-              const SizedBox(height: Dimensions.paddingSizeSmall),
+              const SizedBox(height: Dimensions.paddingSizeDefault),
 
               filter(context, restaurantController),
+              const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+
+              Divider(),
             ]),
           ),
         );

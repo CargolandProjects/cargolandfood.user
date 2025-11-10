@@ -13,4 +13,8 @@ abstract class CheckoutRepositoryInterface extends RepositoryInterface {
   Future<Response> sendNotificationRequest(String orderId, String? guestId);
   Future<Response> getDistanceInMeter(LatLng originLatLng, LatLng destinationLatLng);
   Future<bool> updateOfflineInfo(String data);
+  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data});
+  Future<Response> getOrderTax(PlaceOrderBodyModel placeOrderBody);
+  Future<bool> saveDmTipIndex(String index);
+  String getDmTipIndex();
 }

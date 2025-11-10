@@ -47,7 +47,7 @@ class CuisineController extends GetxController implements GetxService {
     }
   }
 
-  _prepareCuisineList(CuisineModel? cuisineModel) {
+  void _prepareCuisineList(CuisineModel? cuisineModel) {
     if (cuisineModel != null) {
       _cuisineModel = cuisineModel;
       cuisineServiceInterface.generateCuisineIds(_cuisineModel);

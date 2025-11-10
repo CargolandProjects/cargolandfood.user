@@ -1,4 +1,3 @@
-
 import 'package:stackfood_multivendor/common/models/restaurant_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/offline_method_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
@@ -25,5 +24,8 @@ abstract class CheckoutServiceInterface {
   double updateTips(int index, int selectedTips);
   Future<double?> getDistanceInKM(LatLng originLatLng, LatLng destinationLatLng, {bool isDuration = false});
   Future<bool> updateOfflineInfo(String data);
-
+  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data});
+  Future<Response> getOrderTax(PlaceOrderBodyModel placeOrderBody);
+  void saveDmTipIndex(String i);
+  String getDmTipIndex();
 }

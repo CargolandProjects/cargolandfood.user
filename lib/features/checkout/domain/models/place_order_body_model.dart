@@ -40,45 +40,47 @@ class PlaceOrderBodyModel {
   int? _isBuyNow;
   String? _guestEmail;
   double? _extraPackagingAmount;
+  double? _bringChangeAmount;
 
   PlaceOrderBodyModel({
     required List<OnlineCart> cart,
-    required double? couponDiscountAmount,
-    required String? couponDiscountTitle,
-    required String? couponCode,
+    double? couponDiscountAmount,
+    String? couponDiscountTitle,
+    String? couponCode,
     required double orderAmount,
     required String orderType,
     required String paymentMethod,
-    required int? restaurantId,
-    required double? distance,
-    required String? scheduleAt,
-    required double? discountAmount,
-    required double taxAmount,
-    required String orderNote,
-    required String? address,
-    required String? latitude,
-    required String? longitude,
-    required String contactPersonName,
-    required String? contactPersonNumber,
-    required String? addressType,
-    required String road,
-    required String house,
-    required String floor,
-    required String dmTips,
-    required String subscriptionOrder,
-    required String? subscriptionType,
-    required List<SubscriptionDays> subscriptionDays,
-    required String subscriptionQuantity,
-    required String subscriptionStartAt,
-    required String subscriptionEndAt,
-    required int cutlery,
-    required String unavailableItemNote,
-    required String deliveryInstruction,
-    required int partialPayment,
-    required int? guestId,
-    required int isBuyNow,
-    required String? guestEmail,
-    required double extraPackagingAmount,
+    int? restaurantId,
+    double? distance,
+    String? scheduleAt,
+    double? discountAmount,
+    double? taxAmount,
+    String? orderNote,
+    String? address,
+    String? latitude,
+    String? longitude,
+    String? contactPersonName,
+    String? contactPersonNumber,
+    String? addressType,
+    String? road,
+    String? house,
+    String? floor,
+    String? dmTips,
+    String? subscriptionOrder,
+    String? subscriptionType,
+    List<SubscriptionDays>? subscriptionDays,
+    String? subscriptionQuantity,
+    String? subscriptionStartAt,
+    String? subscriptionEndAt,
+    int? cutlery,
+    String? unavailableItemNote,
+    String? deliveryInstruction,
+    int? partialPayment,
+    int? guestId,
+    int?isBuyNow,
+    String? guestEmail,
+    double? extraPackagingAmount,
+    double? bringChangeAmount,
   }) {
     _cart = cart;
     _couponDiscountAmount = couponDiscountAmount;
@@ -117,6 +119,7 @@ class PlaceOrderBodyModel {
     _isBuyNow = isBuyNow;
     _guestEmail = guestEmail;
     _extraPackagingAmount = extraPackagingAmount;
+    _bringChangeAmount = bringChangeAmount;
   }
 
   List<OnlineCart>? get cart => _cart;
@@ -155,6 +158,7 @@ class PlaceOrderBodyModel {
   int? get isBuyNow => _isBuyNow;
   String? get guestEmail => _guestEmail;
   double? get extraPackagingAmount => _extraPackagingAmount;
+  double? get bringChangeAmount => _bringChangeAmount;
 
   PlaceOrderBodyModel.fromJson(Map<String, dynamic> json) {
     if (json['cart'] != null) {
@@ -210,6 +214,7 @@ class PlaceOrderBodyModel {
     _isBuyNow = int.parse(json['is_buy_now'].toString());
     _guestEmail = json['contact_person_email'];
     _extraPackagingAmount = json['extra_packaging_amount'] != null ? double.parse(json['extra_packaging_amount'].toString()) : null;
+    _bringChangeAmount = json['bring_change_amount'] != null ? double.parse(json['bring_change_amount'].toString()) : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -261,6 +266,9 @@ class PlaceOrderBodyModel {
       data['contact_person_email'] = _guestEmail!;
     }
     data['extra_packaging_amount'] = _extraPackagingAmount.toString();
+    if(_bringChangeAmount != null) {
+      data['bring_change_amount'] = _bringChangeAmount.toString();
+    }
     return data;
   }
 }

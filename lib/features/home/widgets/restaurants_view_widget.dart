@@ -1,4 +1,5 @@
 import 'package:stackfood_multivendor/common/widgets/custom_asset_image_widget.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_distance_cliper_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_favourite_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_ink_well_widget.dart';
 import 'package:stackfood_multivendor/features/favourite/controllers/favourite_controller.dart';
@@ -224,19 +225,20 @@ class RestaurantView extends StatelessWidget {
             ),
 
             Positioned(
-              top: 88, right: 15,
-              child: Container(
-                height: 23,
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.only(topLeft: Radius.circular(Dimensions.radiusDefault), topRight: Radius.circular(Dimensions.radiusDefault)),
+              top: 86, right: 20,
+              child: ClipPath(
+                clipper: CurvedTopClipper(),
+                child: Container(
+                  height: 25,
                   color: Theme.of(context).cardColor,
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
-                child: Center(
-                  child: Text('${Get.find<RestaurantController>().getRestaurantDistance(
-                    LatLng(double.parse(restaurant.latitude!), double.parse(restaurant.longitude!)),
-                  ).toStringAsFixed(2)} ${'km'.tr}',
-                      style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).primaryColor)),
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
+                  child: Center(
+                    child: Text('${Get.find<RestaurantController>().getRestaurantDistance(
+                      LatLng(double.parse(restaurant.latitude!), double.parse(restaurant.longitude!)),
+                    ).toStringAsFixed(2)} ${'km'.tr}',
+                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).primaryColor)),
+                  ),
                 ),
               ),
             ),

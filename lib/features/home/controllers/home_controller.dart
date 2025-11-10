@@ -2,7 +2,6 @@ import 'package:stackfood_multivendor/common/enums/data_source_enum.dart';
 import 'package:stackfood_multivendor/features/home/domain/models/banner_model.dart';
 import 'package:stackfood_multivendor/features/home/domain/models/cashback_model.dart';
 import 'package:stackfood_multivendor/features/home/domain/services/home_service_interface.dart';
-import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController implements GetxService {
@@ -45,7 +44,7 @@ class HomeController extends GetxController implements GetxService {
     }
   }
 
-  _prepareBannerList(BannerModel? bannerModel){
+  void _prepareBannerList(BannerModel? bannerModel){
     if (bannerModel != null) {
       _bannerImageList = [];
       _bannerDataList = [];
@@ -64,10 +63,6 @@ class HomeController extends GetxController implements GetxService {
         }else {
           _bannerDataList!.add(banner.restaurant);
         }
-      }
-      if(ResponsiveHelper.isDesktop(Get.context) && _bannerImageList!.length % 3 != 0){
-        _bannerImageList!.add(_bannerImageList![0]);
-        _bannerDataList!.add(_bannerDataList![0]);
       }
     }
     update();
@@ -95,7 +90,7 @@ class HomeController extends GetxController implements GetxService {
     }
   }
 
-  _prepareCashBackOfferList(List<CashBackModel>? cashBackOfferList){
+  void _prepareCashBackOfferList(List<CashBackModel>? cashBackOfferList){
     if(cashBackOfferList != null) {
       _cashBackOfferList = [];
       _cashBackOfferList!.addAll(cashBackOfferList);

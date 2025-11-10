@@ -55,7 +55,7 @@ class VerificationScreenState extends State<VerificationScreen> {
     super.initState();
 
     Get.find<VerificationController>().updateVerificationCode('', canUpdate: false);
-    if(widget.number != null) {
+    if(widget.number != null && widget.number!.isNotEmpty) {
       _number = widget.number!.startsWith('+') ? widget.number : '+${widget.number!.substring(1, widget.number!.length)}';
     }
     _email = widget.email;
@@ -213,12 +213,13 @@ class VerificationScreenState extends State<VerificationScreen> {
                               }
                             });
                           } else {
-                            verificationController.verifyToken(_number).then((value) {
+                            verificationController.verifyToken(phone: _number, email: _email).then((value) {
                               if(value.isSuccess) {
                                 if(ResponsiveHelper.isDesktop(Get.context!)){
-                                  Get.dialog(Center(child: NewPassScreen(resetToken: verificationController.verificationCode, number : _number, fromPasswordChange: false, fromDialog: true )));
+                                  Get.back();
+                                  Get.dialog(Center(child: NewPassScreen(resetToken: verificationController.verificationCode, number : _number, email: _email, fromPasswordChange: false, fromDialog: true )));
                                 }else{
-                                  Get.toNamed(RouteHelper.getResetPasswordRoute(_number, verificationController.verificationCode, 'reset-password'));
+                                  Get.toNamed(RouteHelper.getResetPasswordRoute(phone: _number, email: _email, token: verificationController.verificationCode, page: 'reset-password'));
                                 }
                               }else {
                                 showCustomSnackBar(value.message);
@@ -285,23 +286,16 @@ class VerificationScreenState extends State<VerificationScreen> {
         Get.toNamed(RouteHelper.getNewUserSetupScreen(name: '', loginType: widget.loginType, phone: number, email: email));
       }
     } else {
-
       if(widget.fromForgetPassword) {
-        Get.toNamed(RouteHelper.getResetPasswordRoute(_number, Get.find<VerificationController>().verificationCode, 'reset-password'));
+        if(ResponsiveHelper.isDesktop(Get.context!)){
+          Get.back();
+          Get.dialog(Center(child: NewPassScreen(resetToken: Get.find<VerificationController>().verificationCode, number : _number, email: _email, fromPasswordChange: false, fromDialog: true )));
+        }else{
+          Get.toNamed(RouteHelper.getResetPasswordRoute(phone: _number, email: _email, token: Get.find<VerificationController>().verificationCode, page: 'reset-password'));
+        }
       } else {
         Get.offNamed(RouteHelper.getAccessLocationRoute('verification'));
       }
-
-      // showCustomSnackBar('successfully_verified'.tr, isError: false);
-
-      // Future.delayed(const Duration(seconds: 1), () {
-      //   if(widget.fromSignUp) {
-      //     Get.offNamed(RouteHelper.getAccessLocationRoute('verification'));
-      //     // Get.find<LocationController>().navigateToLocationScreen('verification', offAll: true);
-      //   } else {
-      //     Get.toNamed(RouteHelper.getResetPasswordRoute(_number, verificationController.verificationCode, 'reset-password'));
-      //   }
-      // });
     }
   }
 
@@ -332,7 +326,7 @@ class VerificationScreenState extends State<VerificationScreen> {
         });
       }
     } else {
-      Get.find<VerificationController>().forgetPassword(_number).then((value) {
+      Get.find<VerificationController>().forgetPassword(phone: _number, email: _email).then((value) {
         if (value.isSuccess) {
           _startTimer();
           showCustomSnackBar('resend_code_successful'.tr, isError: false);

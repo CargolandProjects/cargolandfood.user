@@ -27,7 +27,7 @@ class CartHelper {
     return (variations, optionIds);
   }
 
-  static getSelectedAddonIds({required List<AddOn> addOnIdList }) {
+  static List<int?> getSelectedAddonIds({required List<AddOn> addOnIdList }) {
     List<int?> listOfAddOnId = [];
     for (var addOn in addOnIdList) {
       listOfAddOnId.add(addOn.id);
@@ -35,7 +35,7 @@ class CartHelper {
     return listOfAddOnId;
   }
 
-  static getSelectedAddonQtnList({required List<AddOn> addOnIdList }) {
+  static List<int?> getSelectedAddonQtnList({required List<AddOn> addOnIdList }) {
     List<int?> listOfAddOnQty = [];
     for (var addOn in addOnIdList) {
       listOfAddOnQty.add(addOn.quantity);

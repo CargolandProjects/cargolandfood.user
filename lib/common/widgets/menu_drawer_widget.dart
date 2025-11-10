@@ -107,6 +107,7 @@ class MenuDrawerWidgetState extends State<MenuDrawerWidget> with SingleTickerPro
       Get.back();
       if(Get.find<AuthController>().isLoggedIn()) {
         Get.dialog(ConfirmationDialogWidget(icon: Images.support, description: 'are_you_sure_to_logout'.tr, isLogOut: true, onYesPressed: () {
+          Get.find<AuthController>().resetOtpView();
           Get.find<AuthController>().clearSharedData();
           Get.find<CartController>().clearCartList();
           Get.find<AuthController>().socialLogout();
@@ -169,9 +170,7 @@ class MenuDrawerWidgetState extends State<MenuDrawerWidget> with SingleTickerPro
         children: [
           Container(
             padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge, horizontal: 25),
-            //margin: const EdgeInsets.only(right: 30),
             decoration: BoxDecoration(
-              //borderRadius: const BorderRadius.only(bottomRight: Radius.circular(Dimensions.radiusExtraLarge)),
               color: Theme.of(context).primaryColor.withValues(alpha: 0.10),
             ),
             alignment: Alignment.centerLeft,

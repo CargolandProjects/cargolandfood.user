@@ -32,8 +32,8 @@ class CartProductWidget extends StatelessWidget {
     String addOnText = CartHelper.setupAddonsText(cart: cart) ?? '';
     String variationText = CartHelper.setupVariationText(cart: cart);
 
-    double? discount = cart.product!.restaurantDiscount == 0 ? cart.product!.discount : cart.product!.restaurantDiscount;
-    String? discountType = cart.product!.restaurantDiscount == 0 ? cart.product!.discountType : 'percent';
+    double? discount = cart.product!.discount;
+    String? discountType = cart.product!.discountType;
 
     return Stack(
       children: [
@@ -73,11 +73,11 @@ class CartProductWidget extends StatelessWidget {
                       ).then((value) => Get.find<CartController>().getCartDataOnline(),
                       ) : showDialog(context: context, builder: (con) => Dialog(
                         child: ProductBottomSheetWidget(product: cart.product, cartIndex: cartIndex, cart: cart),
-                      ));
+                      )).then((value) => Get.find<CartController>().getCartDataOnline());
                     },
                     radius: Dimensions.radiusDefault,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall, horizontal: Dimensions.paddingSizeSmall),
+                      padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall, horizontal: Dimensions.paddingSizeExtraSmall),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
@@ -129,9 +129,6 @@ class CartProductWidget extends StatelessWidget {
                                    Images.halalIcon, height: 13, width: 13) : const SizedBox(),
 
                                 ]),
-                                // const SizedBox(height: 2),
-                                //
-                                // RatingBarWidget(rating: cart.product!.avgRating, size: 12, ratingCount: cart.product!.ratingCount),
                                 const SizedBox(height: 5),
 
                                 Wrap(
@@ -152,7 +149,6 @@ class CartProductWidget extends StatelessWidget {
                                 addOnText.isNotEmpty ? Padding(
                                   padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall),
                                   child: Row(children: [
-                                    // const SizedBox(width: 80),
                                     Text('${'addons'.tr}: ', style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall)),
                                     Flexible(child: Text(
                                       addOnText,
@@ -164,12 +160,10 @@ class CartProductWidget extends StatelessWidget {
                                 variationText.isNotEmpty ? Padding(
                                   padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall),
                                   child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                                    // const SizedBox(width: 80),
                                     Text('${'variations'.tr}: ', style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall)),
                                     Flexible(child: Text(
                                       variationText,
-                                      // 'removed from products and image should be small and variation section margin should be improved',
-                                      style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
+                                      style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor),
                                     )),
                                   ]),
                                 ) : const SizedBox(),

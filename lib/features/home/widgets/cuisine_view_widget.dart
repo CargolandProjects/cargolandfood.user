@@ -20,7 +20,7 @@ class CuisineViewWidget extends StatelessWidget {
     return GetBuilder<CuisineController>(builder: (cuisineController) {
         return (cuisineController.cuisineModel != null && cuisineController.cuisineModel!.cuisines!.isEmpty) ? const SizedBox() : Container(
           width: Dimensions.webMaxWidth,
-          margin: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge),
+          margin: EdgeInsets.symmetric(vertical: ResponsiveHelper.isMobile(context)  ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeLarge),
           decoration: BoxDecoration(
             image: DecorationImage(
               image: const AssetImage(Images.cuisineBgPng),

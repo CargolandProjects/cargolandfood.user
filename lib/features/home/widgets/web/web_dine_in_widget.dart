@@ -26,7 +26,7 @@ class _WebDineInWidgetState extends State<WebDineInWidget> {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<DineInController>(builder: (dineInController) {
-      return Container(
+      return dineInController.dineInModel?.restaurants != null && dineInController.dineInModel!.restaurants!.isNotEmpty ? Container(
         height: 187,
         padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
         decoration: BoxDecoration(
@@ -174,7 +174,7 @@ class _WebDineInWidgetState extends State<WebDineInWidget> {
           const SizedBox(width: 15),
 
         ]),
-      );
+      ) : SizedBox();
     });
   }
 }

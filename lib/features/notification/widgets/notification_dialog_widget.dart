@@ -15,7 +15,7 @@ class NotificationDialogWidget extends StatelessWidget {
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(Dimensions.radiusExtraLarge))),
       insetPadding: const EdgeInsets.all(30),
       clipBehavior: Clip.antiAliasWithSaveLayer,
-      child:  SizedBox(
+      child: SizedBox(
         width: 600,
         child: SingleChildScrollView(
           child: Column(

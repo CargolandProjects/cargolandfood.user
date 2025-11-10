@@ -1,8 +1,10 @@
 import 'package:stackfood_multivendor/common/widgets/custom_asset_image_widget.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/notification/controllers/notification_controller.dart';
+import 'package:stackfood_multivendor/features/notification/widgets/add_fund_bottom_sheet.dart';
 import 'package:stackfood_multivendor/features/notification/widgets/notification_bottom_sheet.dart';
 import 'package:stackfood_multivendor/features/notification/widgets/notification_dialog_widget.dart';
+import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/helper/date_converter.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
@@ -39,6 +41,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
     if(Get.find<AuthController>().isLoggedIn()) {
       Get.find<NotificationController>().getNotificationList(true);
+    }
+    if(Get.find<ProfileController>().userInfoModel?.walletBalance == null) {
+      await Get.find<ProfileController>().getUserInfo();
     }
   }
   @override
@@ -137,6 +142,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               }else {
                                 Get.toNamed(RouteHelper.getOrderDetailsRoute(notificationController.notificationList![index].data!.orderId!, fromGuestTrack: true));
                               }
+                            } else if (notificationController.notificationList![index].data!.type == 'add_fund') {
+                              ResponsiveHelper.isMobile(context) ? Get.bottomSheet(
+                                AddFundBottomSheet(notificationModel: notificationController.notificationList![index]),
+                                backgroundColor: Colors.transparent, isScrollControlled: true,
+                              ) : Get.dialog(
+                                Dialog(child: AddFundBottomSheet(notificationModel: notificationController.notificationList![index])),
+                              );
                             }
 
                           },
@@ -187,7 +199,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                   ),
                                   const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                                  notificationController.notificationList![index].data!.type == 'push_notification' ? ClipRRect(
+                                  (notificationController.notificationList![index].data!.type == 'push_notification') && notificationController.notificationList![index].imageFullUrl != null
+                                      && notificationController.notificationList![index].imageFullUrl!.isNotEmpty ? ClipRRect(
                                     borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
                                     child: CustomImageWidget(
                                       placeholder: Images.placeholderPng,
@@ -195,7 +208,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                       height: 45, width: 75, fit: BoxFit.cover,
                                     ),
                                   ) : const SizedBox.shrink(),
-
                                 ]),
 
                               ])),

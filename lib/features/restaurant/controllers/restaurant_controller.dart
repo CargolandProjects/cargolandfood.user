@@ -146,7 +146,7 @@ class RestaurantController extends GetxController implements GetxService {
     }
   }
 
-  _prepareOrderAgainRestaurantList(List<Restaurant>? restaurantList) {
+  void _prepareOrderAgainRestaurantList(List<Restaurant>? restaurantList) {
     if (restaurantList != null) {
       _orderAgainRestaurantList = [];
       _orderAgainRestaurantList = restaurantList;
@@ -175,7 +175,7 @@ class RestaurantController extends GetxController implements GetxService {
     }
   }
 
-  _prepareRecentlyViewedRestaurantList(List<Restaurant>? restaurantList) {
+  void _prepareRecentlyViewedRestaurantList(List<Restaurant>? restaurantList) {
     if (restaurantList != null) {
       _recentlyViewedRestaurantList = [];
       _recentlyViewedRestaurantList = restaurantList;
@@ -210,7 +210,7 @@ class RestaurantController extends GetxController implements GetxService {
     }
   }
 
-  _prepareRestaurantList(RestaurantModel? restaurantModel, int offset) {
+  void _prepareRestaurantList(RestaurantModel? restaurantModel, int offset) {
     if (restaurantModel != null) {
       if (offset == 1) {
         _restaurantModel = restaurantModel;
@@ -270,7 +270,7 @@ class RestaurantController extends GetxController implements GetxService {
     }
   }
 
-  _preparePopularRestaurantList(List<Restaurant>? restaurantList) {
+  void _preparePopularRestaurantList(List<Restaurant>? restaurantList) {
     if (restaurantList != null) {
       _popularRestaurantList = [];
       _popularRestaurantList!.addAll(restaurantList);
@@ -301,7 +301,7 @@ class RestaurantController extends GetxController implements GetxService {
     }
   }
 
-  _prepareLatestRestaurantList(List<Restaurant>? restaurantList) {
+  void _prepareLatestRestaurantList(List<Restaurant>? restaurantList) {
     if (restaurantList != null) {
       _latestRestaurantList = [];
       _latestRestaurantList = restaurantList;

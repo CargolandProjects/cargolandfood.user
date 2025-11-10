@@ -30,16 +30,16 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace "com.cargolandfood.cargolandfooduser"
+    namespace "com.cargolandfood.cargoland_user"
     compileSdk 36
 
     compileOptions {
         coreLibraryDesugaringEnabled true
-        sourceCompatibility JavaVersion.VERSION_17
-    targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = '17'
+        jvmTarget = '1.8'
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
@@ -47,15 +47,13 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.cargolandfood.cargolandfooduser"
+        applicationId "com.cargolandfood.cargoland_user"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion 36
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
         multiDexEnabled true
     }
-
-     ndkVersion "26.2.11394342"  // ✅ 16 KB page size support
 
     signingConfigs {
         release {
@@ -70,7 +68,10 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            // signingConfig signingConfigs.debug
+             signingConfig signingConfigs.release
+        minifyEnabled true
+        shrinkResources true
         }
     }
 }
@@ -80,7 +81,7 @@ flutter {
 }
 
 dependencies {
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.3'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
     implementation "com.google.firebase:firebase-messaging:23.4.1"
     implementation 'com.facebook.android:facebook-android-sdk:latest.release'
 }

@@ -35,7 +35,7 @@ class _ChatSearchFieldWidgetState extends State<ChatSearchFieldWidget> {
           borderSide: BorderSide(width: 1, color: Theme.of(context).primaryColor.withValues(alpha: 0.3)),
         ),
         hintText: widget.hint,
-        hintStyle: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor.withValues(alpha: 0.3)),
+        hintStyle: robotoRegular.copyWith(color: Theme.of(context).disabledColor.withValues(alpha: 0.3)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(ResponsiveHelper.isDesktop(context) ? Dimensions.radiusSmall : 60),
           borderSide: BorderSide.none,
@@ -45,7 +45,7 @@ class _ChatSearchFieldWidgetState extends State<ChatSearchFieldWidget> {
         contentPadding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
         suffixIcon: IconButton(
           onPressed: widget.iconPressed as void Function()?,
-          icon: Icon(widget.suffixIcon, color: Theme.of(context).hintColor, size: 25),
+          icon: Icon(widget.suffixIcon, color: Theme.of(context).disabledColor, size: 25),
         ),
       ),
       onSubmitted: widget.onSubmit as void Function(String)?,

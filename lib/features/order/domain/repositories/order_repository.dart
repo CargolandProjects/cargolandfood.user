@@ -21,9 +21,15 @@ class OrderRepository implements OrderRepositoryInterface {
   @override
   Future<OrderModel?> trackOrder(String? orderID, String? guestId, {String? contactNumber}) async {
     OrderModel? trackModel;
+
+    String formatPhoneNumber(String contactNumber) {
+      final number = contactNumber.trim().replaceAll(' ', '');
+      return number.startsWith('+') ? number : '+$number';
+    }
+
     Response response = await apiClient.getData(
       '${AppConstants.trackUri}$orderID${guestId != null ? '&guest_id=$guestId' : ''}'
-          '${contactNumber != null ? '&contact_number=$contactNumber' : ''}',
+          '${contactNumber != null ? '&contact_number=${formatPhoneNumber(contactNumber)}' : ''}',
     );
     if (response.statusCode == 200) {
       trackModel = OrderModel.fromJson(response.body);

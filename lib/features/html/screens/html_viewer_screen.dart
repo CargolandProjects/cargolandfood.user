@@ -45,13 +45,16 @@ class _HtmlViewerScreenState extends State<HtmlViewerScreen> {
           ? 'cancellation_policy'.tr  : 'no_data_found'.tr),
       endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
       body: GetBuilder<HtmlController>(builder: (htmlController) {
-        return Center(
-          child: htmlController.htmlText != null ? Container(
+        return htmlController.htmlText != null ? Center(
+          child: Container(
             height: MediaQuery.of(context).size.height,
             color: Theme.of(context).cardColor,
             child: SingleChildScrollView(
               controller: scrollController,
-              padding: EdgeInsets.symmetric(horizontal: ResponsiveHelper.isDesktop(context) ? 0 : Dimensions.paddingSizeLarge),
+              padding: EdgeInsets.symmetric(
+                horizontal: ResponsiveHelper.isDesktop(context) ? 0 : Dimensions.paddingSizeDefault,
+                vertical: ResponsiveHelper.isDesktop(context) ? 0 : Dimensions.paddingSizeDefault,
+              ),
               child: FooterViewWidget(
                 child: SizedBox(
                   width: Dimensions.webMaxWidth,
@@ -84,8 +87,8 @@ class _HtmlViewerScreenState extends State<HtmlViewerScreen> {
                 ),
               ),
             ),
-          ) : const CircularProgressIndicator(),
-        );
+          ),
+        ) : Center(child: CircularProgressIndicator());
       }),
     );
   }

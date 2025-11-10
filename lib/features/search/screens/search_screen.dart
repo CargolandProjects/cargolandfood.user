@@ -97,63 +97,56 @@ class SearchScreenState extends State<SearchScreen> {
               height: isDesktop ? 100 : 80,
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                boxShadow: isDesktop ? null : [BoxShadow(color: Theme.of(context).disabledColor.withValues(alpha: 0.3), blurRadius: 5, offset: Offset(-2, 5))]
+                boxShadow: [BoxShadow(color: Theme.of(context).shadowColor, blurRadius: 10, spreadRadius: 2, offset: Offset(0, 5))],
               ),
-              // padding: EdgeInsets.only(bottom: isDesktop ? 0 : Dimensions.paddingSizeExtraSmall),
-              child: Center(child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  // isDesktop ? Text('search_food_and_restaurant'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge)) : const SizedBox(),
+              child: Center(child: Column(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
+                SizedBox(width: Dimensions.webMaxWidth, child: Row(children: [
+                  SizedBox(width: ResponsiveHelper.isMobile(context) ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeExtraSmall),
 
-                  SizedBox(width: Dimensions.webMaxWidth, child: Row(children: [
-                    SizedBox(width: ResponsiveHelper.isMobile(context) ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeExtraSmall),
+                  !isDesktop ? IconButton(
+                    onPressed: ()=> _actionOnBackButton(),
+                    icon: const Icon(Icons.arrow_back_ios),
+                  ) : const SizedBox(),
 
-                    !isDesktop ? IconButton(
-                      onPressed: ()=> _actionOnBackButton(),
-                      icon: const Icon(Icons.arrow_back_ios),
-                    ) : const SizedBox(),
+                  Expanded(child: Container(
+                    width: double.infinity,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).cardColor,
+                      borderRadius: BorderRadius.circular(50),
+                      border: Border.all(color: Theme.of(context).primaryColor, width: 0.3),
+                    ),
+                    padding: EdgeInsets.only(left: Dimensions.paddingSizeDefault),
+                    child: Row(children: [
 
-                    Expanded(child: Container(
-                      width: double.infinity,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).cardColor,
-                        borderRadius: BorderRadius.circular(50),
-                        border: Border.all(color: Theme.of(context).primaryColor, width: 0.3),
+                      Expanded(child: SearchFieldWidget(
+                        controller: _searchTextEditingController,
+                        hint: 'search_food_or_restaurant'.tr,
+                        onChanged: (value) {
+                          _searchSuggestions(value);
+                        },
+                        onSubmit: (value) {
+                          _actionSearch(context, searchController, true);
+                          if(!searchController.isSearchMode && _searchTextEditingController.text.isEmpty) {
+                            searchController.setSearchMode(true);
+                          }
+                        },
+
+                      )),
+
+                      IconButton(
+                        key: _searchBarKey,
+                        onPressed: (){
+                          _actionSearch(context, searchController, false);
+                        },
+                        icon: Icon(!searchController.isSearchMode ? Icons.filter_list : CupertinoIcons.search, size: 28,),
                       ),
-                      padding: EdgeInsets.only(left: Dimensions.paddingSizeDefault),
-                      child: Row(children: [
 
-                        Expanded(child: SearchFieldWidget(
-                          controller: _searchTextEditingController,
-                          hint: 'search_food_or_restaurant'.tr,
-                          onChanged: (value) {
-                            _searchSuggestions(value);
-                          },
-                          onSubmit: (value) {
-                            _actionSearch(context, searchController, true);
-                            if(!searchController.isSearchMode && _searchTextEditingController.text.isEmpty) {
-                              searchController.setSearchMode(true);
-                            }
-                          },
-
-                        )),
-
-                        IconButton(
-                          key: _searchBarKey,
-                          onPressed: (){
-                            _actionSearch(context, searchController, false);
-                          },
-                          icon: Icon(!searchController.isSearchMode ? Icons.filter_list : CupertinoIcons.search, size: 28,),
-                        ),
-
-                      ]),
-                    )),
-                    SizedBox(width: isDesktop ? 0 : 30),
-                    // SizedBox(width: ResponsiveHelper.isMobile(context) ? Dimensions.paddingSizeSmall : 0),
-                  ])),
-                ],
-              )),
+                    ]),
+                  )),
+                  SizedBox(width: isDesktop ? 0 : 30),
+                ])),
+              ])),
             ),
 
             Expanded(child: searchController.isSearchMode ? _showSuggestion ? showSuggestions(

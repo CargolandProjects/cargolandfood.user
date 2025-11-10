@@ -29,7 +29,7 @@ class _RestaurantProductSearchScreenState extends State<RestaurantProductSearchS
     super.initState();
     Get.find<RestaurantController>().initSearchData();
     Get.find<search.SearchController>().getHistoryList();
-    Get.find<CategoryController>().getCategoryList(true);
+    Get.find<CategoryController>().getCategoryList(true, search: '');
   }
 
   @override

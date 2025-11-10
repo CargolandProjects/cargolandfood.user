@@ -38,36 +38,37 @@ class _CustomFavouriteWidgetState extends State<CustomFavouriteWidget> with Sing
 
   @override
   void dispose() {
-    super.dispose();
     _controller.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      splashColor: Colors.transparent,
-      onTap: Get.find<FavouriteController>().isDisable ? null : () {
-        if(AuthHelper.isLoggedIn()) {
-          _decideWished(widget.isWished, Get.find<FavouriteController>());
-        }else {
-          showCustomSnackBar('you_are_not_logged_in'.tr);
-        }
-        _controller.reverse().then((value) => _controller.forward());
-      },
-      child: ScaleTransition(
-        scale: Tween(begin: 0.7, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut)),
-        child: CustomAssetImageWidget(widget.isWished ? Images.favouriteIcon : Images.unFavouriteIcon, height: widget.size, width: widget.size),
-      ),
-    );
+    return GetBuilder<FavouriteController>(builder: (favouriteController) {
+      return InkWell(
+        splashColor: Colors.transparent,
+        onTap: favouriteController.isDisable ? null : () {
+          if(AuthHelper.isLoggedIn()) {
+            _decideWished(widget.isWished, favouriteController);
+          }else {
+            showCustomSnackBar('you_are_not_logged_in'.tr);
+          }
+          _controller.reverse().then((value) => _controller.forward());
+        },
+        child: ScaleTransition(
+          scale: Tween(begin: 0.7, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut)),
+          child: CustomAssetImageWidget(widget.isWished ? Images.favouriteIcon : Images.unFavouriteIcon, height: widget.size, width: widget.size),
+        ),
+      );
+    });
   }
 
-  _decideWished(bool isWished, FavouriteController favouriteController) {
+  void _decideWished(bool isWished, FavouriteController favouriteController) {
     if(widget.isRestaurant) {
       isWished ? favouriteController.removeFromFavouriteList(widget.restaurantId ?? widget.restaurant?.id, true)
-          : favouriteController.addToFavouriteList(null, widget.restaurantId ?? widget.restaurant?.id, true);
+       : favouriteController.addToFavouriteList(null, widget.restaurantId ?? widget.restaurant?.id, true);
     }else {
-      isWished ? favouriteController.removeFromFavouriteList(widget.product?.id, false)
-          : favouriteController.addToFavouriteList(widget.product, null, false);
+      isWished ? favouriteController.removeFromFavouriteList(widget.product?.id, false) : favouriteController.addToFavouriteList(widget.product, null, false);
     }
   }
 }

@@ -81,7 +81,7 @@ class InfoViewWidget extends StatelessWidget {
             )),
             const SizedBox(width: Dimensions.paddingSizeExtraSmall),
             Text(
-              PriceConverter.convertPrice(restaurant.minimumOrder), textDirection: TextDirection.ltr,
+              PriceConverter.convertPrice(restaurant.priceStartFrom), textDirection: TextDirection.ltr,
               style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall - (scrollingRate * 2), color: Theme.of(context).primaryColor),
             ),
           ]),
@@ -113,7 +113,9 @@ class InfoViewWidget extends StatelessWidget {
                 showCustomSnackBar('restaurant_url_copied'.tr, isError: false);
               } else {
                 String shareUrl = '${AppConstants.webHostedUrl}${restController.filteringUrl(restaurant.slug ?? '')}';
-                Share.share(shareUrl);
+                SharePlus.instance.share(
+                  ShareParams(text: shareUrl),
+                );
               }
             },
             child: Icon(

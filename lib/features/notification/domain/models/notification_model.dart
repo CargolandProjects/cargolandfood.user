@@ -40,6 +40,7 @@ class Data {
   String? type;
   dynamic orderId;
   String? orderStatus;
+  String? amount;
 
   Data({
     this.title,
@@ -47,6 +48,7 @@ class Data {
     this.type,
     this.orderId,
     this.orderStatus,
+    this.amount,
   });
 
   Data.fromJson(Map<String, dynamic> json) {
@@ -55,6 +57,7 @@ class Data {
     type = json['type'];
     orderId = json['order_id'];
     orderStatus = json['order_status'];
+    amount = json['amount'];
   }
 
   Map<String, dynamic> toJson() {
@@ -64,6 +67,7 @@ class Data {
     data['type'] = type;
     data['order_id'] = orderId;
     data['order_status'] = orderStatus;
+    data['amount'] = amount;
     return data;
   }
 }

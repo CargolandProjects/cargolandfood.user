@@ -8,10 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class NoDataScreen extends StatelessWidget {
-  //final bool isCart;
   final String? title;
   final bool fromAddress;
-  //final bool isRestaurant;
   final bool isEmptyAddress;
   final bool isEmptyCart;
   final bool isEmptyChat;
@@ -45,9 +43,9 @@ class NoDataScreen extends StatelessWidget {
         Center(
           child: CustomAssetImageWidget(
             isEmptyAddress ? Images.emptyAddress : isEmptyCart ? Images.emptyCart : isEmptyChat ? Images.emptyChat : isEmptyOrder ? Images.emptyOrder
-                : isEmptyCoupon ? Images.emptyCoupon : isEmptyFood ? Images.emptyFood : isEmptyNotification ? Images.emptyNotification
-                : isEmptyRestaurant ? Images.emptyRestaurant : isEmptySearchFood ? Images.emptySearchFood : isEmptyTransaction ? Images.emptyTransaction
-                : isEmptyWishlist ? Images.emptyWishlist : Images.emptyFood,
+            : isEmptyCoupon ? Images.emptyCoupon : isEmptyFood ? Images.emptyFood : isEmptyNotification ? Images.emptyNotification
+            : isEmptyRestaurant ? Images.emptyRestaurant : isEmptySearchFood ? Images.emptySearchFood : isEmptyTransaction ? Images.emptyTransaction
+            : isEmptyWishlist ? Images.emptyWishlist : Images.emptyFood,
             width: isDesktop ? 130 : 80, height: isDesktop ? 130 : 80,
           ),
         ),
@@ -66,7 +64,6 @@ class NoDataScreen extends StatelessWidget {
           textAlign: TextAlign.center,
         ) : const SizedBox(),
         SizedBox(height: isEmptyAddress ? 30 : MediaQuery.of(context).size.height * 0.05),
-
 
         fromAddress ? InkWell(
           onTap: () => Get.toNamed(RouteHelper.getAddAddressRoute(false, 0)),
@@ -87,7 +84,6 @@ class NoDataScreen extends StatelessWidget {
             ),
           ),
         ) : const SizedBox(),
-
 
       ]),
     );

@@ -19,7 +19,6 @@ class ConfigModel {
   String? currencySymbolDirection;
   double? appMinimumVersionAndroid;
   double? appMinimumVersionIos;
-  double? freeDeliveryOver;
   bool? demo;
   bool? maintenanceMode;
   int? popularFood;
@@ -58,7 +57,6 @@ class ConfigModel {
   String? shippingPolicyData;
   int? freeTrialPeriodStatus;
   int? freeTrialPeriodDay;
-  int? taxIncluded;
   String? cookiesText;
   List<Language>? language;
   bool? takeAway;
@@ -78,8 +76,6 @@ class ConfigModel {
   double? additionCharge;
   BannerData? bannerData;
   bool? offlinePaymentStatus;
-  bool? freeDeliveryDistanceStatus;
-  double? freeDeliveryDistance;
   bool? instantOrder;
   bool? customerDateOrderStatus;
   int? customerOrderDate;
@@ -98,6 +94,9 @@ class ConfigModel {
   int? commissionBusinessModel;
   String? subscriptionFreeTrialType;
   bool? dineInOrderOption;
+  AdminFreeDelivery? adminFreeDelivery;
+  bool? isSmsActive;
+  bool? isMailActive;
 
   ConfigModel({
     this.businessName,
@@ -120,7 +119,6 @@ class ConfigModel {
     this.currencySymbolDirection,
     this.appMinimumVersionAndroid,
     this.appMinimumVersionIos,
-    this.freeDeliveryOver,
     this.demo,
     this.maintenanceMode,
     this.popularFood,
@@ -159,7 +157,6 @@ class ConfigModel {
     this.shippingPolicyData,
     this.freeTrialPeriodStatus,
     this.freeTrialPeriodDay,
-    this.taxIncluded,
     this.cookiesText,
     this.language,
     this.takeAway,
@@ -179,8 +176,6 @@ class ConfigModel {
     this.additionCharge,
     this.bannerData,
     this.offlinePaymentStatus,
-    this.freeDeliveryDistanceStatus,
-    this.freeDeliveryDistance,
     this.instantOrder,
     this.customerDateOrderStatus,
     this.customerOrderDate,
@@ -199,6 +194,9 @@ class ConfigModel {
     this.commissionBusinessModel,
     this.subscriptionFreeTrialType,
     this.dineInOrderOption,
+    this.adminFreeDelivery,
+    this.isSmsActive,
+    this.isMailActive,
   });
 
   ConfigModel.fromJson(Map<String, dynamic> json) {
@@ -222,7 +220,6 @@ class ConfigModel {
     currencySymbolDirection = json['currency_symbol_direction'];
     appMinimumVersionAndroid = json['app_minimum_version_android'] != null ? json['app_minimum_version_android'].toDouble() : 0.0;
     appMinimumVersionIos = json['app_minimum_version_ios'] != null ? json['app_minimum_version_ios'].toDouble() : 0.0;
-    freeDeliveryOver = json['free_delivery_over'] != null ? double.parse(json['free_delivery_over'].toString()) : null;
     demo = json['demo'];
     maintenanceMode = json['maintenance_mode'];
     popularFood = json['popular_food'];
@@ -271,7 +268,6 @@ class ConfigModel {
     shippingPolicyData = json['shipping_policy_data'];
     freeTrialPeriodStatus = json['free_trial_period_status'];
     freeTrialPeriodDay = json['free_trial_period_data'];
-    taxIncluded = json['tax_included'];
     cookiesText = json['cookies_text'];
     if (json['language'] != null) {
       language = [];
@@ -306,8 +302,6 @@ class ConfigModel {
     additionCharge = json['additional_charge']?.toDouble() ?? 0;
     bannerData = json['banner_data'] != null && json['banner_data'] != 'null' ? BannerData.fromJson(json['banner_data']) : null;
     offlinePaymentStatus = json['offline_payment_status'] == 1;
-    freeDeliveryDistanceStatus = json['free_delivery_distance_status'];
-    freeDeliveryDistance = json['free_delivery_distance'] != null ? double.parse(json['free_delivery_distance'].toString()) : null;
     instantOrder = json['instant_order'];
     customerDateOrderStatus = json['customer_date_order_sratus'];
     customerOrderDate = json['customer_order_date'];
@@ -326,6 +320,9 @@ class ConfigModel {
     commissionBusinessModel = json['commission_business_model'];
     subscriptionFreeTrialType = json['subscription_free_trial_type'];
     dineInOrderOption = json['dine_in_order_option'] == 1;
+    adminFreeDelivery = json['admin_free_delivery'] != null ? AdminFreeDelivery.fromJson(json['admin_free_delivery']) : null;
+    isSmsActive = json['is_sms_active'];
+    isMailActive = json['is_mail_active'];
   }
 
   Map<String, dynamic> toJson() {
@@ -352,7 +349,6 @@ class ConfigModel {
     data['currency_symbol_direction'] = currencySymbolDirection;
     data['app_minimum_version_android'] = appMinimumVersionAndroid;
     data['app_minimum_version_ios'] = appMinimumVersionIos;
-    data['free_delivery_over'] = freeDeliveryOver;
     data['demo'] = demo;
     data['maintenance_mode'] = maintenanceMode;
     data['popular_food'] = popularFood;
@@ -385,7 +381,6 @@ class ConfigModel {
     data['ref_earning_exchange_rate'] = refEarningExchangeRate;
     data['theme'] = theme;
     data['refund_active_status'] = refundStatus;
-    data['tax_included'] = taxIncluded;
     data['cookies_text'] = cookiesText;
     if (language != null) {
       data['language'] = language!.map((v) => v.toJson()).toList();
@@ -414,7 +409,6 @@ class ConfigModel {
     data['additional_charge_name'] = additionalChargeName;
     data['additional_charge'] = additionCharge;
     data['offline_payment_status'] = offlinePaymentStatus;
-    data['free_delivery_distance'] = freeDeliveryDistance;
     data['instant_order'] = instantOrder;
     data['customer_date_order_sratus'] = customerDateOrderStatus;
     data['customer_order_date'] = customerOrderDate;
@@ -438,6 +432,11 @@ class ConfigModel {
     data['subscription_business_model'] = subscriptionBusinessModel;
     data['commission_business_model'] = commissionBusinessModel;
     data['subscription_free_trial_type'] = subscriptionFreeTrialType;
+    if (adminFreeDelivery != null) {
+      data['admin_free_delivery'] = adminFreeDelivery!.toJson();
+    }
+    data['is_sms_active'] = isSmsActive;
+    data['is_mail_active'] = isMailActive;
     return data;
   }
 }
@@ -881,6 +880,31 @@ class CentralizeLoginSetup {
     data['apple_login_status'] = appleLoginStatus;
     data['email_verification_status'] = emailVerificationStatus;
     data['phone_verification_status'] = phoneVerificationStatus;
+    return data;
+  }
+}
+
+class AdminFreeDelivery {
+  bool? status;
+  String? type;
+  double? freeDeliveryOver;
+  double? freeDeliveryDistance;
+
+  AdminFreeDelivery({this.status, this.type, this.freeDeliveryOver, this.freeDeliveryDistance});
+
+  AdminFreeDelivery.fromJson(Map<String, dynamic> json) {
+    status = json['status'];
+    type = json['type'];
+    freeDeliveryOver = json['free_delivery_over'] != null ? json['free_delivery_over']?.toDouble() : 0.0;
+    freeDeliveryDistance = json['free_delivery_distance'] != null ? json['free_delivery_distance']?.toDouble() : 0.0;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['status'] = status;
+    data['type'] = type;
+    data['free_delivery_over'] = freeDeliveryOver;
+    data['free_delivery_distance'] = freeDeliveryDistance;
     return data;
   }
 }

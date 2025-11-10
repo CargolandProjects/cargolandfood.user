@@ -113,7 +113,7 @@ class SearchController extends GetxController implements GetxService {
   bool _paginate = false;
   bool get paginate => _paginate;
 
-  List<int> _selectedCuisines = [];
+  final List<int> _selectedCuisines = [];
   List<int> get selectedCuisines => _selectedCuisines;
 
   bool _isOpenRestaurant = false;

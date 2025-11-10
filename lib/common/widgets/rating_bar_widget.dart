@@ -1,3 +1,4 @@
+import 'package:get/get.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -6,7 +7,8 @@ class RatingBarWidget extends StatelessWidget {
   final double? rating;
   final double size;
   final int? ratingCount;
-  const RatingBarWidget({super.key, required this.rating, required this.ratingCount, this.size = 18});
+  final int? reviewCount;
+  const RatingBarWidget({super.key, required this.rating, required this.ratingCount, this.size = 18, this.reviewCount});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,15 @@ class RatingBarWidget extends StatelessWidget {
       padding: const EdgeInsets.only(left: Dimensions.paddingSizeExtraSmall),
       child: Text(
         '($ratingCount)', textDirection: TextDirection.ltr,
-        style: robotoRegular.copyWith(fontSize: size*0.8, color: Theme.of(context).disabledColor),
+        style: robotoRegular.copyWith(fontSize: size*0.8, color: Theme.of(context).hintColor),
+      ),
+    )) : const SizedBox();
+
+    reviewCount != null && (reviewCount! > 0) ? starList.add(Padding(
+      padding: const EdgeInsets.only(left: Dimensions.paddingSizeExtraSmall),
+      child: Text(
+        '($reviewCount) ${'reviews'.tr}', textDirection: TextDirection.ltr,
+        style: robotoRegular.copyWith(fontSize: size * 0.8, color: Colors.blue, decoration: TextDecoration.underline, decorationColor: Colors.blue),
       ),
     )) : const SizedBox();
 

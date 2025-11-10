@@ -13,18 +13,18 @@ class VerificationService implements VerificationServiceInterface {
   VerificationService({required this.verificationRepoInterface, required this.authRepoInterface});
 
   @override
-  Future<ResponseModel> forgetPassword(String? phone) async {
-    return await verificationRepoInterface.forgetPassword(phone);
+  Future<ResponseModel> forgetPassword({String? phone, String? email}) async {
+    return await verificationRepoInterface.forgetPassword(phone: phone, email: email);
   }
 
   @override
-  Future<ResponseModel> verifyToken(String? phone, String verificationCode) async {
-    return await verificationRepoInterface.verifyToken(phone, verificationCode);
+  Future<ResponseModel> verifyToken({String? phone, String? email, required String token}) async {
+    return await verificationRepoInterface.verifyToken(phone: phone, email: email, token: token);
   }
 
   @override
-  Future<ResponseModel> resetPassword(String? resetToken, String number, String password, String confirmPassword) async {
-    return await verificationRepoInterface.resetPassword(resetToken, number, password, confirmPassword);
+  Future<ResponseModel> resetPassword({String? resetToken, String? phone, String? email, required String password, required String confirmPassword}) async {
+    return await verificationRepoInterface.resetPassword(resetToken: resetToken, phone: phone, email: email, password: password, confirmPassword: confirmPassword);
   }
 
   @override

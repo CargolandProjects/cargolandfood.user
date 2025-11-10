@@ -58,7 +58,7 @@ class CampaignController extends GetxController implements GetxService {
     }
   }
 
-  _prepareItemBasicCampaign(List<Product>? itemCampaignList) {
+  void _prepareItemBasicCampaign(List<Product>? itemCampaignList) {
     if (itemCampaignList != null) {
       _itemCampaignList = [];
       _itemCampaignList = itemCampaignList;

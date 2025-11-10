@@ -5,16 +5,14 @@ import 'package:stackfood_multivendor/features/order/domain/models/order_model.d
 import 'package:stackfood_multivendor/common/models/restaurant_model.dart';
 import 'package:stackfood_multivendor/features/location/controllers/location_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/theme_controller.dart';
+import 'package:stackfood_multivendor/helper/marker_helper.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-
 import 'dart:collection';
-import 'dart:ui';
 
 class TrackingMapWidget extends StatefulWidget {
   final OrderModel? track;
@@ -28,16 +26,6 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
   GoogleMapController? _controller;
   bool _isLoading = true;
   Set<Marker> _markers = HashSet<Marker>();
-
-  @override
-  void initState() {
-    super.initState();
-
-    // RestaurantLocationCoverage coverage = Provider.of<SplashProvider>(context, listen: false).configModel!.restaurantLocationCoverage!;
-    // _deliveryBoyLatLng = LatLng(double.parse(widget.deliveryManModel?.latitude ?? '0'), double.parse(widget.deliveryManModel?.longitude ?? '0'));
-    // _addressLatLng = widget.addressModel != null ? LatLng(double.parse(widget.addressModel?.latitude ?? '0'), double.parse(widget.addressModel?.longitude ?? '0')) : const LatLng(0,0);
-    // _restaurantLatLng = LatLng(double.parse(coverage.latitude!), double.parse(coverage.longitude!));
-  }
 
   @override
   void dispose() {
@@ -102,9 +90,10 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
 
   void setMarker(Restaurant? restaurant, DeliveryMan? deliveryMan, AddressModel? addressModel, bool takeAway) async {
     try {
-      Uint8List restaurantImageData = await convertAssetToUnit8List(Images.restaurantMarker, width: 120);
-      Uint8List deliveryBoyImageData = await convertAssetToUnit8List(Images.deliveryManMarker, width: 120);
-      Uint8List destinationImageData = await convertAssetToUnit8List(Images.myLocationMarker, width: 120);
+
+      BitmapDescriptor restaurantImageData = await MarkerHelper.convertAssetToBitmapDescriptor(width: 50, imagePath: Images.restaurantMarker);
+      BitmapDescriptor deliveryBoyImageData = await MarkerHelper.convertAssetToBitmapDescriptor(width: 50, imagePath: Images.deliveryManMarker);
+      BitmapDescriptor destinationImageData = await MarkerHelper.convertAssetToBitmapDescriptor(width: 50, imagePath: Images.myLocationMarker);
 
       // Animate to coordinate
       LatLngBounds? bounds;
@@ -143,7 +132,7 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
           title: 'Destination',
           snippet: addressModel.address,
         ),
-        icon: GetPlatform.isWeb ? BitmapDescriptor.defaultMarker : BitmapDescriptor.fromBytes(destinationImageData),
+        icon: GetPlatform.isWeb ? BitmapDescriptor.defaultMarker : destinationImageData,
       )) : const SizedBox();
 
       restaurant != null ? _markers.add(Marker(
@@ -153,7 +142,7 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
           title: 'restaurant'.tr,
           snippet: restaurant.address,
         ),
-        icon: GetPlatform.isWeb ? BitmapDescriptor.defaultMarker : BitmapDescriptor.fromBytes(restaurantImageData),
+        icon: GetPlatform.isWeb ? BitmapDescriptor.defaultMarker : restaurantImageData,
       )) : const SizedBox();
 
       deliveryMan != null ? _markers.add(Marker(
@@ -164,7 +153,7 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
           snippet: deliveryMan.location,
         ),
         rotation: rotation,
-        icon: GetPlatform.isWeb ? BitmapDescriptor.defaultMarker : BitmapDescriptor.fromBytes(deliveryBoyImageData),
+        icon: GetPlatform.isWeb ? BitmapDescriptor.defaultMarker : deliveryBoyImageData,
       )) : const SizedBox();
     }catch(_) {}
     setState(() {});
@@ -206,10 +195,4 @@ class _TrackingMapWidgetState extends State<TrackingMapWidget> {
     return northEastLatitudeCheck && northEastLongitudeCheck && southWestLatitudeCheck && southWestLongitudeCheck;
   }
 
-  Future<Uint8List> convertAssetToUnit8List(String imagePath, {int width = 50}) async {
-    ByteData data = await rootBundle.load(imagePath);
-    Codec codec = await instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
-    FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format: ImageByteFormat.png))!.buffer.asUint8List();
-  }
 }

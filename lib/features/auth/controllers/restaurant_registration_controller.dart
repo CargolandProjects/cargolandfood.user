@@ -1,3 +1,4 @@
+import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/features/business/controllers/business_controller.dart';
 import 'package:stackfood_multivendor/features/business/domain/models/package_model.dart';
 import 'package:stackfood_multivendor/features/dashboard/controllers/dashboard_controller.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:stackfood_multivendor/helper/date_converter.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 
 class RestaurantRegistrationController extends GetxController implements GetxService {
@@ -54,9 +56,6 @@ class RestaurantRegistrationController extends GetxController implements GetxSer
   String _storeTimeUnit = 'minute';
   String get storeTimeUnit => _storeTimeUnit;
 
-  // bool _showPassView = false;
-  // bool get showPassView => _showPassView;
-
   XFile? _pickedLogo;
   XFile? get pickedLogo => _pickedLogo;
 
@@ -89,6 +88,12 @@ class RestaurantRegistrationController extends GetxController implements GetxSer
 
   PackageModel? _packageModel;
   PackageModel? get packageModel => _packageModel;
+
+  final List<FilePickerResult> _tinFiles = [];
+  List<FilePickerResult>? get tinFiles => _tinFiles;
+
+  String? _tinExpireDate;
+  String? get tinExpireDate => _tinExpireDate;
 
   void setRestaurantAdditionalJoinUsPageData({bool isUpdate = true}){
     _dataList = [];
@@ -172,16 +177,12 @@ class RestaurantRegistrationController extends GetxController implements GetxSer
   }
 
   void setLocation(LatLng location, {bool forRestaurantRegistration = false, int? zoneId}) async {
-    // Get.dialog(const CustomLoaderWidget(), barrierDismissible: false);
     _zoneLoading = true;
     update();
     ZoneResponseModel response = await Get.find<LocationController>().getZone(
       location.latitude.toString(), location.longitude.toString(), false,
     );
     _inZone = await restaurantRegistrationServiceInterface.checkInZone(location.latitude.toString(), location.longitude.toString(), zoneId!);
-    // if(!_inZone) {
-    //   showCustomSnackBar('you_are_not_in_zone'.tr);
-    // }
     _restaurantAddress = await Get.find<LocationController>().getAddressFromGeocode(LatLng(location.latitude, location.longitude));
     if(response.isSuccess && response.zoneIds.isNotEmpty) {
       _restaurantLocation = location;
@@ -249,7 +250,20 @@ class RestaurantRegistrationController extends GetxController implements GetxSer
     _isLoading = true;
     update();
 
-    List<MultipartDocument> multiPartsDocuments = restaurantRegistrationServiceInterface.prepareMultipartDocuments(inputTypeList, additionalDocuments);
+    List<FilePickerResult> tinFiles = [];
+
+    for (FilePickerResult element in _tinFiles) {
+      tinFiles.add(element);
+    }
+
+    List<MultipartDocument> multiPartsDocuments = [];
+    multiPartsDocuments.addAll(restaurantRegistrationServiceInterface.prepareMultipartDocuments(inputTypeList, additionalDocuments));
+
+    for (FilePickerResult result in tinFiles) {
+      multiPartsDocuments.add(MultipartDocument('tin_certificate_image', result));
+    }
+
+    //List<MultipartDocument> multiPartsDocuments = restaurantRegistrationServiceInterface.prepareMultipartDocuments(inputTypeList, additionalDocuments);
     Response? response = await restaurantRegistrationServiceInterface.registerRestaurant(data, _pickedLogo, _pickedCover, multiPartsDocuments);
 
     if(response.statusCode == 200) {
@@ -293,6 +307,53 @@ class RestaurantRegistrationController extends GetxController implements GetxSer
   void selectSubscriptionCard(int index){
     _activeSubscriptionIndex = index;
     update();
+  }
+
+  Future<void> pickFiles() async {
+
+    FilePickerResult? result;
+
+    if(GetPlatform.isWeb){
+      result = await FilePicker.platform.pickFiles(
+        withReadStream: true,
+        allowMultiple: false,
+      );
+    }else{
+      result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf', 'doc', 'docx', 'jpg', 'jpeg', 'png'],
+        allowMultiple: false,
+      );
+    }
+
+    if (result != null && result.files.isNotEmpty) {
+      for (var file in result.files) {
+        if (file.size > 2000000) {
+          showCustomSnackBar('please_upload_lower_size_file'.tr);
+        } else {
+          _tinFiles.add(result);
+        }
+      }
+      update();
+    }
+  }
+
+  void removeFile(int index) {
+    _tinFiles.removeAt(index);
+    update();
+  }
+
+  Future<void> setTinExpireDate(DateTime dateTime) async {
+    _tinExpireDate = DateConverter.dateTimeForCoupon(dateTime);
+    update();
+  }
+
+  void resetData(){
+    _tinExpireDate = null;
+    _tinFiles.clear();
+    _storeMinTime = '--';
+    _storeMaxTime = '--';
+    _storeTimeUnit = 'minute';
   }
 
 }

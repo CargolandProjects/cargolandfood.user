@@ -163,9 +163,6 @@ class _FooterViewWidgetState extends State<FooterViewWidget> {
                 ),
               ])),
 
-
-
-
               Expanded(
                 flex: 8,
                 child: Padding(
@@ -198,9 +195,6 @@ class _FooterViewWidgetState extends State<FooterViewWidget> {
                             FooterButton(title: 'about_us'.tr, route: RouteHelper.getHtmlRoute('about-us')),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                            // FooterButton(title: 'find_stores'.tr, route: RouteHelper.getAllRestaurantRoute('popular')),
-                            // const SizedBox(height: Dimensions.paddingSizeSmall),
-
                             FooterButton(title: 'categories'.tr, route: RouteHelper.getCategoryRoute()),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
 
@@ -230,11 +224,8 @@ class _FooterViewWidgetState extends State<FooterViewWidget> {
                             FooterButton(title: 'terms_and_condition'.tr, route: RouteHelper.getHtmlRoute('terms-and-condition')),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
 
-
                           ],
                         ),
-
-
 
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -324,47 +315,6 @@ class _FooterViewWidgetState extends State<FooterViewWidget> {
                     ),
                   ),
                 ),
-                // child: Row(
-                //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //   children: [
-                //     // Text(
-                //     //   '© ${_config!.footerText ?? ''}',
-                //     //   style: robotoRegular.copyWith(color: _color, fontSize: Dimensions.fontSizeExtraSmall, fontWeight: FontWeight.w100),
-                //     // ),
-                //
-                //     // GetBuilder<LocalizationController>(builder: (localizationController) {
-                //     //   int index0 = 0;
-                //     //   List<DropdownMenuItem<int>> languageList = [];
-                //     //   for(int index = 0; index<AppConstants.languages.length; index++) {
-                //     //     languageList.add(DropdownMenuItem(
-                //     //       value: index,
-                //     //       child: TextHover(builder: (hovered) {
-                //     //         return Row(children: [
-                //     //           Image.asset(AppConstants.languages[index].imageUrl!, height: 20, width: 20, color: Colors.white,),
-                //     //           const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-                //     //           Text(AppConstants.languages[index].languageName!, style: robotoRegular.copyWith(color: hovered ? Colors.black : Colors.white)),
-                //     //         ]);
-                //     //       }),
-                //     //     ));
-                //     //     if(AppConstants.languages[index].languageCode == localizationController.locale.languageCode) {
-                //     //       index0 = index;
-                //     //     }
-                //     //   }
-                //     //   return DropdownButton<int>(
-                //     //     value: index0,
-                //     //     items: languageList,
-                //     //     dropdownColor: const Color(0xFF414141),
-                //     //     // dropdownColor: Theme.of(context).colorScheme.background,
-                //     //     icon: const Icon(Icons.keyboard_arrow_up, color: Colors.white),
-                //     //     elevation: 0, iconSize: 30, underline: const SizedBox(),
-                //     //     onChanged: (int? index) {
-                //     //       localizationController.setLanguage(Locale(AppConstants.languages[index!].languageCode!, AppConstants.languages[index].countryCode));
-                //     //     },
-                //     //   );
-                //     // }),
-                //
-                //   ],
-                // ),
               )
             ),
           ),
@@ -375,7 +325,7 @@ class _FooterViewWidgetState extends State<FooterViewWidget> {
     ]);
   }
 
-  _launchURL(String url) async {
+  Future<void> _launchURL(String url) async {
     if (await canLaunchUrlString(url)) {
       await launchUrlString(url, mode: LaunchMode.externalApplication);
     } else {

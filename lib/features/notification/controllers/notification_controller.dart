@@ -29,7 +29,7 @@ class NotificationController extends GetxController implements GetxService {
     }
   }
 
-  _prepareNotificationList(List<NotificationModel>? notificationList) {
+  void _prepareNotificationList(List<NotificationModel>? notificationList) {
     if(notificationList != null) {
       _notificationList = notificationList;
       _hasNotification = _notificationList!.length != getSeenNotificationCount();

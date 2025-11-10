@@ -16,7 +16,7 @@ class MarkerHelper{
   }) async {
     try {
       if(GetPlatform.isWeb) {
-        return BitmapDescriptor.fromAssetImage(const ImageConfiguration(devicePixelRatio: 2.5, size: Size(50, 50), ), imagePath);
+        return BitmapDescriptor.asset(const ImageConfiguration(devicePixelRatio: 2.5, size: Size(50, 50), ), imagePath);
       }
       final ByteData byteDataFromImage = await rootBundle.load(imagePath).timeout(const Duration(seconds: 8));
       final ui.Codec codec = await ui
@@ -27,7 +27,7 @@ class MarkerHelper{
       await frameInfo.image.toByteData(format: ui.ImageByteFormat.png).timeout(const Duration(seconds: 8));
       if (byteDataFromFrame != null) {
         final Uint8List uint8List = byteDataFromFrame.buffer.asUint8List();
-        return BitmapDescriptor.fromBytes(uint8List);
+        return BitmapDescriptor.bytes(uint8List);
       } else {
         return BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue);
       }

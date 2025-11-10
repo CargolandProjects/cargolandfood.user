@@ -33,7 +33,7 @@ import 'package:stackfood_multivendor/features/order/screens/refund_request_scre
 import 'package:stackfood_multivendor/features/profile/domain/models/update_user_model.dart';
 import 'package:stackfood_multivendor/features/profile/screens/profile_screen.dart';
 import 'package:stackfood_multivendor/features/profile/screens/update_profile_screen.dart';
-import 'package:stackfood_multivendor/features/refer%20and%20earn/screens/refer_and_earn_screen.dart';
+import 'package:stackfood_multivendor/features/refer_and_earn/screens/refer_and_earn_screen.dart';
 import 'package:stackfood_multivendor/features/restaurant/screens/all_restaurant_screen.dart';
 import 'package:stackfood_multivendor/features/restaurant/screens/campaign_screen.dart';
 import 'package:stackfood_multivendor/features/restaurant/screens/restaurant_product_search_screen.dart';
@@ -78,10 +78,8 @@ import 'package:stackfood_multivendor/features/wallet/screens/wallet_screen.dart
 import 'package:stackfood_multivendor/helper/address_helper.dart';
 import 'package:stackfood_multivendor/helper/maintance_helper.dart';
 import 'package:stackfood_multivendor/util/app_constants.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:meta_seo/meta_seo.dart';
 
 class RouteHelper {
   static const String initial = '/';
@@ -181,17 +179,9 @@ class RouteHelper {
   static String getInterestRoute() => interest;
   static String getMainRoute(String page) => '$main?page=$page';
   static String getForgotPassRoute() => forgotPassword;
-  static String getResetPasswordRoute(String? phone, String token, String page) => '$resetPassword?phone=$phone&token=$token&page=$page';
+  static String getResetPasswordRoute({String? phone, String? email, required String token, required String page}) => '$resetPassword?phone=$phone&token=$token&page=$page&email=$email';
   static String getSearchRoute() => search;
   static String getRestaurantRoute(int? id, {bool fromDinIn = false}) {
-    if(kIsWeb) {
-      // Define MetaSEO object
-      MetaSEO meta = MetaSEO();
-      // add meta seo data for web app as you want
-      meta.ogTitle(ogTitle: 'Store Screen');
-      meta.description(description: 'This is Store screen. Here have all information of store');
-      meta.keywords(keywords: 'Flutter, Dart, SEO, Meta, Web');
-    }
     return '$restaurant?id=$id&from_dine_in=$fromDinIn';
   }
   static String getOrderDetailsRoute(int? orderID, {bool? fromOffline, String? contactNumber, bool fromGuestTrack = false, bool fromNotification = false, bool? fromDineIn}) {
@@ -359,8 +349,12 @@ class RouteHelper {
           : Get.parameters['page'] == 'cart' ? 2 : Get.parameters['page'] == 'order' ? 3 : Get.parameters['page'] == 'menu' ? 4 : 0,
     ))),
     GetPage(name: forgotPassword, page: () => ForgetPassScreen()),
+    /*GetPage(name: resetPassword, page: () => NewPassScreen(
+      resetToken: Get.parameters['token'], number: Get.parameters['phone'], fromPasswordChange: Get.parameters['page'] == 'password-change',
+    )),*/
     GetPage(name: resetPassword, page: () => NewPassScreen(
       resetToken: Get.parameters['token'], number: Get.parameters['phone'], fromPasswordChange: Get.parameters['page'] == 'password-change',
+      email: Get.parameters['email'],
     )),
     GetPage(name: search, page: () => getRoute(const SearchScreen())),
     GetPage(name: restaurant, page: () {
@@ -553,7 +547,7 @@ class RouteHelper {
     GetPage(name: dineInRestaurant, page: () => getRoute(const DineInRestaurantScreen())),
   ];
 
-  static getRoute(Widget? navigateTo, {bool byPuss = false}) {
+  static Widget getRoute(Widget navigateTo, {bool byPuss = false}) {
     double? minimumVersion = 0;
     if(GetPlatform.isAndroid) {
       minimumVersion = Get.find<SplashController>().configModel!.appMinimumVersionAndroid;
@@ -561,8 +555,8 @@ class RouteHelper {
       minimumVersion = Get.find<SplashController>().configModel!.appMinimumVersionIos;
     }
     return AppConstants.appVersion < minimumVersion! ? const UpdateScreen(isUpdate: true)
-        : MaintenanceHelper.isMaintenanceEnable() ? const UpdateScreen(isUpdate: false)
-        : (AddressHelper.getAddressFromSharedPref() == null && !byPuss)
-        ? AccessLocationScreen(fromSignUp: false, fromHome: false, route: Get.currentRoute) : navigateTo;
+      : MaintenanceHelper.isMaintenanceEnable() ? const UpdateScreen(isUpdate: false)
+      : (AddressHelper.getAddressFromSharedPref() == null && !byPuss)
+      ? AccessLocationScreen(fromSignUp: false, fromHome: false, route: Get.currentRoute) : navigateTo;
   }
 }

@@ -1,6 +1,7 @@
 import 'package:stackfood_multivendor/common/widgets/custom_asset_image_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_favourite_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_ink_well_widget.dart';
+import 'package:stackfood_multivendor/common/widgets/not_available_widget.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
@@ -8,6 +9,7 @@ import 'package:stackfood_multivendor/features/cart/domain/models/cart_model.dar
 import 'package:stackfood_multivendor/common/models/product_model.dart';
 import 'package:stackfood_multivendor/features/favourite/controllers/favourite_controller.dart';
 import 'package:stackfood_multivendor/features/product/controllers/product_controller.dart';
+import 'package:stackfood_multivendor/helper/date_converter.dart';
 import 'package:stackfood_multivendor/helper/price_converter.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
@@ -33,7 +35,9 @@ class ItemCardWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     double price = product.price!;
     double discount = product.discount!;
-    double discountPrice = PriceConverter.convertWithDiscount(price, discount, product.discountType)!;
+    String discountType = product.discountType!;
+    double discountPrice = PriceConverter.convertWithDiscount(price, discount, discountType)!;
+    bool isAvailable = DateConverter.isAvailable(product.availableTimeStarts, product.availableTimeEnds);
 
     CartModel cartModel = CartModel(
       null, price, discountPrice, (price - discountPrice),
@@ -96,8 +100,8 @@ class ItemCardWidget extends StatelessWidget {
                 ) : const SizedBox(),
 
                 DiscountTagWidget(
-                  discount: product.restaurantDiscount! > 0 ? product.restaurantDiscount : product.discount,
-                  discountType: product.restaurantDiscount! > 0 ? 'percent' : product.discountType,
+                  discount: discount,
+                  discountType: discountType,
                   fromTop: isCampaignItem ? 7 : 10, fontSize: Dimensions.fontSizeExtraSmall, paddingVertical: 7, fromLeft: isCampaignItem ? -7 : -2,
                 ),
 
@@ -216,6 +220,11 @@ class ItemCardWidget extends StatelessWidget {
                   }),
                 ),
 
+                isAvailable ? const SizedBox() : NotAvailableWidget(
+                  opacity: 0.3,
+                  fontSize: 14,
+                ),
+
               ],
             ),
           ),
@@ -228,7 +237,7 @@ class ItemCardWidget extends StatelessWidget {
                 mainAxisAlignment: product.ratingCount! > 0 ? MainAxisAlignment.spaceBetween : MainAxisAlignment.spaceEvenly,
                 children: [
                 Text(
-                  product.restaurantName ?? '', style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
+                  product.restaurantName ?? '', style: robotoRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
                   overflow: TextOverflow.ellipsis, maxLines: 1,
                 ),
 
@@ -244,25 +253,26 @@ class ItemCardWidget extends StatelessWidget {
                   ],
                 ),
 
-                product.ratingCount! > 0 ? Row(
-                  mainAxisAlignment: isBestItem == true ? MainAxisAlignment.center : MainAxisAlignment.start,
-                  children: [
-                    Text(product.avgRating!.toStringAsFixed(1), style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall)),
-                    const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                if(product.ratingCount! > 0)
+                  Row(
+                    mainAxisAlignment: isBestItem == true ? MainAxisAlignment.center : MainAxisAlignment.start,
+                    children: [
+                      Text(product.avgRating!.toStringAsFixed(1), style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall)),
+                      const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
-                    Icon(Icons.star, color: Theme.of(context).primaryColor, size: 15),
-                    const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                      Icon(Icons.star, color: Theme.of(context).primaryColor, size: 15),
+                      const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
-                    Text('(${product.ratingCount})', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).disabledColor)),
-                  ],
-                ) : const SizedBox(),
+                      Text('(${product.ratingCount})', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).hintColor)),
+                    ],
+                  ),
 
                 Wrap(
                   alignment: isBestItem == true ? WrapAlignment.center : WrapAlignment.start,
                   crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     discountPrice < price ? Text(PriceConverter.convertPrice(price),
-                        style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).disabledColor, decoration: TextDecoration.lineThrough, decorationColor: Theme.of(context).disabledColor)): const SizedBox(),
+                        style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).hintColor, decoration: TextDecoration.lineThrough, decorationColor: Theme.of(context).hintColor)): const SizedBox(),
                     discountPrice < price ? const SizedBox(width: Dimensions.paddingSizeExtraSmall) : const SizedBox(),
 
                     Text(PriceConverter.convertPrice(discountPrice), style: robotoBold),

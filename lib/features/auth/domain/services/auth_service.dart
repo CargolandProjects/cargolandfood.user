@@ -20,7 +20,7 @@ class AuthService implements AuthServiceInterface{
       await _updateHeaderFunctionality(authResponse, alreadyInApp: false);
       return ResponseModel(true, authResponse.token??'', authResponseModel: authResponse);
     } else {
-      return ResponseModel(false, response.statusText);
+      return ResponseModel(false, response.statusText, code: response.body['errors'] != null ? response.body['errors'][0]['code'] : null);
     }
   }
 
@@ -32,7 +32,7 @@ class AuthService implements AuthServiceInterface{
       await _updateHeaderFunctionality(authResponse, alreadyInApp: alreadyInApp);
       return ResponseModel(true, authResponse.token??'', authResponseModel: authResponse);
     } else {
-      return ResponseModel(false, response.statusText);
+      return ResponseModel(false, response.statusText, code: response.body['errors'] != null ? response.body['errors'][0]['code'] : null);
     }
   }
 
@@ -44,7 +44,7 @@ class AuthService implements AuthServiceInterface{
       await _updateHeaderFunctionality(authResponse, alreadyInApp: alreadyInApp);
       return ResponseModel(true, authResponse.token??'', authResponseModel: authResponse);
     } else {
-      return ResponseModel(false, response.statusText);
+      return ResponseModel(false, response.statusText, code: response.body['errors'] != null ? response.body['errors'][0]['code'] : null);
     }
   }
 
@@ -56,7 +56,7 @@ class AuthService implements AuthServiceInterface{
       await _updateHeaderFunctionality(authResponse, alreadyInApp: alreadyInApp);
       return ResponseModel(true, authResponse.token??'', authResponseModel: authResponse);
     } else {
-      return ResponseModel(false, response.statusText);
+      return ResponseModel(false, response.statusText, code: response.body['errors'] != null ? response.body['errors'][0]['code'] : null);
     }
   }
 
@@ -74,8 +74,8 @@ class AuthService implements AuthServiceInterface{
   }
 
   @override
-  void saveUserNumberAndPassword(String number, String password, String countryCode) {
-    authRepoInterface.saveUserNumberAndPassword(number, password, countryCode);
+  void saveUserNumberAndPassword({required String number, required String password, required String countryCode, required String otpPoneNumber}) {
+    authRepoInterface.saveUserNumberAndPassword(number: number, password: password, countryCode: countryCode, otpPoneNumber: otpPoneNumber);
   }
 
   @override
@@ -106,42 +106,9 @@ class AuthService implements AuthServiceInterface{
       await _updateHeaderFunctionality(authResponse);
       return ResponseModel(true, authResponse.token??'', authResponseModel: authResponse);
     } else {
-      return ResponseModel(false, response.statusText);
+      return ResponseModel(false, response.statusText, code: response.body['errors'] != null ? response.body['errors'][0]['code'] : null);
     }
-    // if (response.statusCode == 200) {
-    //   String? token = response.body['token'];
-    //   if(token != null && token.isNotEmpty) {
-    //     if(isCustomerVerificationOn && response.body['is_phone_verified'] == 0) {
-    //       Get.toNamed(RouteHelper.getVerificationRoute(response.body['phone'] ?? socialLogInModel.email, null, token, RouteHelper.signUp, '', CentralizeLoginType.social.name));
-    //     }else {
-    //       authRepoInterface.saveUserToken(response.body['token']);
-    //       await authRepoInterface.updateToken();
-    //       authRepoInterface.clearGuestId();
-    //       Get.toNamed(RouteHelper.getAccessLocationRoute('sign-in'));
-    //     }
-    //   }else {
-    //     Get.toNamed(RouteHelper.getForgotPassRoute(true, socialLogInModel));
-    //   }
-    // } else if(response.statusCode == 403 && response.body['errors'][0]['code'] == 'email'){
-    //   Get.toNamed(RouteHelper.getForgotPassRoute(true, socialLogInModel));
-    // }
   }
-
-  // @override
-  // Future<void> registerWithSocialMedia(SocialLogInBodyModel socialLogInModel, {bool isCustomerVerificationOn = false}) async {
-  //   Response response = await authRepoInterface.registerWithSocialMedia(socialLogInModel);
-  //   if (response.statusCode == 200) {
-  //     String? token = response.body['token'];
-  //     if(isCustomerVerificationOn && response.body['is_phone_verified'] == 0) {
-  //       // Get.toNamed(RouteHelper.getVerificationRoute(socialLogInModel.phone, null, token, RouteHelper.signUp, '', CentralizeLoginType.social.name));
-  //     }else {
-  //       authRepoInterface.saveUserToken(response.body['token']);
-  //       await authRepoInterface.updateToken();
-  //       authRepoInterface.clearGuestId();
-  //       Get.toNamed(RouteHelper.getAccessLocationRoute('sign-in'));
-  //     }
-  //   }
-  // }
 
   @override
   Future<void> updateToken() async {
@@ -161,17 +128,6 @@ class AuthService implements AuthServiceInterface{
   @override
   bool isGuestLoggedIn() {
     return authRepoInterface.isGuestLoggedIn();
-  }
-
-  ///TODO: This function need to remove from here , as it is order part.
-  @override
-  void saveDmTipIndex(String i) {
-    authRepoInterface.saveDmTipIndex(i);
-  }
-  ///TODO: This function need to remove from here , as it is order part.
-  @override
-  String getDmTipIndex() {
-    return authRepoInterface.getDmTipIndex();
   }
 
   @override
@@ -210,6 +166,11 @@ class AuthService implements AuthServiceInterface{
   @override
   String getGuestNumber() {
     return authRepoInterface.getGuestContactNumber();
+  }
+
+  @override
+  String getUserOtpPhoneNumber() {
+    return authRepoInterface.getUserOtpPhoneNumber();
   }
 
 }

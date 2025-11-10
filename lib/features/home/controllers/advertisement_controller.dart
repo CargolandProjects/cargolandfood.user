@@ -32,7 +32,7 @@ class AdvertisementController extends GetxController implements GetxService {
     }
   }
 
-  _prepareAdvertisement(List<AdvertisementModel>? advertisementList) {
+  void _prepareAdvertisement(List<AdvertisementModel>? advertisementList) {
     if (advertisementList != null) {
       _advertisementList = [];
       _advertisementList = advertisementList;

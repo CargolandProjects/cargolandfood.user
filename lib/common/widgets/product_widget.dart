@@ -54,8 +54,8 @@ class ProductWidget extends StatelessWidget {
       isAvailable = restaurant!.open == 1 && restaurant!.active! ;
     }else {
       image = product!.imageFullUrl;
-      discount = (product!.restaurantDiscount == 0 || isCampaign) ? product!.discount : product!.restaurantDiscount;
-      discountType = (product!.restaurantDiscount == 0 || isCampaign) ? product!.discountType : 'percent';
+      discount = product!.discount;
+      discountType = product!.discountType;
       isAvailable = DateConverter.isAvailable(product!.availableTimeStarts, product!.availableTimeEnds);
       price = product!.price!;
       discountPrice = PriceConverter.convertWithDiscount(price, discount, discountType)!;
@@ -63,7 +63,7 @@ class ProductWidget extends StatelessWidget {
 
 
     return Padding(
-      padding: EdgeInsets.only(bottom: desktop ? 0 :Dimensions.paddingSizeSmall),
+      padding: EdgeInsets.only(bottom: desktop ? 0 : Dimensions.paddingSizeExtraSmall),
       child: Container(
         margin: desktop ? null : const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
         decoration: BoxDecoration(
@@ -107,7 +107,7 @@ class ProductWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                       child: CustomImageWidget(
                         image: '${isRestaurant ? restaurant!.logoFullUrl : product!.imageFullUrl}',
-                        height: desktop ? 120 : length == null ? 100 : 110, width: desktop ? 120 : 110, fit: BoxFit.cover,
+                        height: desktop ? 120 : length == null ? 100 : 120, width: desktop ? 120 : 110, fit: BoxFit.cover,
                         isFood: !isRestaurant, isRestaurant: isRestaurant,
                       ),
                     ) : isAvailable ? const SizedBox() : Container(
@@ -156,65 +156,63 @@ class ProductWidget extends StatelessWidget {
 
                         const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
-                      !isRestaurant ? Text(
-                        isRestaurant ? '' : product!.restaurantName ?? '',
-                        style: robotoRegular.copyWith(
-                          fontSize: Dimensions.fontSizeExtraSmall,
-                          color: Theme.of(context).disabledColor,
-                        ),
-                        maxLines: 1, overflow: TextOverflow.ellipsis,
-                      ) : const SizedBox(),
-
-                      isRestaurant && restaurant!.ratingCount! > 0 ? Row(children: [
-                        Icon(Icons.star, size: 16, color: Theme.of(context).primaryColor),
-                        const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                        Text(isRestaurant ? restaurant!.avgRating!.toStringAsFixed(1) : product!.avgRating!.toStringAsFixed(1), style: robotoMedium),
-                        const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                        Text('(${isRestaurant ? restaurant!.ratingCount! > 25 ? '25+' : restaurant!.ratingCount : product!.ratingCount! > 25 ? '25+' : product!.ratingCount})',
-                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
-                      ]) : const SizedBox(),
-
-                      const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-                      // SizedBox(height: (desktop || isRestaurant) ? 5 : 0),
-
-                      // !isRestaurant ? RatingBar(
-                      //   rating: isRestaurant ? restaurant!.avgRating : product!.avgRating, size: desktop ? 15 : 12,
-                      //   ratingCount: isRestaurant ? restaurant!.ratingCount : product!.ratingCount,
-                      // ) : const SizedBox(),
-                      !isRestaurant && product!.ratingCount! > 0 ? Row(children: [
-                        Icon(Icons.star, size: 16, color: Theme.of(context).primaryColor),
-                        const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                        Text(product!.avgRating!.toStringAsFixed(1), style: robotoMedium),
-                        const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                        Text('(${product!.ratingCount})', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
-                      ]) : const SizedBox(),
-
-                      SizedBox(height: (!isRestaurant && desktop) ? Dimensions.paddingSizeExtraSmall : 0),
-
-                      isRestaurant ? Row(children: [
-                          Text(
-                            'start_from'.tr,
-                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).disabledColor),
+                      if(!isRestaurant)
+                        Text(
+                          isRestaurant ? '' : product!.restaurantName ?? '',
+                          style: robotoRegular.copyWith(
+                            fontSize: Dimensions.fontSizeExtraSmall,
+                            color: Theme.of(context).hintColor,
                           ),
+                          maxLines: 1, overflow: TextOverflow.ellipsis,
+                        ),
+
+                      if(isRestaurant && restaurant!.ratingCount! > 0)
+                        Row(children: [
+                          Icon(Icons.star, size: 16, color: Theme.of(context).primaryColor),
                           const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
-                          Text(
-                            PriceConverter.convertPrice(restaurant!.minimumOrder!),
-                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, fontWeight: FontWeight.w700, color: Theme.of(context).textTheme.bodyLarge!.color),
-                          ),
+                          Text(isRestaurant ? restaurant!.avgRating!.toStringAsFixed(1) : product!.avgRating!.toStringAsFixed(1), style: robotoMedium),
+                          const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
-                        ],
-                      ) : Wrap(children: [
+                          Text('(${isRestaurant ? restaurant!.ratingCount! > 25 ? '25+' : restaurant!.ratingCount : product!.ratingCount! > 25 ? '25+' : product!.ratingCount})',
+                              style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor)),
+                        ]),
+
+                      SizedBox(height: (isRestaurant && restaurant!.ratingCount! > 0) ? Dimensions.paddingSizeExtraSmall : 0),
+
+                      if(!isRestaurant && product!.ratingCount! > 0)
+                        Row(children: [
+                          Icon(Icons.star, size: 16, color: Theme.of(context).primaryColor),
+                          const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                          Text(product!.avgRating!.toStringAsFixed(1), style: robotoMedium),
+                          const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                          Text('(${product!.ratingCount})', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor)),
+                        ]),
+
+                      SizedBox(height: !isRestaurant && product!.ratingCount! > 0 ? Dimensions.paddingSizeExtraSmall : 0),
+
+                      isRestaurant ? Row(children: [
+
+                        restaurant?.foods != null && restaurant!.foods!.isNotEmpty ? Text(
+                          'start_from'.tr,
+                          style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).hintColor),
+                        ) : const SizedBox(),
+                        const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                        restaurant?.foods != null && restaurant!.foods!.isNotEmpty ? Text(
+                          PriceConverter.convertPrice(restaurant?.priceStartFrom ?? 0),
+                          style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, fontWeight: FontWeight.w700, color: Theme.of(context).textTheme.bodyLarge!.color),
+                        ) : const SizedBox(),
+
+                      ]) : Wrap(children: [
 
                         discount! > 0 ? Text(
                           PriceConverter.convertPrice(product!.price), textDirection: TextDirection.ltr,
                           style: robotoMedium.copyWith(
-                            fontSize: Dimensions.fontSizeExtraSmall,
-                            color: Theme.of(context).disabledColor,
+                            fontSize: Dimensions.fontSizeSmall,
+                            color: Theme.of(context).hintColor,
                             decoration: TextDecoration.lineThrough,
                           ),
                         ) : const SizedBox(),
@@ -222,7 +220,7 @@ class ProductWidget extends StatelessWidget {
 
                         Text(
                           PriceConverter.convertPrice(product!.price, discount: discount, discountType: discountType),
-                          style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor), textDirection: TextDirection.ltr,
+                          style: robotoMedium.copyWith(color: Theme.of(context).primaryColor), textDirection: TextDirection.ltr,
                         ),
                         const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
@@ -258,16 +256,14 @@ class ProductWidget extends StatelessWidget {
                                 color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(50),
                               ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '${restaurant!.foodsCount! > 11 ? '12 +' : restaurant!.foodsCount!} ',
-                                    style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
-                                  ),
-                                  Text('items'.tr, style: robotoRegular.copyWith(fontSize: 10, color: Theme.of(context).primaryColor)),
-                                ],
-                              ),
+                              child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                Text(
+                                  '${restaurant!.foodsCount! > 11 ? '12 +' : '${restaurant!.foodsCount! - 4} +'} ',
+                                  style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
+                                ),
+
+                                Text('items'.tr, style: robotoRegular.copyWith(fontSize: 10, color: Theme.of(context).primaryColor)),
+                              ]),
                             ),
                           ) : const SizedBox(),
 
@@ -276,7 +272,8 @@ class ProductWidget extends StatelessWidget {
                             child: OverFlowContainerWidget(image: restaurant!.foods![3].imageFullUrl ?? ''),
                           ) : const SizedBox(),
                         ]),
-                      ) : const SizedBox() : const SizedBox(),
+                      ) : const SizedBox() : !isRestaurant ? SizedBox() : Text('no_food_available'.tr, style: robotoRegular.copyWith(
+                        fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
 
                     ]),
                   ),
@@ -360,7 +357,7 @@ class ProductWidget extends StatelessWidget {
                             decoration: BoxDecoration(
                               color: Theme.of(context).cardColor,
                               shape: BoxShape.circle,
-                              boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
+                              boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.2), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
                             ),
                             child: Icon(Icons.add, size: desktop ? 30 : 25, color: Theme.of(context).primaryColor),
                           ),

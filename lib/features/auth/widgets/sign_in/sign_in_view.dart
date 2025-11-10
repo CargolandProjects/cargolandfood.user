@@ -20,6 +20,7 @@ import 'package:stackfood_multivendor/helper/centralize_login_helper.dart';
 import 'package:stackfood_multivendor/helper/custom_validator.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
+
 class SignInView extends StatefulWidget {
   final bool exitFromApp;
   final bool backFromThis;
@@ -34,11 +35,12 @@ class SignInView extends StatefulWidget {
 class _SignInViewState extends State<SignInView> {
   final FocusNode _phoneFocus = FocusNode();
   final FocusNode _passwordFocus = FocusNode();
+  final FocusNode _otpPhoneFocus = FocusNode();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _otpPhoneController = TextEditingController();
   String? _countryDialCode;
   GlobalKey<FormState>? _formKeyLogin;
-  bool _isOtpViewEnable = false;
 
   @override
   void initState() {
@@ -50,10 +52,11 @@ class _SignInViewState extends State<SignInView> {
         : CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).dialCode;
     _phoneController.text =  authController.getUserNumber();
     _passwordController.text = authController.getUserPassword();
+    _otpPhoneController.text = authController.getUserOtpPhoneNumber();
 
     WidgetsBinding.instance.addPostFrameCallback((_){
-      bool isOtpActive = CentralizeLoginHelper.getPreferredLoginMethod(Get.find<SplashController>().configModel!.centralizeLoginSetup!, _isOtpViewEnable).type == CentralizeLoginType.otp
-      || CentralizeLoginHelper.getPreferredLoginMethod(Get.find<SplashController>().configModel!.centralizeLoginSetup!, _isOtpViewEnable).type == CentralizeLoginType.otpAndSocial ;
+      bool isOtpActive = CentralizeLoginHelper.getPreferredLoginMethod(Get.find<SplashController>().configModel!.centralizeLoginSetup!, authController.isOtpViewEnable).type == CentralizeLoginType.otp
+      || CentralizeLoginHelper.getPreferredLoginMethod(Get.find<SplashController>().configModel!.centralizeLoginSetup!, authController.isOtpViewEnable).type == CentralizeLoginType.otpAndSocial ;
       if(_countryDialCode != "" && _phoneController.text != "" && _phoneController.text.contains('@') && isOtpActive) {
         _phoneController.text = '';
       } else if(_countryDialCode != "" && _phoneController.text != "" && !_phoneController.text.contains('@')){
@@ -74,23 +77,26 @@ class _SignInViewState extends State<SignInView> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: _formKeyLogin,
-      child: activeCentralizeLogin(Get.find<SplashController>().configModel!.centralizeLoginSetup!),
-    );
+    return GetBuilder<AuthController>(builder: (authController) {
+      return Form(
+        key: _formKeyLogin,
+        child: activeCentralizeLogin(Get.find<SplashController>().configModel!.centralizeLoginSetup!, authController),
+      );
+    });
   }
 
-  Widget activeCentralizeLogin(CentralizeLoginSetup centralizeLoginSetup) {
-    CentralizeLoginType centralizeLogin = CentralizeLoginHelper.getPreferredLoginMethod(centralizeLoginSetup, _isOtpViewEnable).type;
+  Widget activeCentralizeLogin(CentralizeLoginSetup centralizeLoginSetup, AuthController authController) {
+    CentralizeLoginType centralizeLogin = CentralizeLoginHelper.getPreferredLoginMethod(centralizeLoginSetup, authController.isOtpViewEnable).type;
+
     switch (centralizeLogin) {
       case CentralizeLoginType.otp:
         return OtpLoginWidget(
-          phoneController: _phoneController, phoneFocus: _phoneFocus,
+          phoneController: _otpPhoneController, phoneFocus: _otpPhoneFocus,
           countryDialCode: _countryDialCode,
           onCountryChanged: (CountryCode countryCode) => _countryDialCode = countryCode.dialCode,
           onClickLoginButton: () {
             _otpLogin(Get.find<AuthController>(), _countryDialCode!, CentralizeLoginType.otp);
-            },
+          },
         );
 
       case CentralizeLoginType.manual:
@@ -123,7 +129,7 @@ class _SignInViewState extends State<SignInView> {
               _phoneController.text = '';
             }
             setState(() {
-              _isOtpViewEnable = true;
+              authController.enableOtpView(enable: true);
             });
           },
           onWebSubmit: (){},
@@ -139,7 +145,7 @@ class _SignInViewState extends State<SignInView> {
             _phoneController.text = '';
           }
           setState(() {
-            _isOtpViewEnable = true;
+            authController.enableOtpView(enable: true);
           });
         });
 
@@ -156,7 +162,7 @@ class _SignInViewState extends State<SignInView> {
               _phoneController.text = '';
             }
             setState(() {
-              _isOtpViewEnable = true;
+              authController.enableOtpView(enable: true);
             });
           },
         );
@@ -167,7 +173,7 @@ class _SignInViewState extends State<SignInView> {
 
   
   void _otpLogin(AuthController authController, String countryDialCode, CentralizeLoginType loginType) async {
-    String phone = _phoneController.text.trim();
+    String phone = _otpPhoneController.text.trim();
     String numberWithCountryCode = countryDialCode+phone;
     PhoneValid phoneValid = await CustomValidator.isPhoneValid(numberWithCountryCode);
     numberWithCountryCode = phoneValid.phone;
@@ -219,7 +225,7 @@ class _SignInViewState extends State<SignInView> {
 
   Future<void> _processSuccessSetup(AuthController authController, String phone, String email, String password, ResponseModel status) async {
     if (authController.isActiveRememberMe) {
-      authController.saveUserNumberAndPassword(phone, password, authController.countryDialCode);
+      authController.saveUserNumberAndPassword(number: phone, password: password, countryCode: authController.countryDialCode, otpPoneNumber: '');
     } else {
       authController.clearUserNumberAndPassword();
     }
@@ -256,8 +262,8 @@ class _SignInViewState extends State<SignInView> {
   }
 
   void _processOtpSuccessSetup(ResponseModel response, AuthController authController, String phone, String countryDialCode) async {
-    if (authController.isActiveRememberMe) {
-      authController.saveUserNumberAndPassword(phone, '', countryDialCode);
+    if (authController.isActiveRememberMeForOtp) {
+      authController.saveUserNumberAndPassword(number: '', password: '', countryCode: countryDialCode, otpPoneNumber: phone);
     } else {
       authController.clearUserNumberAndPassword();
     }

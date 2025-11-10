@@ -1,4 +1,5 @@
 import 'package:country_code_picker/country_code_picker.dart';
+import 'package:stackfood_multivendor/api/api_checker.dart';
 import 'package:stackfood_multivendor/common/models/restaurant_model.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/features/home/screens/home_screen.dart';
@@ -120,10 +121,8 @@ class CheckoutController extends GetxController implements GetxService {
   int get paymentMethodIndex => _paymentMethodIndex;
 
   List<TextEditingController> informationControllerList = [];
-  // List<TextEditingController> get informationControllerList => _informationControllerList;
 
   List<FocusNode> informationFocusList = [];
-  // List<FocusNode> get informationFocusList => _informationFocusList;
 
   List<TimeSlotModel>? _timeSlots;
   List<TimeSlotModel>? get timeSlots => _timeSlots;
@@ -181,6 +180,27 @@ class CheckoutController extends GetxController implements GetxService {
 
   DateTime? _orderPlaceDineInDateTime;
   DateTime? get orderPlaceDineInDateTime => _orderPlaceDineInDateTime;
+
+  double _exchangeAmount = 0;
+  double get exchangeAmount => _exchangeAmount;
+
+  bool _isFirstTime = true;
+  bool get isFirstTime => _isFirstTime;
+
+  double? _orderTax = 0.0;
+  double? get orderTax => _orderTax;
+
+  int? _taxIncluded;
+  int? get taxIncluded => _taxIncluded;
+
+  void updateFirstTime() {
+    _isFirstTime = true;
+    update();
+  }
+
+  void setExchangeAmount(double value) {
+    _exchangeAmount = value;
+  }
 
   void setSelectedDineInDate(DateTime? date, {bool willUpdate = true}) {
     _estimateDineInTime = null;
@@ -306,7 +326,6 @@ class CheckoutController extends GetxController implements GetxService {
 
   Future<void> initCheckoutData(int? restaurantID) async {
     Get.find<CouponController>().removeCouponData(false);
-    clearPrevData();
     await Get.find<RestaurantController>().getRestaurantDetails(Restaurant(id: restaurantID));
     initializeTimeSlot(Get.find<RestaurantController>().restaurant!);
     insertAddresses(Get.context!, null);
@@ -664,11 +683,11 @@ class CheckoutController extends GetxController implements GetxService {
   }
 
   void clearPrevData() {
+    _distance = null;
     _addressIndex = 0;
     _paymentMethodIndex = -1;
     _selectedDateSlot = 0;
     _selectedTimeSlot = 0;
-    _distance = null;
     _subscriptionOrder = false;
     _selectedDays = [null];
     _subscriptionType = 'daily';
@@ -692,7 +711,34 @@ class CheckoutController extends GetxController implements GetxService {
     return success;
   }
 
-  ///Dine in feature
+  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data}) async {
+    _isLoading = true;
+    update();
+    bool success = await checkoutServiceInterface.checkRestaurantValidation(data: data);
+    _isLoading = false;
+    update();
+    return success;
+  }
 
+  void saveDmTipIndex(String i){
+    checkoutServiceInterface.saveDmTipIndex(i);
+  }
+
+  String getDmTipIndex() {
+    return checkoutServiceInterface.getDmTipIndex();
+  }
+
+  Future<void> getOrderTax(PlaceOrderBodyModel placeOrderBody) async {
+    Response response = await checkoutServiceInterface.getOrderTax(placeOrderBody);
+    if(response.statusCode == 200) {
+      _isFirstTime = false;
+      _orderTax = double.tryParse(response.body['tax_amount'].toString()) ?? 0.0;
+      _taxIncluded = response.body['tax_included'];
+    } else {
+      _isFirstTime = false;
+      ApiChecker.checkApi(response);
+    }
+    update();
+  }
 
 }

@@ -1,7 +1,6 @@
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:flutter/material.dart';
 
-
 class OnHoverWidget extends StatefulWidget {
   final Widget child;
   final bool isItem;
@@ -16,7 +15,7 @@ class _OnHoverWidgetState extends State<OnHoverWidget> {
   bool isHovered = false;
   @override
   Widget build(BuildContext context) {
-    final hoverTransformed = Matrix4.identity()..scale(1.05, 1.03);
+    final hoverTransformed = Matrix4.identity()..scaleByDouble(1.05, 1.03, 1.0, 1.0);
     final transform = isHovered ? hoverTransformed : Matrix4.identity();
     final shadow1 = BoxDecoration(
       borderRadius: BorderRadius.circular(Dimensions.radiusSmall),

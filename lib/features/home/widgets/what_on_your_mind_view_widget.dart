@@ -17,7 +17,7 @@ class WhatOnYourMindViewWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CategoryController>(builder: (categoryController) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      return categoryController.categoryList != null && categoryController.categoryList!.isNotEmpty ?  Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Padding(
           padding: EdgeInsets.only(
             top: ResponsiveHelper.isMobile(context) ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeOverLarge,
@@ -121,7 +121,7 @@ class WhatOnYourMindViewWidget extends StatelessWidget {
 
         const SizedBox(height: Dimensions.paddingSizeLarge),
 
-      ]);
+      ]) : SizedBox();
     });
   }
 }

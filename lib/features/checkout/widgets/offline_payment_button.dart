@@ -11,11 +11,12 @@ class OfflinePaymentButton extends StatelessWidget {
   final bool isSelected;
   final List<OfflineMethodModel>? offlineMethodList;
   final bool isOfflinePaymentActive;
-  final Function onTap;
+  final Function? onTap;
   final CheckoutController checkoutController;
   final JustTheController tooltipController;
+  final bool? disablePayment;
   const OfflinePaymentButton({super.key, required this.isSelected, required this.offlineMethodList, required this.isOfflinePaymentActive, required this.onTap,
-    required this.checkoutController, required this.tooltipController});
+    required this.checkoutController, required this.tooltipController, this.disablePayment = false});
 
   @override
   Widget build(BuildContext context) {
@@ -25,72 +26,76 @@ class OfflinePaymentButton extends StatelessWidget {
         width: 550,
         decoration: BoxDecoration(
           color: isSelected ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : Colors.transparent,
-          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-          border: Border.all(color: Theme.of(context).disabledColor, width: 0.3),
+          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+          border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.2)),
         ),
-        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeLarge),
+        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeSmall),
         margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
         child: Column(children: [
           Row(children: [
-            Container(
-              height: 20, width: 20,
-              decoration: BoxDecoration(
-                  shape: BoxShape.circle, color: isSelected ? Colors.green : Theme.of(context).cardColor,
-                  border: Border.all(color: Theme.of(context).disabledColor)
-              ),
-              child: Icon(Icons.check, color: Theme.of(context).cardColor, size: 16),
-            ),
-            const SizedBox(width: Dimensions.paddingSizeDefault),
 
             Expanded(
-              child: Text(
-                'pay_offline'.tr,
-                style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault),
-                overflow: TextOverflow.ellipsis, maxLines: 1,
-              ),
-            ),
+              child: Row(children: [
 
-            JustTheTooltip(
-              backgroundColor: Colors.black87,
-              controller: tooltipController,
-              preferredDirection: AxisDirection.up,
-              tailLength: 14,
-              tailBaseWidth: 20,
-              content: Padding(
-                padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                child: SizedBox(
-                  width: 400,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('note'.tr, style: robotoMedium.copyWith(color: const Color(0xff90D0FF))),
-                      const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                      OfflinePaymentTooltipNoteWidget(
-                        note: 'offline_payment_note_line_one'.tr,
-                      ),
-                      const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                      OfflinePaymentTooltipNoteWidget(
-                        note: 'offline_payment_note_line_two'.tr,
-                      ),
-                      const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                      OfflinePaymentTooltipNoteWidget(
-                        note: 'offline_payment_note_line_three'.tr,
-                      ),
-                    ],
+                Flexible(
+                  child: Text(
+                    'pay_offline'.tr,
+                    style: robotoSemiMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: disablePayment! ? Theme.of(context).disabledColor : Theme.of(context).textTheme.bodyLarge!.color),
+                    overflow: TextOverflow.ellipsis, maxLines: 1,
                   ),
                 ),
-              ),
-              child: InkWell(
-                onTap: () => tooltipController.showTooltip(),
-                child: isSelected ? Icon(Icons.info_rounded, color: Theme.of(context).primaryColor, size: 18) : const SizedBox(),
-              ),
+                const SizedBox(width: Dimensions.paddingSizeSmall),
+
+                JustTheTooltip(
+                  backgroundColor: Colors.black87,
+                  controller: tooltipController,
+                  preferredDirection: AxisDirection.up,
+                  tailLength: 14,
+                  tailBaseWidth: 20,
+                  content: Padding(
+                    padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                    child: SizedBox(
+                      width: 400,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('note'.tr, style: robotoMedium.copyWith(color: const Color(0xff90D0FF))),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          OfflinePaymentTooltipNoteWidget(
+                            note: 'offline_payment_note_line_one'.tr,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          OfflinePaymentTooltipNoteWidget(
+                            note: 'offline_payment_note_line_two'.tr,
+                          ),
+                          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                          OfflinePaymentTooltipNoteWidget(
+                            note: 'offline_payment_note_line_three'.tr,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () => tooltipController.showTooltip(),
+                    child: isSelected ? Icon(Icons.info_rounded, color: Theme.of(context).primaryColor, size: 18) : const SizedBox(),
+                  ),
+                ),
+
+              ]),
             ),
 
-            const SizedBox(width: Dimensions.paddingSizeSmall),
+            // Expanded(child: SizedBox()),
+
+            Icon(
+              isSelected ? Icons.check_circle : Icons.circle_outlined,
+              size: 24,
+              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor.withValues(alpha: 0.5),
+            ),
           ]),
           SizedBox(height: isSelected ? Dimensions.paddingSizeLarge : 0),
 

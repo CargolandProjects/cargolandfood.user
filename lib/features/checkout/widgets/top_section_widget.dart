@@ -7,7 +7,6 @@ import 'package:stackfood_multivendor/features/checkout/widgets/delivery_section
 import 'package:stackfood_multivendor/features/checkout/widgets/estimated_arrival_time_widget.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/guest_login_widget.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/order_type_widget.dart';
-import 'package:stackfood_multivendor/features/checkout/widgets/partial_pay_view.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/payment_section.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/subscription_view.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/time_slot_section.dart';
@@ -75,218 +74,187 @@ class TopSectionWidget extends StatelessWidget {
     bool isGuestLoggedIn = Get.find<AuthController>().isGuestLoggedIn();
     bool isLoggedIn = Get.find<AuthController>().isLoggedIn();
 
-    return GetBuilder<CheckoutController>(
-        builder: (checkoutController) {
-          takeAway = (checkoutController.orderType == 'take_away');
-          return Column(children: [
+    return GetBuilder<CheckoutController>(builder: (checkoutController) {
+      takeAway = (checkoutController.orderType == 'take_away');
+      return Column(children: [
 
-            SizedBox(height: isGuestLoggedIn && !isDesktop ? Dimensions.paddingSizeSmall : 0),
+        SizedBox(height: isGuestLoggedIn && !isDesktop ? Dimensions.paddingSizeSmall : 0),
 
-            isGuestLoggedIn ? GuestLoginWidget(
-              loginTooltipController: loginTooltipController,
-              onTap: () async {
-                if(!isDesktop) {
-                  await Get.toNamed(RouteHelper.getSignInRoute(Get.currentRoute))!.then((value) {
-                    if(AuthHelper.isLoggedIn()) {
-                      callBack();
-                    }
-                  });
-                }else{
-                  Get.dialog(const Center(child: AuthDialogWidget(exitFromApp: false, backFromThis: true))).then((value) {
-                    if(AuthHelper.isLoggedIn()) {
-                      callBack();
-                    }
-                  });
+        isGuestLoggedIn ? GuestLoginWidget(
+          loginTooltipController: loginTooltipController,
+          onTap: () async {
+            if(!isDesktop) {
+              await Get.toNamed(RouteHelper.getSignInRoute(Get.currentRoute))!.then((value) {
+                if(AuthHelper.isLoggedIn()) {
+                  callBack();
                 }
-              },
-            ) : const SizedBox(),
-            SizedBox(height: isGuestLoggedIn ? Dimensions.paddingSizeSmall : 0),
+              });
+            }else{
+              Get.dialog(const Center(child: AuthDialogWidget(exitFromApp: false, backFromThis: true))).then((value) {
+                if(AuthHelper.isLoggedIn()) {
+                  callBack();
+                }
+              });
+            }
+          },
+        ) : const SizedBox(),
+        SizedBox(height: isGuestLoggedIn ? Dimensions.paddingSizeSmall : 0),
 
-            SizedBox(height: !isDesktop && isCashOnDeliveryActive && restaurantSubscriptionActive ? Dimensions.paddingSizeSmall : 0),
+        SizedBox(height: !isDesktop && isCashOnDeliveryActive && restaurantSubscriptionActive ? Dimensions.paddingSizeSmall : 0),
 
-            isCashOnDeliveryActive && restaurantSubscriptionActive && isLoggedIn ? Container(
-              width: context.width,
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
-              ),
-              margin: EdgeInsets.symmetric(horizontal: isDesktop ? 0 : Dimensions.fontSizeDefault),
-              padding: EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeLarge),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('order_type'.tr, style: robotoMedium),
-                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-                Row(children: [
-                  Expanded(child: OrderTypeWidget(
-                    title: 'regular_order'.tr,
-                    icon: Images.regularOrder,
-                    isSelected: !checkoutController.subscriptionOrder,
-                    onTap: () {
-                      checkoutController.setSubscription(false);
-                      if(checkoutController.isPartialPay){
-                        checkoutController.changePartialPayment();
-                      } else {
-                        checkoutController.setPaymentMethod(-1);
-                      }
-                      checkoutController.updateTips(
-                        Get.find<AuthController>().getDmTipIndex().isNotEmpty ? int.parse(Get.find<AuthController>().getDmTipIndex()) : 1, notify: false,
-                      );
-                    },
-                  )),
-                  SizedBox(width: isCashOnDeliveryActive ? Dimensions.paddingSizeSmall : 0),
+        isCashOnDeliveryActive && restaurantSubscriptionActive && isLoggedIn ? Container(
+          width: context.width,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+            boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
+          ),
+          margin: EdgeInsets.symmetric(horizontal: isDesktop ? 0 : Dimensions.fontSizeDefault),
+          padding: EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeLarge),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('order_type'.tr, style: robotoMedium),
+            const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+            Row(children: [
+              Expanded(child: OrderTypeWidget(
+                title: 'regular'.tr,
+                icon: Images.regularOrder,
+                isSelected: !checkoutController.subscriptionOrder,
+                onTap: () {
+                  checkoutController.setSubscription(false);
+                  if(checkoutController.isPartialPay){
+                    checkoutController.changePartialPayment();
+                  } else {
+                    checkoutController.setPaymentMethod(-1);
+                  }
+                  checkoutController.updateTips(
+                    checkoutController.getDmTipIndex().isNotEmpty ? int.parse(checkoutController.getDmTipIndex()) : 1, notify: false,
+                  );
+                },
+              )),
+              SizedBox(width: isCashOnDeliveryActive ? Dimensions.paddingSizeSmall : 0),
 
-                  Expanded(child: OrderTypeWidget(
-                    title: 'subscription_order'.tr,
-                    icon: Images.subscriptionOrder,
-                    isSelected: checkoutController.subscriptionOrder,
-                    onTap: () {
-                      checkoutController.setSubscription(true);
-                      checkoutController.addTips(0);
-                      if(checkoutController.isPartialPay){
-                        checkoutController.changePartialPayment();
-                      } else {
-                        checkoutController.setPaymentMethod(-1);
-                      }
-                    },
-                  )),
-                ]),
-                const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                checkoutController.subscriptionOrder ? SubscriptionView(
-                  checkoutController: checkoutController,
-                ) : const SizedBox(),
-                SizedBox(height: checkoutController.subscriptionOrder ? Dimensions.paddingSizeLarge : 0),
-              ]),
-            ) : const SizedBox(),
-            SizedBox(height: ResponsiveHelper.isMobile(context) ? Dimensions.paddingSizeSmall : isCashOnDeliveryActive && restaurantSubscriptionActive && isLoggedIn ? Dimensions.paddingSizeSmall : 0),
-
-            checkoutController.restaurant != null ? Container(
-              width: context.width,
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
-              ),
-              margin: EdgeInsets.symmetric(horizontal: isDesktop ? 0 : Dimensions.fontSizeDefault),
-              padding: EdgeInsets.symmetric(horizontal: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeSmall),
-              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                Text('delivery_option'.tr, style: robotoMedium),
-                const SizedBox(height: Dimensions.paddingSizeDefault),
-
-                SingleChildScrollView(controller: deliveryOptionScrollController, scrollDirection: Axis.horizontal, child: Row(children: [
-
-                  (Get.find<SplashController>().configModel!.homeDelivery! && checkoutController.restaurant!.delivery!) ? DeliveryOptionButton(
-                    value: 'delivery', title: 'home_delivery'.tr, charge: charge,
-                    isFree: checkoutController.restaurant!.freeDelivery, total: total,
-                    chargeForView: deliveryChargeForView, deliveryFeeTooltipController: deliveryFeeTooltipController,
-                    badWeatherCharge: badWeatherCharge, extraChargeForToolTip: extraChargeForToolTip,
-                  ) : const SizedBox(),
-                  const SizedBox(width: Dimensions.paddingSizeDefault),
-
-                  (Get.find<SplashController>().configModel!.takeAway! && checkoutController.restaurant!.takeAway!) ? DeliveryOptionButton(
-                    value: 'take_away', title: 'take_away'.tr, charge: deliveryCharge, isFree: true, total: total,
-                    badWeatherCharge: badWeatherCharge, extraChargeForToolTip: extraChargeForToolTip,
-                  ) : const SizedBox(),
-                  const SizedBox(width: Dimensions.paddingSizeDefault),
-
-                  (Get.find<SplashController>().configModel!.dineInOrderOption! && checkoutController.restaurant!.isActiveDineIn!) ? DeliveryOptionButton(
-                    value: 'dine_in', title: 'dine_in'.tr, charge: deliveryCharge, isFree: true, total: total,
-                    badWeatherCharge: badWeatherCharge, extraChargeForToolTip: extraChargeForToolTip, guestNameTextEditingController: guestNameTextEditingController,
-                    guestNumberTextEditingController: guestNumberTextEditingController, guestEmailController: guestEmailController,
-                  ) : const SizedBox(),
-
-                ])),
-                SizedBox(height: isDesktop ? Dimensions.paddingSizeDefault : 0),
-              ]),
-            ) : const SizedBox(),
-            const SizedBox(height: Dimensions.paddingSizeSmall),
-
-            ///Dine in Estimated Arrival Time
-            EstimatedArrivalTimeWidget(checkoutController: checkoutController),
-
-            /// Time Slot
-            TimeSlotSection(fromCart: fromCart, checkoutController: checkoutController, tomorrowClosed: tomorrowClosed, todayClosed: todayClosed, tooltipController2: tooltipController2),
-
-            ///Delivery Address
-            DeliverySection(
-              checkoutController: checkoutController,
-              locationController: locationController, guestNameTextEditingController: guestNameTextEditingController,
-              guestNumberTextEditingController: guestNumberTextEditingController, guestNumberNode: guestNumberNode,
-              guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
-            ),
-            const SizedBox(height: Dimensions.paddingSizeSmall),
-
-
-            /// Coupon
-            !ResponsiveHelper.isDesktop(context) && !isGuestLoggedIn ? CouponSection(
-              charge: charge, checkoutController: checkoutController, price: price,
-              discount: discount, addOns: addOns, deliveryCharge: deliveryCharge, total: total,
-            ) : const SizedBox(),
-            SizedBox(height: !ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeSmall : 0),
-
-            ///DmTips
-            DeliveryManTipsSection(
-              takeAway: takeAway, tooltipController3: tooltipController3, checkoutController: checkoutController,
-              totalPrice: total, onTotalChange: (double price) => total + price,
-            ),
-
-            // SizedBox(height: (checkoutController.orderType != 'take_away' && Get.find<SplashController>().configModel!.dmTipsStatus == 1) ? Dimensions.paddingSizeExtraSmall : 0),
-
-            ///payment..
-            Column(children: [
-              isDesktop ? PaymentSection(
-                isCashOnDeliveryActive: isCashOnDeliveryActive, isDigitalPaymentActive: isDigitalPaymentActive,
-                isWalletActive: isWalletActive, total: total, checkoutController: checkoutController, isOfflinePaymentActive: isOfflinePaymentActive,
-              ) : const SizedBox(),
-              // SizedBox(height: isGuestLoggedIn && !isDesktop ? 0 : Dimensions.paddingSizeDefault),
-
-              !isDesktop && !isGuestLoggedIn ? PartialPayView(totalPrice: total) : const SizedBox(),
-
+              Expanded(child: OrderTypeWidget(
+                title: 'subscription'.tr,
+                icon: Images.subscriptionOrder,
+                isSelected: checkoutController.subscriptionOrder,
+                onTap: () {
+                  checkoutController.setSubscription(true);
+                  checkoutController.addTips(0);
+                  if(checkoutController.isPartialPay){
+                    checkoutController.changePartialPayment();
+                  } else {
+                    checkoutController.setPaymentMethod(-1);
+                  }
+                },
+              )),
             ]),
+            const SizedBox(height: Dimensions.paddingSizeLarge),
 
+            checkoutController.subscriptionOrder ? SubscriptionView(
+              checkoutController: checkoutController,
+            ) : const SizedBox(),
+            SizedBox(height: checkoutController.subscriptionOrder ? Dimensions.paddingSizeLarge : 0),
+          ]),
+        ) : const SizedBox(),
+        SizedBox(height: ResponsiveHelper.isMobile(context) ? Dimensions.paddingSizeSmall : isCashOnDeliveryActive && restaurantSubscriptionActive && isLoggedIn ? Dimensions.paddingSizeSmall : 0),
 
-            /*ResponsiveHelper.isDesktop(context) ? PaymentSection(
-                isCashOnDeliveryActive: isCashOnDeliveryActive, isDigitalPaymentActive: isDigitalPaymentActive,
-                isWalletActive: isWalletActive, total: total, checkoutController: checkoutController, isOfflinePaymentActive: isOfflinePaymentActive,
-              ) : const SizedBox(),*/
+        checkoutController.restaurant != null ? Container(
+          width: context.width,
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardColor,
+            borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+            boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
+          ),
+          margin: EdgeInsets.symmetric(horizontal: isDesktop ? 0 : Dimensions.fontSizeDefault),
+          padding: EdgeInsets.symmetric(horizontal: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeSmall),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-            //SizedBox(height: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeLarge : 0),
+            Text('delivery_option'.tr, style: robotoMedium),
+            const SizedBox(height: Dimensions.paddingSizeDefault),
 
-            isDesktop ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              const SizedBox(height: Dimensions.paddingSizeLarge),
+            SingleChildScrollView(controller: deliveryOptionScrollController, scrollDirection: Axis.horizontal, child: Row(children: [
 
-              Text('additional_note'.tr, style: robotoMedium),
-              const SizedBox(height: Dimensions.paddingSizeSmall),
+              (Get.find<SplashController>().configModel!.homeDelivery! && checkoutController.restaurant!.delivery!) ? DeliveryOptionButton(
+                value: 'delivery', title: 'home_delivery'.tr, charge: charge,
+                isFree: checkoutController.restaurant!.freeDelivery, total: total,
+                chargeForView: deliveryChargeForView, deliveryFeeTooltipController: deliveryFeeTooltipController,
+                badWeatherCharge: badWeatherCharge, extraChargeForToolTip: extraChargeForToolTip,
+              ) : const SizedBox(),
+              SizedBox(width: (Get.find<SplashController>().configModel!.homeDelivery! && checkoutController.restaurant!.delivery!) ? Dimensions.paddingSizeDefault : 0),
 
-              CustomTextFieldWidget(
-                controller: checkoutController.noteController,
-                hintText: 'share_any_specific_delivery_details_here'.tr,
-                showLabelText: false,
-                maxLines: 3,
-                inputType: TextInputType.multiline,
-                inputAction: TextInputAction.done,
-                capitalization: TextCapitalization.sentences,
-              ),
-              const SizedBox(height: Dimensions.paddingSizeLarge),
-            ]) : const SizedBox(),
+              (Get.find<SplashController>().configModel!.takeAway! && checkoutController.restaurant!.takeAway!) ? DeliveryOptionButton(
+                value: 'take_away', title: 'take_away'.tr, charge: deliveryCharge, isFree: true, total: total,
+                badWeatherCharge: badWeatherCharge, extraChargeForToolTip: extraChargeForToolTip,
+              ) : const SizedBox(),
+              SizedBox(width: (Get.find<SplashController>().configModel!.takeAway! && checkoutController.restaurant!.takeAway!) ? Dimensions.paddingSizeDefault : 0),
 
-          ]);
-        }
-    );
+              (Get.find<SplashController>().configModel!.dineInOrderOption! && checkoutController.restaurant!.isActiveDineIn!) ? DeliveryOptionButton(
+                value: 'dine_in', title: 'dine_in'.tr, charge: deliveryCharge, isFree: true, total: total,
+                badWeatherCharge: badWeatherCharge, extraChargeForToolTip: extraChargeForToolTip, guestNameTextEditingController: guestNameTextEditingController,
+                guestNumberTextEditingController: guestNumberTextEditingController, guestEmailController: guestEmailController,
+              ) : const SizedBox(),
+
+            ])),
+            SizedBox(height: isDesktop ? Dimensions.paddingSizeDefault : 0),
+          ]),
+        ) : const SizedBox(),
+        const SizedBox(height: Dimensions.paddingSizeSmall),
+
+        ///Dine in Estimated Arrival Time
+        EstimatedArrivalTimeWidget(checkoutController: checkoutController),
+
+        /// Time Slot
+        TimeSlotSection(fromCart: fromCart, checkoutController: checkoutController, tomorrowClosed: tomorrowClosed, todayClosed: todayClosed, tooltipController2: tooltipController2),
+
+        ///Delivery Address
+        DeliverySection(
+          checkoutController: checkoutController,
+          locationController: locationController, guestNameTextEditingController: guestNameTextEditingController,
+          guestNumberTextEditingController: guestNumberTextEditingController, guestNumberNode: guestNumberNode,
+          guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
+        ),
+        const SizedBox(height: Dimensions.paddingSizeSmall),
+
+        /// Coupon
+        !ResponsiveHelper.isDesktop(context) && !isGuestLoggedIn ? CouponSection(
+          charge: charge, checkoutController: checkoutController, price: price,
+          discount: discount, addOns: addOns, deliveryCharge: deliveryCharge, total: total,
+        ) : const SizedBox(),
+        SizedBox(height: !ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeSmall : 0),
+
+        ///DmTips
+        DeliveryManTipsSection(
+          takeAway: takeAway, tooltipController3: tooltipController3, checkoutController: checkoutController,
+          totalPrice: total, onTotalChange: (double price) => total + price,
+        ),
+
+        ///payment..
+        Column(children: [
+          isDesktop ? PaymentSection(
+            isCashOnDeliveryActive: isCashOnDeliveryActive, isDigitalPaymentActive: isDigitalPaymentActive,
+            isWalletActive: isWalletActive, total: total, checkoutController: checkoutController, isOfflinePaymentActive: isOfflinePaymentActive,
+          ) : const SizedBox(),
+        ]),
+
+        isDesktop ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          const SizedBox(height: Dimensions.paddingSizeLarge),
+
+          Text('additional_note'.tr, style: robotoMedium),
+          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+          CustomTextFieldWidget(
+            controller: checkoutController.noteController,
+            hintText: 'share_any_specific_delivery_details_here'.tr,
+            showLabelText: false,
+            maxLines: 3,
+            inputType: TextInputType.multiline,
+            inputAction: TextInputAction.done,
+            capitalization: TextCapitalization.sentences,
+          ),
+          const SizedBox(height: Dimensions.paddingSizeLarge),
+        ]) : const SizedBox(),
+
+      ]);
+    });
   }
-
-  // void _checkPermission(Function onTap) async {
-  //   LocationPermission permission = await Geolocator.checkPermission();
-  //   if(permission == LocationPermission.denied) {
-  //     permission = await Geolocator.requestPermission();
-  //   }
-  //   if(permission == LocationPermission.denied) {
-  //     showCustomSnackBar('you_have_to_allow'.tr);
-  //   }else if(permission == LocationPermission.deniedForever) {
-  //     Get.dialog(const PermissionDialog());
-  //   }else {
-  //     onTap();
-  //   }
-  // }
 }

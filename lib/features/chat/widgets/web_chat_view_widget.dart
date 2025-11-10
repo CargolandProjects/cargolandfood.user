@@ -374,9 +374,9 @@ class _WebChatViewWidgetState extends State<WebChatViewWidget> with TickerProvid
                                 offset!, NotificationBodyModel(
                                 type: widget.chatController.notificationBody!.type,
                                 notificationType: NotificationType.message,
-                                adminId: widget.chatController.notificationBody!.type == UserType.admin.name ? 0 : null,
-                                restaurantId: widget.chatController.notificationBody!.type == UserType.vendor.name ? widget.chatController.notificationBody!.restaurantId : null,
-                                deliverymanId: widget.chatController.notificationBody!.type == UserType.delivery_man.name ? widget.chatController.notificationBody!.deliverymanId : null,
+                                adminId: widget.chatController.notificationBody!.adminId,
+                                restaurantId: widget.chatController.notificationBody!.restaurantId,
+                                deliverymanId: widget.chatController.notificationBody!.deliverymanId,
                               ), user, widget.chatController.notificationBody!.conversationId,
                               );
                             },
@@ -457,101 +457,109 @@ class _WebChatViewWidgetState extends State<WebChatViewWidget> with TickerProvid
 
                                       GetBuilder<ChatController>(builder: (chatController) {
                                         if(chatController.pickedWebVideoFile != null) {
-                                          return Container(
-                                            width: 250,
-                                            decoration: BoxDecoration(
-                                              color: Theme.of(context).cardColor,
-                                              borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                                            ),
-                                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                                            margin: const EdgeInsets.only(top: 10),
-                                            child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
+                                          return Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: Container(
+                                              width: 250,
+                                              decoration: BoxDecoration(
+                                                color: Theme.of(context).cardColor,
+                                                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                                                border: Border.all(color: Theme.of(context).disabledColor, width: 0.2),
+                                              ),
+                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                              margin: const EdgeInsets.only(bottom: 10),
+                                              child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
 
-                                              const Icon(Icons.video_collection, size: 30),
-                                              const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
+                                                const Icon(Icons.video_file, size: 30),
+                                                const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
-                                              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
+                                                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
 
-                                                Text(chatController.pickedWebVideoFile!.files.first.name,
-                                                  maxLines: 2, overflow: TextOverflow.ellipsis,
-                                                  style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                                                ),
+                                                  Text(chatController.pickedWebVideoFile!.files.first.name,
+                                                    maxLines: 2, overflow: TextOverflow.ellipsis,
+                                                    style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+                                                  ),
 
-                                                // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
-                                                //   color: Theme.of(context).hintColor,
-                                                // )),
-                                              ])),
+                                                  // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
+                                                  //   color: Theme.of(context).hintColor,
+                                                  // )),
+                                                ])),
 
 
-                                              InkWell(
-                                                onTap: () {
-                                                  chatController.pickVideoFile(true);
-                                                },
-                                                child: Padding(padding: const EdgeInsets.only(top: 5),
-                                                  child: Align(alignment: Alignment.topRight,
-                                                    child: Icon(Icons.close,
-                                                      size: Dimensions.paddingSizeLarge,
-                                                      color: Theme.of(context).hintColor,
+                                                InkWell(
+                                                  onTap: () {
+                                                    chatController.pickVideoFile(true);
+                                                  },
+                                                  child: Padding(padding: const EdgeInsets.only(top: 5),
+                                                    child: Align(alignment: Alignment.topRight,
+                                                      child: Icon(Icons.close,
+                                                        size: Dimensions.paddingSizeLarge,
+                                                        color: Theme.of(context).hintColor,
+                                                      ),
                                                     ),
                                                   ),
-                                                ),
-                                              )
+                                                )
 
-                                            ]),
+                                              ]),
+                                            ),
                                           );
                                         }
                                         if(chatController.objWebFile.isNotEmpty){
-                                          return SizedBox(
-                                            height: 70,
-                                            child: ListView.separated(
-                                              shrinkWrap: true, scrollDirection: Axis.horizontal,
-                                              padding: const EdgeInsets.only(bottom: 0, top: 5),
-                                              separatorBuilder: (context, index) => const SizedBox(width: Dimensions.paddingSizeDefault),
-                                              itemCount: chatController.objWebFile.length,
-                                              itemBuilder: (context, index){
-                                                // String fileSize = ImageSize.getImageSizeFromXFile(chatController.objFile![index]);
-                                                return Container(
-                                                  width: 180,
-                                                  decoration: BoxDecoration(
-                                                    color: Theme.of(context).cardColor,
-                                                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                                                  ),
-                                                  padding: const EdgeInsets.only(left: 10, right: 5),
-                                                  child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
+                                          return Align(
+                                            alignment: Alignment.centerLeft,
+                                            child: SizedBox(
+                                              height: 70,
+                                              child: ListView.builder(
+                                                shrinkWrap: true, scrollDirection: Axis.horizontal,
+                                                padding: const EdgeInsets.only(bottom: 0, top: 5),
+                                                itemCount: chatController.objWebFile.length,
+                                                itemBuilder: (context, index){
+                                                  // String fileSize = ImageSize.getImageSizeFromXFile(chatController.objFile![index]);
+                                                  return Container(
+                                                    width: 180,
+                                                    decoration: BoxDecoration(
+                                                      color: Theme.of(context).cardColor,
+                                                      borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                                                      border: Border.all(color: Theme.of(context).disabledColor, width: 0.2),
+                                                    ),
+                                                    padding: const EdgeInsets.only(left: 10, right: 5),
+                                                    margin: const EdgeInsets.only(bottom: 10),
+                                                    child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
 
-                                                    Image.asset(Images.fileIcon,height: 30, width: 30),
-                                                    const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
+                                                      Image.asset(Images.fileIcon,height: 30, width: 30),
+                                                      const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
 
-                                                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
+                                                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
 
-                                                      Text(chatController.objWebFile[index].names.first??'attachment'.tr,
-                                                        maxLines: 1, overflow: TextOverflow.ellipsis,
-                                                        style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                                                      ),
+                                                        Text(chatController.objWebFile[index].names.first??'attachment'.tr,
+                                                          maxLines: 1, overflow: TextOverflow.ellipsis,
+                                                          style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+                                                        ),
 
-                                                      // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
-                                                      //   color: Theme.of(context).hintColor,
-                                                      // )),
-                                                    ])),
+                                                        // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
+                                                        //   color: Theme.of(context).hintColor,
+                                                        // )),
+                                                      ])),
 
 
-                                                    InkWell(
-                                                      onTap: () {
-                                                        chatController.pickFile(true, index: index);
-                                                      },
-                                                      child: Padding(padding: const EdgeInsets.only(top: 5),
-                                                        child: Align(alignment: Alignment.topRight,
-                                                          child: Icon(Icons.close,
-                                                            size: Dimensions.paddingSizeLarge,
-                                                            color: Theme.of(context).hintColor,
+                                                      InkWell(
+                                                        onTap: () {
+                                                          chatController.pickFile(true, index: index);
+                                                        },
+                                                        child: Padding(padding: const EdgeInsets.only(top: 5),
+                                                          child: Align(alignment: Alignment.topRight,
+                                                            child: Icon(Icons.close,
+                                                              size: Dimensions.paddingSizeLarge,
+                                                              color: Theme.of(context).hintColor,
+                                                            ),
                                                           ),
                                                         ),
-                                                      ),
-                                                    )
+                                                      )
 
-                                                  ]),
-                                                );
-                                              },
+                                                    ]),
+                                                  );
+                                                },
+                                              ),
                                             ),
                                           );
                                         }

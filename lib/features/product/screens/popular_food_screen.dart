@@ -1,3 +1,4 @@
+import 'package:stackfood_multivendor/common/widgets/web_page_title_widget.dart';
 import 'package:stackfood_multivendor/features/restaurant/controllers/restaurant_controller.dart';
 import 'package:stackfood_multivendor/features/product/controllers/product_controller.dart';
 import 'package:stackfood_multivendor/features/review/controllers/review_controller.dart';
@@ -54,20 +55,26 @@ class _PopularFoodScreenState extends State<PopularFoodScreen> {
           ),
           endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
           body: SingleChildScrollView(controller: scrollController, child: FooterViewWidget(
-            child: Center(child: SizedBox(
-              width: Dimensions.webMaxWidth,
-              child: GetBuilder<ProductController>(builder: (productController) {
-                return GetBuilder<RestaurantController>(
-                  builder: (restaurantController) {
+            child: Column(children: [
 
-                    return ProductViewWidget(
-                      isRestaurant: false, restaurants: null,
-                      products: widget.isPopular ? productController.popularProductList : widget.fromIsRestaurantFood ? restaurantController.recommendedProductModel?.products : reviewController.reviewedProductList,
-                    );
-                  }
-                );
-              }),
-            )),
+              WebScreenTitleWidget(title: widget.isPopular ? widget.fromIsRestaurantFood? 'popular_in_this_restaurant'.tr : 'popular_foods_nearby'.tr : 'best_reviewed_food'.tr),
+
+              Center(child: SizedBox(
+                width: Dimensions.webMaxWidth,
+                child: GetBuilder<ProductController>(builder: (productController) {
+                  return GetBuilder<RestaurantController>(
+                    builder: (restaurantController) {
+
+                      return ProductViewWidget(
+                        isRestaurant: false, restaurants: null,
+                        products: widget.isPopular ? productController.popularProductList : widget.fromIsRestaurantFood ? restaurantController.recommendedProductModel?.products : reviewController.reviewedProductList,
+                        padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                      );
+                    }
+                  );
+                }),
+              )),
+            ]),
           )),
         );
       });

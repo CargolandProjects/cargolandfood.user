@@ -78,48 +78,35 @@ class _MenuScreenState extends State<MenuScreen> {
                           ),
                         ),
                       ) : Text(
-  isLoggedIn
-      ? '${profileController.userInfoModel?.fName} ${profileController.userInfoModel?.lName}'
-      : 'guest_user'.tr,
-  style: robotoBold.copyWith(
-    fontSize: Dimensions.fontSizeExtraLarge,
-    color: Theme.of(context).colorScheme.onSecondary, // ✅ FIXED
-  ),
-),
-const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+                        isLoggedIn ? '${profileController.userInfoModel?.fName} ${profileController.userInfoModel?.lName}' : 'guest_user'.tr,
+                        style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge, color: Theme.of(context).cardColor),
+                      ),
+                      const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
-isLoggedIn && profileController.userInfoModel != null
-    ? Text(
-        DateConverter.containTAndZToUTCFormat(profileController.userInfoModel!.createdAt!),
-        style: robotoMedium.copyWith(
-          fontSize: Dimensions.fontSizeSmall,
-          color: Theme.of(context).cardColor,
-        ),
-      )
-    : InkWell(
-        onTap: () async {
-          if (!ResponsiveHelper.isDesktop(context)) {
-            Get.toNamed(RouteHelper.getSignInRoute(Get.currentRoute))?.then((value) {
-              if (AuthHelper.isLoggedIn()) {
-                profileController.getUserInfo();
-              }
-            });
-          } else {
-            Get.dialog(const SignInScreen(exitFromApp: true, backFromThis: true)).then((value) {
-              if (AuthHelper.isLoggedIn()) {
-                profileController.getUserInfo();
-              }
-            });
-          }
-        },
-        child: Text(
-          'login_to_view_all_feature'.tr,
-          style: robotoMedium.copyWith(
-            fontSize: Dimensions.fontSizeSmall,
-            color: Theme.of(context).colorScheme.onSecondary, // ✅ FIXED
-          ),
-        ),
-      ),
+                      isLoggedIn && profileController.userInfoModel != null ? Text(
+                        DateConverter.containTAndZToUTCFormat(profileController.userInfoModel!.createdAt!),
+                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).cardColor),
+                      ) : InkWell(
+                        onTap: () async {
+                          if(!ResponsiveHelper.isDesktop(context)) {
+                            Get.toNamed(RouteHelper.getSignInRoute(Get.currentRoute))?.then((value) {
+                              if(AuthHelper.isLoggedIn()) {
+                                profileController.getUserInfo();
+                              }
+                            });
+                          }else{
+                            Get.dialog(const SignInScreen(exitFromApp: true, backFromThis: true)).then((value) {
+                              if(AuthHelper.isLoggedIn()) {
+                                profileController.getUserInfo();
+                              }
+                            });
+                          }
+                        },
+                        child: Text(
+                          'login_to_view_all_feature'.tr,
+                          style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).cardColor),
+                        ),
+                      ) ,
 
                     ]),
                   ),
@@ -139,7 +126,7 @@ isLoggedIn && profileController.userInfoModel != null
                       padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
                       child: Text(
                         'general'.tr,
-                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor.withValues(alpha: 1)),
+                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor.withValues(alpha: 0.5)),
                       ),
                     ),
 
@@ -171,7 +158,7 @@ isLoggedIn && profileController.userInfoModel != null
                       padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
                       child: Text(
                         'promotional_activity'.tr,
-                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor.withValues(alpha: 1)),
+                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor.withValues(alpha: 0.5)),
                       ),
                     ),
 
@@ -207,7 +194,7 @@ isLoggedIn && profileController.userInfoModel != null
                       padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
                       child: Text(
                         'earnings'.tr,
-                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor.withValues(alpha: 1)),
+                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor.withValues(alpha: 0.5)),
                       ),
                     ),
 
@@ -241,7 +228,7 @@ isLoggedIn && profileController.userInfoModel != null
                       padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault),
                       child: Text(
                         'help_and_support'.tr,
-                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor.withValues(alpha: 1)),
+                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor.withValues(alpha: 0.5)),
                       ),
                     ),
 
@@ -282,6 +269,7 @@ isLoggedIn && profileController.userInfoModel != null
                         Get.dialog(ConfirmationDialogWidget(icon: Images.support, description: 'are_you_sure_to_logout'.tr, isLogOut: true, onYesPressed: () async {
                           Get.find<ProfileController>().setForceFullyUserEmpty();
                           Get.find<AuthController>().socialLogout();
+                          Get.find<AuthController>().resetOtpView();
                           Get.find<CartController>().clearCartList();
                           Get.find<FavouriteController>().removeFavourites();
                           await Get.find<AuthController>().clearSharedData();
@@ -322,7 +310,7 @@ isLoggedIn && profileController.userInfoModel != null
     );
   }
 
-  _manageLanguageFunctionality() {
+  void _manageLanguageFunctionality() {
     Get.find<LocalizationController>().saveCacheLanguage(null);
     Get.find<LocalizationController>().searchSelectedLanguage();
 

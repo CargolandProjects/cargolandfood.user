@@ -18,7 +18,7 @@ class NewOnStackFoodViewWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<RestaurantController>(builder: (restController) {
         return (restController.latestRestaurantList != null && restController.latestRestaurantList!.isEmpty) ? const SizedBox() : Padding(
-          padding: EdgeInsets.symmetric(vertical: ResponsiveHelper.isMobile(context)  ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeLarge),
+          padding: EdgeInsets.symmetric(vertical: ResponsiveHelper.isMobile(context) ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeLarge),
           child: Container(
             width: Dimensions.webMaxWidth,
             height: 210,

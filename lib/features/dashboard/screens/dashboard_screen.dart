@@ -78,7 +78,7 @@ class DashboardScreenState extends State<DashboardScreen> {
 
   }
 
-  _showRegistrationSuccessBottomSheet() {
+  void _showRegistrationSuccessBottomSheet() {
     bool canShowBottomSheet = Get.find<DashboardController>().getRegistrationSuccessfulSharedPref();
     if(canShowBottomSheet) {
       Future.delayed(const Duration(seconds: 1), () {

@@ -35,6 +35,9 @@ class AuthController extends GetxController implements GetxService {
   bool _isActiveRememberMe = false;
   bool get isActiveRememberMe => _isActiveRememberMe;
 
+  bool _isActiveRememberMeForOtp = false;
+  bool get isActiveRememberMeForOtp => _isActiveRememberMeForOtp;
+
   bool _notification = true;
   bool get notification => _notification;
 
@@ -42,6 +45,9 @@ class AuthController extends GetxController implements GetxService {
   bool get isNumberLogin => _isNumberLogin;
 
   var countryDialCode= "+880";
+
+  bool _isOtpViewEnable = false;
+  bool get isOtpViewEnable => _isOtpViewEnable;
 
   Future<ResponseModel> login({required String emailOrPhone, required String password, required String loginType, required String fieldType, bool alreadyInApp = false}) async {
     _isLoading = true;
@@ -63,6 +69,13 @@ class AuthController extends GetxController implements GetxService {
     return responseModel;
   }
 
+  void resetOtpView({bool isUpdate = true}) {
+    _isOtpViewEnable = false;
+    if(isUpdate) {
+      update();
+    }
+  }
+
   Future<ResponseModel> updatePersonalInfo({required String name, required String? phone, required String loginType, required String? email, required String? referCode, bool alreadyInApp = false}) async {
     _isLoading = true;
     update();
@@ -74,24 +87,13 @@ class AuthController extends GetxController implements GetxService {
   }
 
   void _getUserAndCartData(ResponseModel responseModel) {
-  if (responseModel.isSuccess &&
-      responseModel.authResponseModel != null) {
-
-    final auth = responseModel.authResponseModel!;
-    final isAppleLogin = auth.loginType == 'apple'; 
-    // 👆 depends on what your backend sends, sometimes it's `authResponseModel!.loginType`
-
-    if ((auth.isPhoneVerified! &&
-        auth.isEmailVerified! &&
-        auth.isPersonalInfo! &&
-        auth.isExistUser == null) || isAppleLogin) {
-      // ✅ For Apple login, skip extra info requests
+    if(responseModel.isSuccess && responseModel.authResponseModel != null && responseModel.authResponseModel!.isPhoneVerified!
+        && responseModel.authResponseModel!.isEmailVerified! && responseModel.authResponseModel!.isPersonalInfo!
+        && responseModel.authResponseModel!.isExistUser == null) {
       Get.find<ProfileController>().getUserInfo();
       Get.find<CartController>().getCartDataOnline();
     }
   }
-}
-
 
   Future<ResponseModel> registration(SignUpBodyModel signUpModel) async {
     _isLoading = true;
@@ -114,12 +116,17 @@ class AuthController extends GetxController implements GetxService {
     }
   }
 
+  void enableOtpView({bool enable = false}) {
+    _isOtpViewEnable = enable;
+    update();
+  }
+
   void initCountryCode({String? countryCode}){
     countryDialCode = countryCode ?? CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country ?? "BD").dialCode ?? "+880";
   }
 
-  void saveUserNumberAndPassword(String number, String password, String countryCode) {
-    authServiceInterface.saveUserNumberAndPassword(number, password, countryCode);
+  void saveUserNumberAndPassword({required String number, required String password, required String countryCode, required String otpPoneNumber}) {
+    authServiceInterface.saveUserNumberAndPassword(number: number, password: password, countryCode: countryCode, otpPoneNumber: otpPoneNumber);
   }
 
   Future<bool> clearUserNumberAndPassword() async {
@@ -143,8 +150,17 @@ class AuthController extends GetxController implements GetxService {
     return authServiceInterface.getUserPassword();
   }
 
+  String getUserOtpPhoneNumber() {
+    return authServiceInterface.getUserOtpPhoneNumber();
+  }
+
   void toggleRememberMe() {
     _isActiveRememberMe = !_isActiveRememberMe;
+    update();
+  }
+
+  void toggleRememberMeForOtp() {
+    _isActiveRememberMeForOtp = !_isActiveRememberMeForOtp;
     update();
   }
 
@@ -167,14 +183,6 @@ class AuthController extends GetxController implements GetxService {
     return responseModel;
   }
 
-  // Future<void> registerWithSocialMedia(SocialLogInBodyModel socialLogInModel) async {
-  //   _isLoading = true;
-  //   update();
-  //   await authServiceInterface.registerWithSocialMedia(socialLogInModel, isCustomerVerificationOn: Get.find<SplashController>().configModel!.customerVerification!);
-  //   _isLoading = false;
-  //   update();
-  // }
-
   Future<void> updateToken() async {
     await authServiceInterface.updateToken();
   }
@@ -189,14 +197,6 @@ class AuthController extends GetxController implements GetxService {
 
   bool isGuestLoggedIn() {
     return authServiceInterface.isGuestLoggedIn() && !authServiceInterface.isLoggedIn();
-  }
-
-  void saveDmTipIndex(String i){
-    authServiceInterface.saveDmTipIndex(i);
-  }
-
-  String getDmTipIndex() {
-    return authServiceInterface.getDmTipIndex();
   }
 
   Future<void> socialLogout() async {

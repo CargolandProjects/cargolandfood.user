@@ -1,7 +1,8 @@
+import 'package:stackfood_multivendor/common/widgets/custom_image_widget.dart';
 import 'package:stackfood_multivendor/features/auth/widgets/sign_up_widget.dart';
+import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
-import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -43,10 +44,11 @@ class SignUpScreenState extends State<SignUpScreen> {
                 ),
               ) : const SizedBox(),
 
-              Image.asset(Images.logo, width: 60),
-              const SizedBox(height: Dimensions.paddingSizeSmall),
-              Image.asset(Images.logoName, width: 100),
-              const SizedBox(height: Dimensions.paddingSizeExtraLarge),
+              CustomImageWidget(
+                image: Get.find<SplashController>().configModel?.logoFullUrl ?? '',
+                height: 50, width: 200, fit: BoxFit.contain,
+              ),
+              const SizedBox(height: Dimensions.paddingSizeOverLarge),
 
               Align(
                 alignment: Alignment.topLeft,

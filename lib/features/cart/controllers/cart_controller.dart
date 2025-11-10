@@ -72,6 +72,11 @@ class CartController extends GetxController implements GetxService {
     }
   }
 
+  void setNeedExtraPackage(bool needExtraPackage) {
+    _needExtraPackage = needExtraPackage;
+    update();
+  }
+
   double calculationCart(){
     _itemPrice = 0 ;
     _itemDiscountPrice = 0;
@@ -114,9 +119,11 @@ class CartController extends GetxController implements GetxService {
     if (Get.find<RestaurantController>().restaurant != null && Get.find<RestaurantController>().restaurant!.discount != null) {
       if (Get.find<RestaurantController>().restaurant!.discount!.maxDiscount != 0 && Get.find<RestaurantController>().restaurant!.discount!.maxDiscount! < _itemDiscountPrice) {
         _itemDiscountPrice = Get.find<RestaurantController>().restaurant!.discount!.maxDiscount!;
+        _subTotal = (_itemPrice - _itemDiscountPrice) + _addOnsPrice + _variationPrice;
       }
       if (Get.find<RestaurantController>().restaurant!.discount!.minPurchase != 0 && Get.find<RestaurantController>().restaurant!.discount!.minPurchase! > _subTotal) {
         _itemDiscountPrice = 0;
+        _subTotal = (_itemPrice - _itemDiscountPrice) + _addOnsPrice + _variationPrice;
       }
     }
     return _subTotal;

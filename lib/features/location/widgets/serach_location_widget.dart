@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:stackfood_multivendor/features/location/widgets/location_search_dialog.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -18,13 +19,13 @@ class SearchLocationWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return LocationSearchDialog(mapController: mapController, child: Container(
-      height: 50,
+      height: fromDialog! ? 40 : 50,
       padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
         border: isEnabled != null ? Border.all(
-          color: fromDialog! ? Theme.of(context).disabledColor : isEnabled! ? Theme.of(context).primaryColor : Theme.of(context).disabledColor, width: isEnabled! ? 2 : 1,
+          color: fromDialog! ? Theme.of(context).disabledColor.withValues(alpha: 0.5) : isEnabled! ? Theme.of(context).primaryColor : Theme.of(context).disabledColor, width: isEnabled! ? fromDialog! ? 1 : 2 : 1,
         ) : null,
       ),
       child: Row(children: [
@@ -37,15 +38,15 @@ class SearchLocationWidget extends StatelessWidget {
         Expanded(
           child: (pickedAddress != null && pickedAddress!.isNotEmpty) ? Text(
             pickedAddress!,
-            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge), maxLines: 1, overflow: TextOverflow.ellipsis,
+            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault), maxLines: 1, overflow: TextOverflow.ellipsis,
           ) : Text(
             hint ?? '',
-            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).hintColor),
+            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).hintColor),
             maxLines: 1, overflow: TextOverflow.ellipsis,
           ),
         ),
         const SizedBox(width: Dimensions.paddingSizeSmall),
-        Icon(Icons.search, size: 25, color: fromDialog! ? Theme.of(context).disabledColor : Theme.of(context).textTheme.bodyLarge!.color),
+        Icon(CupertinoIcons.search, size: 25, color: fromDialog! ? Theme.of(context).disabledColor.withValues(alpha: 0.5) : Theme.of(context).textTheme.bodyLarge!.color),
       ]),
     ));
   }

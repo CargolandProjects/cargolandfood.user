@@ -1,5 +1,4 @@
 import 'package:stackfood_multivendor/features/chat/controllers/chat_controller.dart';
-import 'package:stackfood_multivendor/features/chat/widgets/chat_video_view.dart';
 import 'package:stackfood_multivendor/features/chat/widgets/image_file_view_widget.dart';
 import 'package:stackfood_multivendor/features/chat/widgets/pdf_view_widget.dart';
 import 'package:stackfood_multivendor/features/language/controllers/localization_controller.dart';
@@ -7,6 +6,7 @@ import 'package:stackfood_multivendor/features/profile/controllers/profile_contr
 import 'package:stackfood_multivendor/features/chat/domain/models/conversation_model.dart';
 import 'package:stackfood_multivendor/features/chat/domain/models/message_model.dart';
 import 'package:stackfood_multivendor/common/enums/user_type.dart';
+import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/util/color_resources.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -94,6 +94,7 @@ class MessageBubbleWidget extends StatelessWidget {
                   ),
 
                   padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: 10),
+                  margin: EdgeInsets.only(left: isRightMessage ? context.width * 0.1 : 0, right: isRightMessage ? 0 : context.width * 0.1),
                   child: InkWell(
                     onTap: () {
                       chatController.toggleOnClickMessage(currentMessage.id!);
@@ -145,12 +146,9 @@ class MessageBubbleWidget extends StatelessWidget {
                   currentMessage.filesFullUrl!.isNotEmpty ? Directionality(
                     textDirection: isRightMessage && isLTR ? TextDirection.rtl : !isLTR && !isRightMessage ? TextDirection.rtl : TextDirection.ltr,
                     child: SizedBox(
-                      width: _isPdf(currentMessage.filesFullUrl![0]) ? 200 : 300,
-                      child: _isVideo(currentMessage.filesFullUrl![0]) ?
-                      InkWell(
-                          onLongPress: () => chatController.toggleOnClickImageAndFile(currentMessage.id!),
-                          child: ChatVideoView(url: currentMessage.filesFullUrl![0])) :
-                      _isPdf(currentMessage.filesFullUrl![0])
+                      width: ResponsiveHelper.isDesktop(context) ? _isPdf(currentMessage.filesFullUrl![0]) ? 200 : 400
+                          : _isPdf(currentMessage.filesFullUrl![0]) ? 200 : 150,
+                      child: _isPdf(currentMessage.filesFullUrl![0])
                           ? PdfViewWidget(currentMessage: currentMessage, isRightMessage: isRightMessage)
                           : ImageFileViewWidget(currentMessage: currentMessage, isRightMessage: isRightMessage),
                     ),
@@ -207,13 +205,6 @@ class MessageBubbleWidget extends StatelessWidget {
 
   bool _isSameUserWithNextMessage(Message? currentConversation, Message? nextConversation){
     if(currentConversation?.senderId == nextConversation?.senderId && nextConversation?.message != null && currentConversation?.message !=null){
-      return true;
-    }
-    return false;
-  }
-
-  bool _isVideo(String url) {
-    if(url.contains('.mp4') || url.contains('.mov') || url.contains('.avi') || url.contains('.wmv') || url.contains('.flv') || url.contains('.mkv')) {
       return true;
     }
     return false;

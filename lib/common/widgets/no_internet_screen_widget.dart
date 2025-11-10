@@ -1,5 +1,5 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -31,14 +31,16 @@ class NoInternetScreen extends StatelessWidget {
             ),
             const SizedBox(height: 40),
 
-            GestureDetector(
+            InkWell(
               onTap: () async {
                 final List<ConnectivityResult> connectivityResult = await (Connectivity().checkConnectivity());
 
                 if(!connectivityResult.contains(ConnectivityResult.none)) {
-                  Get.off(child);
-                }else {
-                  showCustomSnackBar('no_internet_connection'.tr, isError: true);
+                  try {
+                    Get.off(child);
+                  } catch (e) {
+                    Get.offAllNamed(RouteHelper.getInitialRoute());
+                  }
                 }
               },
               child: Container(

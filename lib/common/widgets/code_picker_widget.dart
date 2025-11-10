@@ -1,6 +1,8 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:stackfood_multivendor/util/dimensions.dart';
+import 'package:stackfood_multivendor/util/styles.dart';
 
 class CodePickerWidget extends StatefulWidget {
   final ValueChanged<CountryCode>? onChanged;
@@ -186,6 +188,10 @@ class _CodePickerWidgetState extends State<CodePickerWidget> {
                 hideSearch: widget.hideSearch!,
                 closeIcon: widget.closeIcon,
                 flagDecoration: widget.flagDecoration,
+                hideHeaderText: false,
+                headerAlignment: MainAxisAlignment.start,
+                headerTextStyle: robotoMedium,
+                topBarPadding: EdgeInsets.zero,
               ),
             ),
           ),
@@ -200,11 +206,9 @@ class _CodePickerWidgetState extends State<CodePickerWidget> {
       }
       });
     } else {
-      showModalBottomSheet(
-        barrierColor: widget.barrierColor ?? Colors.grey.withValues(alpha: 0.5),
-        backgroundColor: widget.backgroundColor ?? Colors.transparent,
-        context: context,
-        builder: (context) => Center(
+      Get.bottomSheet(
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.of(Get.context!).size.height * 0.45),
           child: SelectionDialog(
             elements!,
             favoriteElements!,
@@ -222,6 +226,20 @@ class _CodePickerWidgetState extends State<CodePickerWidget> {
             barrierColor: widget.barrierColor,
             hideSearch: widget.hideSearch!,
             closeIcon: widget.closeIcon,
+            hideHeaderText: false,
+            headerAlignment: MainAxisAlignment.start,
+            headerTextStyle: robotoMedium,
+            topBarPadding: EdgeInsets.zero,
+          ),
+        ),
+        useRootNavigator: true,
+        barrierColor: widget.barrierColor ?? Colors.grey.withValues(alpha: 0.5),
+        backgroundColor: widget.backgroundColor ?? Colors.transparent,
+        isScrollControlled: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(Dimensions.radiusExtraLarge),
+            topRight: Radius.circular(Dimensions.radiusExtraLarge),
           ),
         ),
       ).then((e) {

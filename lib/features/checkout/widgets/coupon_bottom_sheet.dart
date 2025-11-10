@@ -1,7 +1,7 @@
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:stackfood_multivendor/features/coupon/controllers/coupon_controller.dart';
-import 'package:stackfood_multivendor/features/coupon/domain/models/coupon_model.dart';
+import 'package:stackfood_multivendor/features/coupon/domain/models/customer_coupon_model.dart';
 import 'package:stackfood_multivendor/features/language/controllers/localization_controller.dart';
 import 'package:stackfood_multivendor/features/restaurant/controllers/restaurant_controller.dart';
 import 'package:stackfood_multivendor/features/coupon/widgets/coupon_card_widget.dart';
@@ -29,44 +29,68 @@ class CouponBottomSheet extends StatefulWidget {
 }
 
 class _CouponBottomSheetState extends State<CouponBottomSheet> {
-  List<CouponModel>? _couponList;
-  List<JustTheController>? _toolTipControllerList;
+  List<Coupon>? _availableCouponList;
+  List<Coupon>? _unavailableCouponList;
+  List<JustTheController>? _availableToolTipControllerList;
+  List<JustTheController>? _unavailableToolTipControllerList;
 
   @override
   void initState() {
     super.initState();
 
-    if(Get.find<CouponController>().couponList != null && Get.find<CouponController>().couponList!.isNotEmpty) {
-      _couponList = [];
-      _toolTipControllerList = [];
-      for (var coupon in Get.find<CouponController>().couponList!) {
+    if(Get.find<CouponController>().customerCouponModel?.available != null && Get.find<CouponController>().customerCouponModel!.available!.isNotEmpty) {
+      _availableCouponList = [];
+      _availableToolTipControllerList = [];
+      for (var coupon in Get.find<CouponController>().customerCouponModel!.available!) {
         if(widget.deliveryCharge == 0 && coupon.couponType != 'free_delivery') {
-          _couponList!.add(coupon);
-          _toolTipControllerList!.add(JustTheController());
+          _availableCouponList!.add(coupon);
+          _availableToolTipControllerList!.add(JustTheController());
         } else if(widget.deliveryCharge != 0) {
-          _couponList!.add(coupon);
-          _toolTipControllerList!.add(JustTheController());
+          _availableCouponList!.add(coupon);
+          _availableToolTipControllerList!.add(JustTheController());
         }
       }
     }
+
+    if(Get.find<CouponController>().customerCouponModel?.unavailable != null && Get.find<CouponController>().customerCouponModel!.unavailable!.isNotEmpty) {
+      _unavailableCouponList = [];
+      _unavailableToolTipControllerList = [];
+      for (var coupon in Get.find<CouponController>().customerCouponModel!.unavailable!) {
+        if(widget.deliveryCharge == 0 && coupon.couponType != 'free_delivery') {
+          _unavailableCouponList!.add(coupon);
+          _unavailableToolTipControllerList!.add(JustTheController());
+        } else if(widget.deliveryCharge != 0) {
+          _unavailableCouponList!.add(coupon);
+          _unavailableToolTipControllerList!.add(JustTheController());
+        }
+      }
+    }
+
   }
 
   @override
   void dispose() {
     super.dispose();
 
-    if(_toolTipControllerList != null) {
-      for (var toolTip in _toolTipControllerList!) {
+    if(_availableToolTipControllerList != null) {
+      for (var toolTip in _availableToolTipControllerList!) {
         toolTip.dispose();
       }
     }
+
+    if(_unavailableToolTipControllerList != null) {
+      for (var toolTip in _unavailableToolTipControllerList!) {
+        toolTip.dispose();
+      }
+    }
+
   }
 
   @override
   Widget build(BuildContext context) {
     double totalPrice = widget.total;
     return Container(
-      width: Dimensions.webMaxWidth,
+      width: 500,
       height: context.height * 0.7 ,
       margin: EdgeInsets.only(top: GetPlatform.isWeb ? 0 : 30),
       decoration: BoxDecoration(
@@ -180,73 +204,104 @@ class _CouponBottomSheetState extends State<CouponBottomSheet> {
                 ]),
               ),
 
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
-                child: Align(alignment: Alignment.centerLeft, child: Text('available_promo'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault))),
-              ),
-
               Expanded(
-                child: _couponList != null && _couponList!.isNotEmpty ? GridView.builder(
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: ResponsiveHelper.isDesktop(context) ? 3 : ResponsiveHelper.isTab(context) ? 2 : 1,
-                    mainAxisSpacing: Dimensions.paddingSizeSmall, crossAxisSpacing: Dimensions.paddingSizeSmall,
-                    childAspectRatio: ResponsiveHelper.isMobile(context) ? 3 : 2.5,
-                  ),
-                  itemCount: _couponList!.length,
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-                  itemBuilder: (context, index) {
-                    return InkWell(
-                      onTap: () {
-                        if(_couponList![index].code != null) {
-                          widget.checkoutController.couponController.text = _couponList![index].code.toString();
-                        }
-                        if(widget.checkoutController.couponController.text.isNotEmpty){
-                          if(couponController.discount! < 1 && !couponController.freeDelivery) {
-                            if(widget.checkoutController.couponController.text.isNotEmpty && !couponController.isLoading) {
-                              couponController.applyCoupon(widget.checkoutController.couponController.text, (widget.price-widget.discount)+widget.addOns, widget.deliveryCharge,
-                                widget.charge, totalPrice, Get.find<RestaurantController>().restaurant!.id, hideBottomSheet: true).then((discount) {
+                child: _availableCouponList != null && _availableCouponList!.isNotEmpty ? SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+                  child: Column(children: [
 
-                                widget.checkoutController.couponController.text = '${widget.checkoutController.couponController.text}(${couponController.freeDelivery ? 'free_delivery'.tr : PriceConverter.convertPrice(couponController.discount)})';
-                                if (discount! > 0) {
-                                  // orderController.couponController.text = 'coupon_applied'.tr;
-                                  showCustomSnackBar(
-                                    '${'you_got_discount_of'.tr} ${PriceConverter.convertPrice(discount)}',
-                                    isError: false,
-                                  );
-                                  if(widget.checkoutController.isPartialPay || widget.checkoutController.paymentMethodIndex == 1) {
-                                    // totalPrice = totalPrice - discount;
-                                    widget.checkoutController.checkBalanceStatus(totalPrice, discount: discount);
-                                  }
-                                } else{
-                                  if(widget.checkoutController.isPartialPay || widget.checkoutController.paymentMethodIndex == 1) {
-                                    widget.checkoutController.checkBalanceStatus(totalPrice);
-                                  }
-                                }
-                              });
-                            } else if(widget.checkoutController.couponController.text.isEmpty) {
-                              showCustomSnackBar('enter_a_coupon_code'.tr);
-                            }
-                          } else {
-                            totalPrice = totalPrice + couponController.discount!;
-                            couponController.removeCouponData(true);
-                            widget.checkoutController.couponController.text = '';
-                            if(widget.checkoutController.isPartialPay || widget.checkoutController.paymentMethodIndex == 1){
-                              widget.checkoutController.checkBalanceStatus(totalPrice);
-                            }
-                          }
-                        }
-                      },
-                      child: CouponCardWidget(
-                        toolTipController: _toolTipControllerList, couponList: _couponList, index: index,
-                        onCopyClick: () {
-                          if(_couponList![index].code != null) {
-                            widget.checkoutController.couponController.text = _couponList![index].code.toString();
-                          }
-                        },
+                    Padding(
+                      padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeDefault, top: Dimensions.paddingSizeDefault, bottom: Dimensions.paddingSizeSmall),
+                      child: Align(alignment: Alignment.centerLeft, child: Text('available_promo_for_this_order'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault))),
+                    ),
+
+                    GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 1,
+                        mainAxisSpacing: Dimensions.paddingSizeSmall, crossAxisSpacing: Dimensions.paddingSizeSmall,
+                        childAspectRatio: 3,
                       ),
-                    );
-                  },
+                      itemCount: _availableCouponList!.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                      itemBuilder: (context, index) {
+                        return InkWell(
+                          onTap: () {
+                            if(_availableCouponList![index].code != null) {
+                              widget.checkoutController.couponController.text = _availableCouponList![index].code.toString();
+                            }
+                            if(widget.checkoutController.couponController.text.isNotEmpty){
+                              if(couponController.discount! < 1 && !couponController.freeDelivery) {
+                                if(widget.checkoutController.couponController.text.isNotEmpty && !couponController.isLoading) {
+                                  couponController.applyCoupon(widget.checkoutController.couponController.text, (widget.price-widget.discount)+widget.addOns, widget.deliveryCharge,
+                                    widget.charge, totalPrice, Get.find<RestaurantController>().restaurant!.id, hideBottomSheet: true).then((discount) {
+
+                                    widget.checkoutController.couponController.text = '${widget.checkoutController.couponController.text}(${couponController.freeDelivery ? 'free_delivery'.tr : PriceConverter.convertPrice(couponController.discount)})';
+                                    if (discount! > 0) {
+                                      // orderController.couponController.text = 'coupon_applied'.tr;
+                                      showCustomSnackBar(
+                                        '${'you_got_discount_of'.tr} ${PriceConverter.convertPrice(discount)}',
+                                        isError: false,
+                                      );
+                                      if(widget.checkoutController.isPartialPay || widget.checkoutController.paymentMethodIndex == 1) {
+                                        // totalPrice = totalPrice - discount;
+                                        widget.checkoutController.checkBalanceStatus(totalPrice, discount: discount);
+                                      }
+                                    } else{
+                                      if(widget.checkoutController.isPartialPay || widget.checkoutController.paymentMethodIndex == 1) {
+                                        widget.checkoutController.checkBalanceStatus(totalPrice);
+                                      }
+                                    }
+                                  });
+                                } else if(widget.checkoutController.couponController.text.isEmpty) {
+                                  showCustomSnackBar('enter_a_coupon_code'.tr);
+                                }
+                              } else {
+                                totalPrice = totalPrice + couponController.discount!;
+                                couponController.removeCouponData(true);
+                                widget.checkoutController.couponController.text = '';
+                                if(widget.checkoutController.isPartialPay || widget.checkoutController.paymentMethodIndex == 1){
+                                  widget.checkoutController.checkBalanceStatus(totalPrice);
+                                }
+                              }
+                            }
+                          },
+                          child: CouponCardWidget(
+                            toolTipController: _availableToolTipControllerList, couponList: _availableCouponList, index: index,
+                            onCopyClick: () {
+                              if(_availableCouponList![index].code != null) {
+                                widget.checkoutController.couponController.text = _availableCouponList![index].code.toString();
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    ),
+
+                    _unavailableCouponList != null && _unavailableCouponList!.isNotEmpty ? Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
+                      child: Align(alignment: Alignment.centerLeft, child: Text('unavailable_promo'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault))),
+                    ) : const SizedBox(),
+
+                    _unavailableCouponList != null && _unavailableCouponList!.isNotEmpty ? GridView.builder(
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 1,
+                        mainAxisSpacing: Dimensions.paddingSizeSmall, crossAxisSpacing: Dimensions.paddingSizeSmall,
+                        childAspectRatio: 3,
+                      ),
+                      itemCount: _unavailableCouponList!.length,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                      itemBuilder: (context, index) {
+                        return CouponCardWidget(
+                          unavailable: true,
+                          toolTipController: _unavailableToolTipControllerList, couponList: _unavailableCouponList, index: index,
+                          onCopyClick: () {},
+                        );
+                      },
+                    ) : const SizedBox(),
+                  ]),
                 ): Column(
                   children: [
                     Image.asset(Images.noCoupon, height: 70),

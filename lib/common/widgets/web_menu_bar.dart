@@ -52,7 +52,7 @@ class WebMenuBar extends StatelessWidget implements PreferredSizeWidget {
                           const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
                           Text(
-                            AuthHelper.isLoggedIn() ? '${AddressHelper.getAddressFromSharedPref()!.addressType!.tr}: ' : '${'your_location'.tr}: ',
+                            '${AddressHelper.getAddressFromSharedPref()!.addressType == 'others' ? 'your_location'.tr : AddressHelper.getAddressFromSharedPref()!.addressType!.tr}: ',
                             style: robotoMedium.copyWith(
                               color: Theme.of(context).primaryColor, fontSize: Dimensions.fontSizeExtraSmall,
                             ),
@@ -311,7 +311,13 @@ class WebMenuBar extends StatelessWidget implements PreferredSizeWidget {
             MenuIconButton(icon: CupertinoIcons.bell_fill, onTap: () => Get.toNamed(RouteHelper.getNotificationRoute())),
             const SizedBox(width: 20),
 
-            MenuIconButton(icon: Icons.shopping_cart, isCart: true, onTap: () => Get.toNamed(RouteHelper.getCartRoute(fromDineIn: fromDineIn))),
+            MenuIconButton(icon: Icons.shopping_cart, isCart: true, onTap: () {
+              if(Get.currentRoute.contains(RouteHelper.checkout)) {
+                return Get.offNamed(RouteHelper.getCartRoute(fromDineIn: fromDineIn));
+              } else {
+                return Get.toNamed(RouteHelper.getCartRoute(fromDineIn: fromDineIn));
+              }
+            }),
             const SizedBox(width: 20),
 
             GetBuilder<AuthController>(builder: (authController) {

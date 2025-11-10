@@ -150,7 +150,7 @@ class SplashController extends GetxController implements GetxService {
     }
   }
 
-  _mainConfigRouting() async {
+  Future<void> _mainConfigRouting() async {
     if(GetPlatform.isWeb) {
       bool isInMaintenance = MaintenanceHelper.isMaintenanceEnable();
 

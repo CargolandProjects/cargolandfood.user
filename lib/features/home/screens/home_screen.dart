@@ -59,7 +59,7 @@ class HomeScreen extends StatefulWidget {
 
   static Future<void> loadData(bool reload) async {
     Get.find<HomeController>().getBannerList(reload);
-    Get.find<CategoryController>().getCategoryList(reload);
+    Get.find<CategoryController>().getCategoryList(reload, search: '');
     Get.find<CuisineController>().getCuisineList();
     Get.find<AdvertisementController>().getAdvertisementList();
     Get.find<DineInController>().getDineInRestaurantList(1, reload);
@@ -174,7 +174,7 @@ class _HomeScreenState extends State<HomeScreen> {
             child: RefreshIndicator(
               onRefresh: () async {
                 await Get.find<HomeController>().getBannerList(true);
-                await Get.find<CategoryController>().getCategoryList(true);
+                await Get.find<CategoryController>().getCategoryList(true, search: '');
                 await Get.find<CuisineController>().getCuisineList();
                 Get.find<AdvertisementController>().getAdvertisementList();
                 await Get.find<RestaurantController>().getPopularRestaurantList(true, 'all', false);
@@ -230,64 +230,41 @@ class _HomeScreenState extends State<HomeScreen> {
 
                                             if(scrollingRate < 0.2)
                                             Row(children: [
-  AuthHelper.isLoggedIn()
-      ? Icon(
-          AddressHelper.getAddressFromSharedPref()!.addressType == 'home'
-              ? Icons.home_filled
-              : AddressHelper.getAddressFromSharedPref()!.addressType == 'office'
-                  ? Icons.work
-                  : Icons.location_on,
-          size: 20,
-          color: Theme.of(context).cardColor,
-        )
-      : Icon(
-          Icons.location_on,
-          size: 20,
-          color: Theme.of(context).colorScheme.onSecondary, // ✅ FIXED
-        ),
-  const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                                              AuthHelper.isLoggedIn() ? Icon(
+                                                AddressHelper.getAddressFromSharedPref()!.addressType == 'home' ? Icons.home_filled
+                                                    : AddressHelper.getAddressFromSharedPref()!.addressType == 'office' ? Icons.work : Icons.location_on,
+                                                size: 20, color: Theme.of(context).cardColor,
+                                              ) : Icon(Icons.location_on, size: 20, color: Theme.of(context).cardColor,),
+                                              const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
-  Text(
-    (AuthHelper.isLoggedIn() &&
-            AddressHelper.getAddressFromSharedPref()!.addressType != 'others')
-        ? AddressHelper.getAddressFromSharedPref()!.addressType!.tr
-        : 'your_location'.tr,
-    style: robotoMedium.copyWith(
-      color: Theme.of(context).colorScheme.onSecondary, // ✅ FIXED
-      fontSize: Dimensions.fontSizeDefault,
-    ),
-    maxLines: 1,
-    overflow: TextOverflow.ellipsis,
-  ),
-]),
-SizedBox(height: (scrollingRate < 0.15) ? 5 : 0),
+                                              Text(
+                                                (AuthHelper.isLoggedIn() && AddressHelper.getAddressFromSharedPref()!.addressType != 'others') ? AddressHelper.getAddressFromSharedPref()!.addressType!.tr : 'your_location'.tr,
+                                                style: robotoMedium.copyWith(
+                                                  color: Theme.of(context).cardColor, fontSize: Dimensions.fontSizeDefault /* - (scrollingRate * Dimensions.fontSizeDefault)*/,
+                                                ),
+                                                maxLines: 1, overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ]),
+                                            SizedBox(height: (scrollingRate < 0.15) ? 5 : 0),
 
-if (scrollingRate < 0.8)
-  Padding(
-    padding: const EdgeInsets.only(left: 5),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Flexible(
-          child: Text(
-            AddressHelper.getAddressFromSharedPref()!.address!,
-            style: robotoRegular.copyWith(
-              color: Theme.of(context).colorScheme.onSecondary, // ✅ FIXED
-              fontSize: Dimensions.fontSizeSmall,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Icon(
-          Icons.arrow_drop_down,
-          color: Theme.of(context).cardColor,
-          size: 16,
-        ),
-      ],
-    ),
-  ),
+                                            if(scrollingRate < 0.8)
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 5),
+                                              child: Row(crossAxisAlignment: CrossAxisAlignment.center, mainAxisAlignment: MainAxisAlignment.start,
+                                                children: [
+                                                  Flexible(
+                                                    child: Text(
+                                                      AddressHelper.getAddressFromSharedPref()!.address!,
+                                                      style: robotoRegular.copyWith(
+                                                        color: Theme.of(context).cardColor, fontSize: Dimensions.fontSizeSmall/* - (scrollingRate * Dimensions.fontSizeSmall)*/,
+                                                      ),
+                                                      maxLines: 1, overflow: TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                  Icon(Icons.arrow_drop_down, color: Theme.of(context).cardColor, size: 16 /*- (scrollingRate * 16)*/,),
+                                                ],
+                                              ),
+                                            ),
                                           ]);
                                         }),
                                       ),
@@ -363,7 +340,7 @@ if (scrollingRate < 0.8)
                                 Image.asset(Images.searchIcon, width: 25, height: 25),
                                 const SizedBox(width: Dimensions.paddingSizeExtraSmall),
                                 Expanded(child: Text('are_you_hungry'.tr, style: robotoRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor.withValues(alpha: 0.6),
+                                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor.withValues(alpha: 0.6),
                                 ))),
                               ]),
                             ),
@@ -417,7 +394,7 @@ if (scrollingRate < 0.8)
                   SliverPersistentHeader(
                     pinned: true,
                     delegate: SliverDelegate(
-                      height: 85,
+                      height: 90,
                       child: const AllRestaurantFilterWidget(),
                     ),
                   ),

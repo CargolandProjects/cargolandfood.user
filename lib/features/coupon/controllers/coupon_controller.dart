@@ -1,5 +1,6 @@
 import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:stackfood_multivendor/features/coupon/domain/models/coupon_model.dart';
+import 'package:stackfood_multivendor/features/coupon/domain/models/customer_coupon_model.dart';
 import 'package:stackfood_multivendor/features/coupon/domain/services/coupon_service_interface.dart';
 import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/helper/price_converter.dart';
@@ -12,6 +13,9 @@ class CouponController extends GetxController implements GetxService {
 
   List<CouponModel>? _couponList;
   List<CouponModel>? get couponList => _couponList;
+
+  CustomerCouponModel? _customerCouponModel;
+  CustomerCouponModel? get customerCouponModel => _customerCouponModel;
 
   CouponModel? _coupon;
   CouponModel? get coupon => _coupon;
@@ -28,26 +32,19 @@ class CouponController extends GetxController implements GetxService {
   String? _checkoutCouponCode = '';
   String? get checkoutCouponCode => _checkoutCouponCode;
 
-  // List<JustTheController>? _toolTipController;
-  // List<JustTheController>? get toolTipController => _toolTipController;
-
   int _currentIndex = 0;
   int get currentIndex => _currentIndex;
 
-  Future<void> getCouponList({int? restaurantId}) async {
+  Future<void> getCouponList({int? restaurantId, int? orderRestaurantId, double? orderAmount}) async {
     if(Get.find<ProfileController>().userInfoModel == null){
       await Get.find<ProfileController>().getUserInfo();
     }
-    _couponList = await couponServiceInterface.getList(customerId: Get.find<ProfileController>().userInfoModel!.id, restaurantId: restaurantId);
-    // if(_couponList != null) {
-    //   _toolTipController = couponServiceInterface.generateToolTipControllerList(_couponList);
-      update();
-    // }
+    _customerCouponModel = await couponServiceInterface.getCouponList(customerId: Get.find<ProfileController>().userInfoModel!.id, restaurantId: restaurantId, orderRestaurantId: orderRestaurantId, orderAmount: orderAmount);
+    update();
   }
 
   Future<void> getRestaurantCouponList({required int restaurantId}) async {
     _couponList = await couponServiceInterface.getRestaurantCouponList(restaurantId: restaurantId);
-    // _toolTipController = couponServiceInterface.generateToolTipControllerList(_couponList);
     update();
   }
 
@@ -55,7 +52,7 @@ class CouponController extends GetxController implements GetxService {
     _isLoading = true;
     _discount = 0;
     update();
-    Response response = await couponServiceInterface.applyCoupon(coupon, restaurantID);
+    Response response = await couponServiceInterface.applyCoupon(couponCode: coupon, restaurantID: restaurantID, orderAmount: total);
     if (response.statusCode == 200) {
       _coupon = CouponModel.fromJson(response.body);
       if(_coupon!.couponType == 'free_delivery') {
@@ -77,15 +74,15 @@ class CouponController extends GetxController implements GetxService {
     return _discount;
   }
 
-  _processFreeDeliveryCoupon(double deliveryCharge, double order) {
+  void _processFreeDeliveryCoupon(double deliveryCharge, double order) {
     if(deliveryCharge > 0) {
       if (_coupon!.minPurchase! < order) {
         _discount = 0;
         _freeDelivery = true;
       } else {
         showCustomSnackBar('${'the_minimum_item_purchase_amount_for_this_coupon_is'.tr} '
-            '${PriceConverter.convertPrice(_coupon!.minPurchase)} '
-            '${'but_you_have'.tr} ${PriceConverter.convertPrice(order)}',
+          '${PriceConverter.convertPrice(_coupon!.minPurchase)} '
+          '${'but_you_have'.tr} ${PriceConverter.convertPrice(order)}',
         );
         _coupon = null;
         _discount = 0;
@@ -95,7 +92,7 @@ class CouponController extends GetxController implements GetxService {
     }
   }
 
-  _processCoupon(double order) {
+  void _processCoupon(double order) {
     if (_coupon!.minPurchase != null && _coupon!.minPurchase! < order) {
       if (_coupon!.discountType == 'percent') {
         if (_coupon!.maxDiscount != null && _coupon!.maxDiscount! > 0) {

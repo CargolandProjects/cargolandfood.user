@@ -309,7 +309,7 @@ class CheckoutShimmerView extends StatelessWidget {
                     ),
 
                     child: Row(children: [
-                      Radio(activeColor: Theme.of(context).cardColor, value: 0, groupValue: 0, onChanged: (value) {}),
+                      RadioGroup(groupValue: 0, onChanged: (value) {}, child: Radio(value: 0, activeColor: Theme.of(context).cardColor)),
 
                       Container(
                         height: 20, width: 100,
@@ -335,7 +335,7 @@ class CheckoutShimmerView extends StatelessWidget {
                     ),
 
                     child: Row(children: [
-                      Radio(activeColor: Theme.of(context).cardColor, value: 0, groupValue: 0, onChanged: (value) {}),
+                      RadioGroup(groupValue: 0, onChanged: (value) {}, child: Radio(value: 0, activeColor: Theme.of(context).cardColor)),
 
                       Container(
                         height: 20, width: 100,

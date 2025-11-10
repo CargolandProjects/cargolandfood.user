@@ -20,7 +20,7 @@ class ReferBannerViewWidget extends StatelessWidget {
     return (Get.find<SplashController>().configModel!.refEarningStatus == 1 ) ? Padding(
       padding: EdgeInsets.symmetric(
         horizontal: ResponsiveHelper.isMobile(context) ? fromTheme1 ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeDefault : 0,
-        vertical: ResponsiveHelper.isMobile(context)  ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeLarge,
+        vertical: ResponsiveHelper.isMobile(context) ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeLarge,
       ),
       child: Container(
         padding: EdgeInsets.all(ResponsiveHelper.isMobile(context) ? 0 : Dimensions.paddingSizeLarge),

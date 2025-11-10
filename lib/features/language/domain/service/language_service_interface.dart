@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 
 abstract class LanguageServiceInterface {
   bool setLTR(Locale locale);
-  updateHeader(Locale locale);
+  void updateHeader(Locale locale);
   Locale getLocaleFromSharedPref();
-  setSelectedLanguageIndex(List<LanguageModel> languages, Locale locale);
+  int setSelectedLanguageIndex(List<LanguageModel> languages, Locale locale);
   void saveLanguage(Locale locale);
   Locale getCacheLocaleFromSharedPref();
   void saveCacheLanguage(Locale locale);

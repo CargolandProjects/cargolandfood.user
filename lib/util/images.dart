@@ -40,6 +40,7 @@ class Images {
   //static const String deliveryLocation = 'assets/image/delivery_location.png';
   static const String forgot = 'assets/image/forgot.png';
   static const String pickMarker = 'assets/image/pick_marker.png';
+  static const String newPickMarker = 'assets/image/new_picker_marker.png';
   static const String house = 'assets/image/house.png';
   static const String tracking = 'assets/image/tracking.png';
   static const String myLocationMarker = 'assets/image/my_location_marker.png';
@@ -86,6 +87,7 @@ class Images {
   static const String weather = 'assets/image/weather.png';
   static const String resetLock = 'assets/image/reset_lock.png';
   static const String placeholderPng = 'assets/image/placeholder.png';
+  static const String videoPlaceholder = 'assets/image/video_placeholder.png';
 
   static const String forgetIcon = 'assets/image/forget_icon.png';
   static const String loyaltyIcon = 'assets/image/loyalty_icon.png';
@@ -223,6 +225,7 @@ class Images {
   static const String emailOrPhone = 'assets/image/email_or_phone.png';
   static const String dineInUser = 'assets/image/dine_in_user.png';
   static const String dineInMap = 'assets/image/dine_in_map.png';
+  static const String uploadIcon = 'assets/image/upload_icon.png';
 
   static const String onboarding_1 = 'assets/image/onboard_1.svg';
   static const String onboarding_2 = 'assets/image/onboard_2.svg';
@@ -266,6 +269,7 @@ class Images {
   static const String nearbyLocation = 'assets/image/nearby_location.svg';
   static const String cuisineBg = 'assets/image/cuisine_bg.svg';
   static const String deliveryLocation = 'assets/image/delivery_location.svg';
+  static const String enjoyIcon = 'assets/image/enjoy_image.svg';
 
   static const String confirmDineIn = 'assets/image/confirm_dine_in.gif';
   static const String cookingDineIn = 'assets/image/cooking_gif.gif';

@@ -1,5 +1,7 @@
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:shimmer_animation/shimmer_animation.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_image_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_ink_well_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
@@ -74,23 +76,32 @@ class _CartScreenState extends State<CartScreen> {
 
   void _initialBottomSheetShowHide() {
     Future.delayed(const Duration(milliseconds: 600), () {
-      key.currentState!.expand();
+      key.currentState?.expand();
+    }).then((_) {
       Future.delayed(const Duration(seconds: 3), () {
-        setState(() {
-          key.currentState!.contract();
-        });
+        key.currentState?.contract();
       });
-
     });
   }
 
   void _getExpandedBottomSheetHeight() {
-    // Use the key to get the context and the size of the widget
-    final RenderBox renderBox = _widgetKey.currentContext?.findRenderObject() as RenderBox;
-    final size = renderBox.size;
+    if (_widgetKey.currentContext != null) {
+      final RenderBox renderBox = _widgetKey.currentContext!.findRenderObject() as RenderBox;
+      final size = renderBox.size;
 
+      setState(() {
+        _height = size.height;
+      });
+    }
+  }
+
+  void _onExpanded() {
+    _getExpandedBottomSheetHeight();
+  }
+
+  void _onContracted() {
     setState(() {
-      _height = size.height;
+      _height = 0;
     });
   }
 
@@ -162,6 +173,59 @@ class _CartScreenState extends State<CartScreen> {
                                     Expanded(
                                       flex: 6,
                                       child: Column(children: [
+
+                                        restaurantController.restaurant != null ? Container(
+                                          margin: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
+                                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context).cardColor,
+                                            boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
+                                            borderRadius: BorderRadius.circular(isDesktop ? Dimensions.radiusDefault : 0),
+                                          ),
+                                          child: Row(children: [
+
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.1)),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: ClipOval(
+                                                child: CustomImageWidget(
+                                                  image: restaurantController.restaurant?.logoFullUrl ?? '',
+                                                  height: 50, width: 50,
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: Dimensions.paddingSizeDefault),
+
+                                            Expanded(
+                                              child: Text(
+                                                restaurantController.restaurant?.name ?? '',
+                                                style: robotoMedium,
+                                                maxLines: 1, overflow: TextOverflow.ellipsis,
+                                              ),
+                                            ),
+                                            const SizedBox(width: Dimensions.paddingSizeDefault),
+
+                                            Row(children: [
+                                              Icon(Icons.star, size: 16, color: Theme.of(context).primaryColor),
+                                              const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                                              Text(restaurantController.restaurant!.avgRating!.toStringAsFixed(1), style: robotoMedium),
+                                              /*const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                                              Text('(${restaurantController.restaurant!.ratingCount! > 25 ? '25+' : restaurantController.restaurant!.ratingCount})',
+                                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),*/
+                                            ]),
+
+                                          ]),
+                                        ) : Shimmer(child: Container(
+                                          margin: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
+                                          height: 60, width: double.infinity,
+                                          decoration: BoxDecoration(color: Theme.of(context).shadowColor),
+                                        )),
+                                        SizedBox(height: isDesktop ? Dimensions.paddingSizeSmall : 0),
+
                                         Container(
                                           decoration: isDesktop ? BoxDecoration(
                                             borderRadius: const  BorderRadius.all(Radius.circular(Dimensions.radiusDefault)),
@@ -290,10 +354,6 @@ class _CartScreenState extends State<CartScreen> {
                                                   ),
                                                 ) : const SizedBox() : const SizedBox(),
 
-                                                // !isDesktop ? const SizedBox(height: Dimensions.paddingSizeLarge): const SizedBox(),
-
-                                                // !isDesktop ? Container(height: 1, color: Theme.of(context).disabledColor.withValues(alpha: 0.3)) : const SizedBox(),
-
                                                 SizedBox(height: isDesktop ? 40 : 0),
 
                                                 Container(
@@ -350,18 +410,8 @@ class _CartScreenState extends State<CartScreen> {
                     ],
                   ),
 
-                  onIsExtendedCallback: () {
-                    ///Don't remove this print.
-                    print('======= expandableContent open');
-                    _getExpandedBottomSheetHeight();
-                  },
-                  onIsContractedCallback: () {
-                    ///Don't remove this print.
-                    print('======= expandableContent close');
-                    setState(() {
-                      _height = 0;
-                    });
-                  },
+                  onIsExtendedCallback: _onExpanded,
+                  onIsContractedCallback: _onContracted,
 
                   expandableContent: isDesktop ? const SizedBox() : Container(
                     width: context.width,
@@ -385,7 +435,7 @@ class _CartScreenState extends State<CartScreen> {
                             Text('item_price'.tr, style: robotoRegular),
                             PriceConverter.convertAnimationPrice(cartController.itemPrice, textStyle: robotoRegular),
                           ]),
-                          SizedBox(height: cartController.variationPrice > 0 ? Dimensions.paddingSizeSmall : 0),
+                          SizedBox(height: Dimensions.paddingSizeSmall),
 
                           cartController.variationPrice > 0 ? Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -394,16 +444,16 @@ class _CartScreenState extends State<CartScreen> {
                               Text('(+) ${PriceConverter.convertPrice(cartController.variationPrice)}', style: robotoRegular, textDirection: TextDirection.ltr),
                             ],
                           ) : const SizedBox(),
-                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                          SizedBox(height: cartController.variationPrice > 0 ? Dimensions.paddingSizeSmall : 0),
 
-                          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                          cartController.itemDiscountPrice > 0 ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                             Text('discount'.tr, style: robotoRegular),
                             restaurantController.restaurant != null ? Row(children: [
                               Text('(-)', style: robotoRegular),
                               PriceConverter.convertAnimationPrice(cartController.itemDiscountPrice, textStyle: robotoRegular),
                             ]) : Text('calculating'.tr, style: robotoRegular),
-                          ]),
-                          const SizedBox(height: Dimensions.paddingSizeSmall),
+                          ]) : const SizedBox(),
+                          SizedBox(height: cartController.itemDiscountPrice > 0 ? Dimensions.paddingSizeSmall : 0),
 
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

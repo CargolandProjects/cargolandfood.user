@@ -4,10 +4,11 @@ import 'package:stackfood_multivendor/features/profile/domain/models/update_prof
 class ResponseModel {
   final bool _isSuccess;
   final String? _message;
+  final String? code;
   List<int>? zoneIds;
   AuthResponseModel? authResponseModel;
   UpdateProfileResponseModel? updateProfileResponseModel;
-  ResponseModel(this._isSuccess, this._message, {this.zoneIds, this.authResponseModel, this.updateProfileResponseModel});
+  ResponseModel(this._isSuccess, this._message, {this.zoneIds, this.authResponseModel, this.updateProfileResponseModel, this.code});
 
   String? get message => _message;
   bool get isSuccess => _isSuccess;

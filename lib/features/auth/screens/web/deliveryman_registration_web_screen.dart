@@ -275,13 +275,14 @@ class _DeliverymanRegistrationWebScreenState extends State<DeliverymanRegistrati
                                   child: InkWell(
                                     onTap: () => widget.deliverymanController.pickDmImage(true, false),
                                     child: DottedBorder(
-                                      color: Theme.of(context).primaryColor,
-                                      strokeWidth: 1,
-                                      strokeCap: StrokeCap.butt,
-                                      dashPattern: const [5, 5],
-                                      padding: const EdgeInsets.all(0),
-                                      borderType: BorderType.RRect,
-                                      radius: const Radius.circular(Dimensions.radiusDefault),
+                                      options: RoundedRectDottedBorderOptions(
+                                        color: Theme.of(context).primaryColor,
+                                        strokeWidth: 1,
+                                        strokeCap: StrokeCap.butt,
+                                        dashPattern: const [5, 5],
+                                        padding: const EdgeInsets.all(0),
+                                        radius: const Radius.circular(Dimensions.radiusDefault),
+                                      ),
                                       child: Visibility(
                                         visible: widget.deliverymanController.pickedImage != null,
                                         child: Center(
@@ -509,13 +510,14 @@ class _DeliverymanRegistrationWebScreenState extends State<DeliverymanRegistrati
                                   return InkWell(
                                     onTap: () => widget.deliverymanController.pickDmImage(false, false),
                                     child: DottedBorder(
-                                      color: Theme.of(context).primaryColor,
-                                      strokeWidth: 1,
-                                      strokeCap: StrokeCap.butt,
-                                      dashPattern: const [5, 5],
-                                      padding: const EdgeInsets.all(5),
-                                      borderType: BorderType.RRect,
-                                      radius: const Radius.circular(Dimensions.radiusDefault),
+                                      options: RoundedRectDottedBorderOptions(
+                                        color: Theme.of(context).primaryColor,
+                                        strokeWidth: 1,
+                                        strokeCap: StrokeCap.butt,
+                                        dashPattern: const [5, 5],
+                                        padding: const EdgeInsets.all(5),
+                                        radius: const Radius.circular(Dimensions.radiusDefault),
+                                      ),
                                       child: Container(
                                         height: 120, width: 300, alignment: Alignment.center,
                                         child: Column(children: [

@@ -1,6 +1,7 @@
 import 'package:animated_flip_counter/animated_flip_counter.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_bottom_sheet_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_favourite_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_tool_tip.dart';
@@ -9,8 +10,11 @@ import 'package:stackfood_multivendor/common/widgets/discount_tag_without_image_
 import 'package:stackfood_multivendor/common/widgets/product_bottom_sheet_shimmer.dart';
 import 'package:stackfood_multivendor/common/widgets/quantity_button_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/rating_bar_widget.dart';
+import 'package:stackfood_multivendor/common/widgets/readmore_widget.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
+import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/screens/checkout_screen.dart';
+import 'package:stackfood_multivendor/features/product/widgets/product_review_bottom_sheet.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
 import 'package:stackfood_multivendor/features/cart/domain/models/cart_model.dart';
@@ -92,8 +96,8 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
           return const ProductBottomSheetShimmer();
         }
         double price = product!.price!;
-        double? discount = (widget.isCampaign || product!.restaurantDiscount == 0) ? product!.discount : product!.restaurantDiscount;
-        String? discountType = (widget.isCampaign || product!.restaurantDiscount == 0) ? product!.discountType : 'percent';
+        double? discount = product!.discount;
+        String? discountType = product!.discountType;
         double variationPrice = _getVariationPrice(product!, productController);
         double variationPriceWithDiscount = _getVariationPriceWithDiscount(product!, productController, discount, discountType);
         double priceWithDiscountForView = PriceConverter.convertWithDiscount(price, discount, discountType)!;
@@ -108,8 +112,6 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
         double priceWithAddonsVariation = ((price + variationPrice) * productController.quantity!) + addonsCost;
         double priceWithVariation = price + variationPrice;
         bool isAvailable = DateConverter.isAvailable(product!.availableTimeStarts, product!.availableTimeEnds);
-
-        // print('========check====> selectedVariations: ${productController.selectedVariations} ,\n cartSelected: ${widget.cart?.variations} \n // stock : ${productController.variationsStock}');
 
         return ConstrainedBox(
           constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.9),
@@ -180,7 +182,16 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                       ),
                                     ),
                                   ),
-                                  RatingBarWidget(rating: product!.avgRating, size: 15, ratingCount: product!.ratingCount),
+
+                                  InkWell(
+                                    onTap: (widget.isCampaign || (product?.reviewCount == 0)) ? null : () {
+                                      Get.back();
+                                      ResponsiveHelper.isMobile(context) ? showCustomBottomSheet(child: ProductReviewBottomSheet(product: product!), isDismissible: false, enableDrag: false) : Get.dialog(
+                                        Dialog(child: ProductReviewBottomSheet(product: product!)),
+                                      );
+                                    },
+                                    child: RatingBarWidget(rating: product!.avgRating, size: 15, ratingCount: widget.isCampaign ? product!.ratingCount : null, reviewCount: widget.isCampaign ? null : (product?.reviewCount ?? 0)),
+                                  ),
                                   const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                                   Wrap(children: [
@@ -191,7 +202,7 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                     const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
                                     (product!.imageFullUrl != null && product!.imageFullUrl!.isNotEmpty)? const SizedBox.shrink()
-                                        : DiscountTagWithoutImageWidget(discount: discount, discountType: discountType),
+                                      : DiscountTagWithoutImageWidget(discount: discount, discountType: discountType),
 
                                     Text(
                                       PriceConverter.convertPrice(priceWithDiscountForView),
@@ -200,12 +211,12 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                     ),
 
                                     (!widget.isCampaign && product!.stockType != 'unlimited' && product!.itemStock! <= 0)
-                                        ? Text(' (${'out_of_stock'.tr})', style: robotoRegular.copyWith(color: Theme.of(context).colorScheme.error))
-                                        : const SizedBox(),
+                                      ? Text(' (${'out_of_stock'.tr})', style: robotoRegular.copyWith(color: Theme.of(context).colorScheme.error))
+                                      : const SizedBox(),
 
                                     (!widget.isCampaign && product!.stockType != 'unlimited' && productController.quantity != 1 && productController.quantity! >= product!.itemStock!)
-                                        ? Text(' (${'only'.tr} ${product!.itemStock!} ${'item_available'.tr})', style: robotoRegular.copyWith(color: Colors.blue, fontSize: Dimensions.fontSizeSmall))
-                                        : const SizedBox(),
+                                      ? Text(' (${'only'.tr} ${product!.itemStock!} ${'item_available'.tr})', style: robotoRegular.copyWith(color: Colors.blue, fontSize: Dimensions.fontSizeSmall))
+                                      : const SizedBox(),
 
                                   ]),
 
@@ -255,9 +266,9 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                   (Get.find<SplashController>().configModel!.toggleVegNonVeg!) ? Container(
                                     padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall, horizontal: Dimensions.paddingSizeSmall),
                                     decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(Dimensions.radiusExtraLarge),
-                                        color: Theme.of(context).cardColor,
-                                        boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.3), blurRadius: 10, spreadRadius: 1)],
+                                      borderRadius: BorderRadius.circular(Dimensions.radiusExtraLarge),
+                                      color: Theme.of(context).cardColor,
+                                      boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.2), blurRadius: 10, spreadRadius: 1)],
                                     ),
                                     child: Row(children: [
                                       Image.asset(product!.veg == 1 ? Images.vegLogo : Images.nonVegLogo, height: 20, width: 20),
@@ -270,7 +281,17 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                 ]),
                                 const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
-                                Text(product!.description ?? '', style: robotoRegular, textAlign: TextAlign.justify),
+                                ReadMoreText(
+                                  product?.description ?? '',
+                                  style: robotoRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color?.withValues(alpha: 0.8)),
+                                  trimMode: TrimMode.Line,
+                                  trimLines: 3,
+                                  colorClickableText: Colors.blue,
+                                  lessStyle: robotoRegular.copyWith(color: Colors.blue, decoration: TextDecoration.underline, decorationColor: Colors.blue),
+                                  trimCollapsedText: 'see_more'.tr,
+                                  trimExpandedText: ' ${'see_less'.tr}',
+                                  moreStyle: robotoRegular.copyWith(color: Colors.blue, decoration: TextDecoration.underline, decorationColor: Colors.blue),
+                                ),
                                 const SizedBox(height: Dimensions.paddingSizeLarge),
 
                               ],
@@ -285,7 +306,7 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                 Wrap(children: List.generate(product!.nutritionsName!.length, (index) {
                                   return Text(
                                     '${product!.nutritionsName![index]}${product!.nutritionsName!.length-1 == index ? '.' : ', '}',
-                                    style: robotoRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color?.withValues(alpha: 0.5)),
+                                    style: robotoRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color?.withValues(alpha: 0.8)),
                                   );
                                 })),
                                 const SizedBox(height: Dimensions.paddingSizeLarge),
@@ -301,7 +322,7 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                 Wrap(children: List.generate(product!.allergiesName!.length, (index) {
                                   return Text(
                                     '${product!.allergiesName![index]}${product!.allergiesName!.length-1 == index ? '.' : ', '}',
-                                    style: robotoRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color?.withValues(alpha: 0.5)),
+                                    style: robotoRegular.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color?.withValues(alpha: 0.8)),
                                   );
                                 })),
                                 const SizedBox(height: Dimensions.paddingSizeLarge),
@@ -331,14 +352,16 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                       color: product!.variations![index].required! ? (product!.variations![index].multiSelect! ? product!.variations![index].min! : 1) <= selectedCount
                                           ? Theme.of(context).primaryColor.withValues(alpha: 0.05) :Theme.of(context).disabledColor.withValues(alpha: 0.05) : Colors.transparent,
                                       border: Border.all(color: product!.variations![index].required! ? (product!.variations![index].multiSelect! ? product!.variations![index].min! : 1) <= selectedCount
-                                          ? Theme.of(context).primaryColor.withValues(alpha: 0.3) : Theme.of(context).disabledColor.withValues(alpha: 0.3) : Colors.transparent, width: 1),
+                                          ? Theme.of(context).primaryColor.withValues(alpha: 0.3) : Theme.of(context).disabledColor.withValues(alpha: 0.1) : Colors.transparent, width: 1),
                                       borderRadius: BorderRadius.circular(Dimensions.radiusDefault)
                                   ),
                                   child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                                     Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, crossAxisAlignment: CrossAxisAlignment.center, children: [
                                       Text(product!.variations![index].name!, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
 
-                                      Container(
+                                      AnimatedContainer(
+                                        duration: Duration(milliseconds: 800),
+                                        curve: Curves.easeIn,
                                         decoration: BoxDecoration(
                                           color: product!.variations![index].required! ? (product!.variations![index].multiSelect! ? product!.variations![index].min! : 1) > selectedCount
                                               ? Theme.of(context).colorScheme.error.withValues(alpha: 0.1) : Theme.of(context).primaryColor.withValues(alpha: 0.1) : Theme.of(context).disabledColor.withValues(alpha: 0.2),
@@ -365,10 +388,10 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                       product!.variations![index].multiSelect! ? Text(
                                         '${'select_minimum'.tr} ${'${product!.variations![index].min}'
                                             ' ${'and_up_to'.tr} ${product!.variations![index].max} ${'options'.tr}'}',
-                                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).disabledColor),
+                                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).hintColor),
                                       ) : Text(
                                         'select_one'.tr,
-                                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).primaryColor),
+                                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).hintColor),
                                       ),
                                     ]),
                                     SizedBox(height: product!.variations![index].multiSelect! ? Dimensions.paddingSizeExtraSmall : 0),
@@ -417,18 +440,20 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                                         productController.setExistInCartForBottomSheet(product!, productController.selectedVariations);
                                                       },
                                                       visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
-                                                      side: BorderSide(width: 2, color: Theme.of(context).hintColor),
-                                                    ) : Radio(
-                                                      value: i,
+                                                      side: BorderSide(width: 2, color: Theme.of(context).disabledColor),
+                                                    ) : RadioGroup(
                                                       groupValue: productController.selectedVariations[index].indexOf(true),
                                                       onChanged: (dynamic value) {
                                                         productController.setCartVariationIndex(index, i, product, product!.variations![index].multiSelect!);
                                                         productController.setExistInCartForBottomSheet(product!, productController.selectedVariations);
                                                       },
-                                                      activeColor: Theme.of(context).primaryColor,
-                                                      toggleable: false,
-                                                      visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
-                                                      fillColor: WidgetStateColor.resolveWith((states) => productController.selectedVariations[index][i]! ? Theme.of(context).primaryColor : Theme.of(context).disabledColor),
+                                                      child: Radio(
+                                                        value: i,
+                                                        activeColor: Theme.of(context).primaryColor,
+                                                        toggleable: false,
+                                                        visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
+                                                        fillColor: WidgetStateColor.resolveWith((states) => productController.selectedVariations[index][i]! ? Theme.of(context).primaryColor : Theme.of(context).disabledColor),
+                                                      ),
                                                     ),
 
                                                     Flexible(
@@ -536,7 +561,7 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                                 }
                                               },
                                               visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
-                                              side: BorderSide(width: 2, color: Theme.of(context).hintColor),
+                                              side: BorderSide(width: 2, color: Theme.of(context).disabledColor),
                                             ),
 
                                             Text(
@@ -624,7 +649,7 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                       child: Column(
                         children: [
                           Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                            Text('${'total_amount'.tr}:', style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).primaryColor)),
+                            Text('${'total_amount'.tr}:', style: robotoBold.copyWith(color: Theme.of(context).primaryColor)),
                             const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
                             Row(children: [
@@ -676,9 +701,9 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                       radius : Dimensions.paddingSizeDefault,
                                       width: ResponsiveHelper.isDesktop(context) ? MediaQuery.of(context).size.width / 2.0 : null,
                                       isLoading: cartController.isLoading,
-                                      buttonText: (!product!.scheduleOrder! && !isAvailable) ? 'not_available_now'.tr
+                                      buttonText: ((!product!.scheduleOrder! && !isAvailable) || (widget.isCampaign && !isAvailable)) ? 'not_available_now'.tr
                                           : widget.isCampaign ? 'order_now'.tr : (widget.cart != null || productController.cartIndex != -1) ? 'update_in_cart'.tr : 'add_to_cart'.tr,
-                                      onPressed: (!product!.scheduleOrder! && !isAvailable) || (widget.cart != null && productController.checkOutOfStockVariationSelected(product?.variations) != null) ? null : () async {
+                                      onPressed: ((!product!.scheduleOrder! && !isAvailable) || (widget.isCampaign && !isAvailable)) || (widget.cart != null && productController.checkOutOfStockVariationSelected(product?.variations) != null) ? null : () async {
 
                                         _onButtonPressed(productController, cartController, priceWithVariation, priceWithDiscount, price, discount, discountType, addOnIdList, addOnsList, priceWithAddonsVariation);
 
@@ -742,6 +767,8 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
       debugPrint('-------checkout cart : ${cartModel.toJson()}');
 
       if(widget.isCampaign) {
+        Get.find<CheckoutController>().updateFirstTime();
+        Get.find<CartController>().setNeedExtraPackage(false);
         Get.back();
         Get.toNamed(RouteHelper.getCheckoutRoute('campaign'), arguments: CheckoutScreen(
           fromCart: false, cartList: [cartModel],

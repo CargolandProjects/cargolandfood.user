@@ -89,6 +89,8 @@ class ProfileController extends GetxController implements GetxService {
       await getUserInfo();
     }  else if(!responseModel.isSuccess && responseModel.updateProfileResponseModel != null){
       showCustomSnackBar(responseModel.updateProfileResponseModel!.message);
+    }else if(!responseModel.isSuccess){
+      showCustomSnackBar(responseModel.message);
     }
   }
 
@@ -125,6 +127,9 @@ class ProfileController extends GetxController implements GetxService {
       await Get.find<CartController>().clearCartList();
       if(Get.find<AuthController>().isActiveRememberMe) {
         Get.find<AuthController>().toggleRememberMe();
+      }
+      if(Get.find<AuthController>().isActiveRememberMeForOtp) {
+        Get.find<AuthController>().toggleRememberMeForOtp();
       }
       Get.find<FavouriteController>().removeFavourites();
       setForceFullyUserEmpty();

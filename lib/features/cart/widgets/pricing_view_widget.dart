@@ -27,7 +27,7 @@ class PricingViewWidget extends StatelessWidget {
         color: Theme.of(context).cardColor,
         boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
       ) : BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
       ),
       child: GetBuilder<RestaurantController>(
@@ -60,9 +60,8 @@ class PricingViewWidget extends StatelessWidget {
                   Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                     Text('item_price'.tr, style: robotoRegular),
                     PriceConverter.convertAnimationPrice(cartController.itemPrice, textStyle: robotoRegular),
-                    // Text(PriceConverter.convertPrice(cartController.itemPrice), style: robotoRegular, textDirection: TextDirection.ltr),
                   ]),
-                  SizedBox(height: cartController.variationPrice > 0 ? Dimensions.paddingSizeSmall : 0),
+                  SizedBox(height: Dimensions.paddingSizeSmall),
 
                   cartController.variationPrice > 0 ? Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -71,17 +70,16 @@ class PricingViewWidget extends StatelessWidget {
                       Text('(+) ${PriceConverter.convertPrice(cartController.variationPrice)}', style: robotoRegular, textDirection: TextDirection.ltr),
                     ],
                   ) : const SizedBox(),
-                  const SizedBox(height: 10),
+                  SizedBox(height: cartController.addOns > 0 ? Dimensions.paddingSizeSmall : 0),
 
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  cartController.itemDiscountPrice > 0 ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                     Text('discount'.tr, style: robotoRegular),
                     restaurantController.restaurant != null ? Row(children: [
                       Text('(-)', style: robotoRegular),
                       PriceConverter.convertAnimationPrice(cartController.itemDiscountPrice, textStyle: robotoRegular),
                     ]) : Text('calculating'.tr, style: robotoRegular),
-                    // Text('(-) ${PriceConverter.convertPrice(cartController.itemDiscountPrice)}', style: robotoRegular, textDirection: TextDirection.ltr),
-                  ]),
-                  const SizedBox(height: Dimensions.paddingSizeSmall),
+                  ]) : const SizedBox(),
+                  SizedBox(height: cartController.addOns > 0 ? Dimensions.paddingSizeSmall : 0),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -91,7 +89,6 @@ class PricingViewWidget extends StatelessWidget {
                         Text('(+)', style: robotoRegular),
                         PriceConverter.convertAnimationPrice(cartController.addOns, textStyle: robotoRegular),
                       ]),
-                      // Text('(+) ${PriceConverter.convertPrice(cartController.addOns)}', style: robotoRegular, textDirection: TextDirection.ltr),
                     ],
                   ),
 

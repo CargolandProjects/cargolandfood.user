@@ -1,5 +1,4 @@
 import 'package:stackfood_multivendor/common/models/restaurant_model.dart';
-import 'package:stackfood_multivendor/features/checkout/domain/models/distance_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/offline_method_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/timeslote_model.dart';
@@ -206,32 +205,56 @@ class CheckoutService implements CheckoutServiceInterface {
     double distance = -1;
     Response response = await checkoutRepositoryInterface.getDistanceInMeter(originLatLng, destinationLatLng);
     try {
-      if (response.statusCode == 200 && response.body['status'] == 'OK') {
+      if (response.statusCode == 200 && response.statusText == 'OK') {
         if(isDuration){
-          distance = DistanceModel.fromJson(response.body).rows![0].elements![0].duration!.value! / 3600;
+          final String duration = response.body['duration'] as String;
+          double parsedDuration = parseDuration(duration);
+          distance = parsedDuration / 3600;
         }else{
-          distance = DistanceModel.fromJson(response.body).rows![0].elements![0].distance!.value! / 1000;
+          final double distanceMater = response.body['distanceMeters']?.toDouble();
+          distance = distanceMater / 1000;
         }
       } else {
         if(!isDuration) {
-          distance = Geolocator.distanceBetween(
-            originLatLng.latitude, originLatLng.longitude, destinationLatLng.latitude, destinationLatLng.longitude,
-          ) / 1000;
+          distance = Geolocator.distanceBetween(originLatLng.latitude, originLatLng.longitude, destinationLatLng.latitude, destinationLatLng.longitude) / 1000;
         }
       }
     } catch (e) {
       if(!isDuration) {
-        distance = Geolocator.distanceBetween(originLatLng.latitude, originLatLng.longitude,
-            destinationLatLng.latitude, destinationLatLng.longitude) / 1000;
+        distance = Geolocator.distanceBetween(originLatLng.latitude, originLatLng.longitude, destinationLatLng.latitude, destinationLatLng.longitude) / 1000;
       }
     }
 
     return distance;
   }
 
+  double parseDuration(String duration) {
+    return double.tryParse(duration.replaceAll('s', '')) ?? 0.0;
+  }
+
   @override
   Future<bool> updateOfflineInfo(String data) async {
     return await checkoutRepositoryInterface.updateOfflineInfo(data);
+  }
+
+  @override
+  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data}) async {
+    return await checkoutRepositoryInterface.checkRestaurantValidation(data: data);
+  }
+
+  @override
+  Future<Response> getOrderTax(PlaceOrderBodyModel placeOrderBody) async {
+    return await checkoutRepositoryInterface.getOrderTax(placeOrderBody);
+  }
+
+  @override
+  void saveDmTipIndex(String i) {
+    checkoutRepositoryInterface.saveDmTipIndex(i);
+  }
+
+  @override
+  String getDmTipIndex() {
+    return checkoutRepositoryInterface.getDmTipIndex();
   }
 
 }

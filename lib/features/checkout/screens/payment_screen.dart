@@ -161,7 +161,6 @@ class MyInAppBrowser extends InAppBrowser {
     if (kDebugMode) {
       print("\n\nStarted: $url\n\n");
     }
-    
     _redirect(url.toString(), contactNumber, restaurantId, packageId);
   }
 

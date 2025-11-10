@@ -15,8 +15,9 @@ class VerificationRepo implements VerificationRepoInterface{
   VerificationRepo({required this.sharedPreferences, required this.apiClient});
 
   @override
-  Future<ResponseModel> forgetPassword(String? phone) async {
-    Response response = await apiClient.postData(AppConstants.forgetPasswordUri, {"phone": phone}, handleError: false);
+  Future<ResponseModel> forgetPassword({String? phone, String? email}) async {
+    Response response = await apiClient.postData(AppConstants.forgetPasswordUri,
+        {"phone": phone, "email": email, "verification_method" : phone != null && phone.isNotEmpty ? 'phone' : 'email'}, handleError: false);
     if (response.statusCode == 200) {
       return ResponseModel(true, response.body["message"]);
     } else {
@@ -24,7 +25,7 @@ class VerificationRepo implements VerificationRepoInterface{
     }
   }
 
-  @override
+/*  @override
   Future<ResponseModel> verifyToken(String? phone, String token) async {
     Response response = await apiClient.postData(AppConstants.verifyTokenUri, {"phone": phone, "reset_token": token}, handleError: false);
     if (response.statusCode == 200) {
@@ -32,13 +33,38 @@ class VerificationRepo implements VerificationRepoInterface{
     } else {
       return ResponseModel(false, response.statusText);
     }
-  }
+  }*/
 
   @override
+  Future<ResponseModel> verifyToken({String? phone, String? email, required String token}) async {
+    Response response = await apiClient.postData(AppConstants.verifyTokenUri,
+        {"phone": phone, "email" : email, "verification_method" : phone != null && phone.isNotEmpty ? 'phone' : 'email', "reset_token": token});
+    if (response.statusCode == 200) {
+      return ResponseModel(true, response.body["message"]);
+    } else {
+      return ResponseModel(false, response.statusText);
+    }
+  }
+
+/*  @override
   Future<ResponseModel> resetPassword(String? resetToken, String number, String password, String confirmPassword) async {
     Response response = await apiClient.postData(
       AppConstants.resetPasswordUri,
       {"_method": "put", "reset_token": resetToken, "phone": number, "password": password, "confirm_password": confirmPassword},
+      handleError: false,
+    );
+    if (response.statusCode == 200) {
+      return ResponseModel(true, response.body["message"]);
+    } else {
+      return ResponseModel(false, response.statusText);
+    }
+  }*/
+
+  @override
+  Future<ResponseModel> resetPassword({String? resetToken, String? phone, String? email, required String password, required String confirmPassword}) async {
+    Response response = await apiClient.postData(
+      AppConstants.resetPasswordUri,
+      {"_method": "put", "reset_token": resetToken, "phone": phone != null && phone != 'null' && phone.isNotEmpty ? phone : '', "email" : email != null && email != 'null' && email.isNotEmpty ? email : '', "verification_method" : phone != null && phone != 'null' && phone.isNotEmpty ? 'phone' : 'email', "password": password, "confirm_password": confirmPassword},
       handleError: false,
     );
     if (response.statusCode == 200) {

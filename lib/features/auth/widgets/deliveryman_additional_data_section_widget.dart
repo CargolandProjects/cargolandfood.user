@@ -153,13 +153,14 @@ class DeliverymanAdditionalDataSectionWidget extends StatelessWidget {
                               File(file.files.single.path!), width: 500, height: 70, fit: BoxFit.cover,
                             ),
                           ) : DottedBorder(
-                            color: Theme.of(context).disabledColor,
-                            strokeWidth: 1,
-                            strokeCap: StrokeCap.butt,
-                            dashPattern: const [5, 5],
-                            padding: const EdgeInsets.all(0),
-                            borderType: BorderType.RRect,
-                            radius: const Radius.circular(Dimensions.radiusDefault),
+                            options: RoundedRectDottedBorderOptions(
+                              color: Theme.of(context).disabledColor,
+                              strokeWidth: 1,
+                              strokeCap: StrokeCap.butt,
+                              dashPattern: const [5, 5],
+                              padding: const EdgeInsets.all(0),
+                              radius: const Radius.circular(Dimensions.radiusDefault),
+                            ),
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeDefault),
                               decoration: BoxDecoration(
@@ -202,13 +203,14 @@ class DeliverymanAdditionalDataSectionWidget extends StatelessWidget {
                         await deliverymanController.pickFile(index, deliverymanController.dataList![index].mediaData!);
                       },
                       child: DottedBorder(
-                        color: Theme.of(context).disabledColor,
-                        strokeWidth: 1,
-                        strokeCap: StrokeCap.butt,
-                        dashPattern: const [5, 5],
-                        padding: const EdgeInsets.all(0),
-                        borderType: BorderType.RRect,
-                        radius: const Radius.circular(Dimensions.radiusDefault),
+                        options: RoundedRectDottedBorderOptions(
+                          color: Theme.of(context).disabledColor,
+                          strokeWidth: 1,
+                          strokeCap: StrokeCap.butt,
+                          dashPattern: const [5, 5],
+                          padding: const EdgeInsets.all(0),
+                          radius: const Radius.circular(Dimensions.radiusDefault),
+                        ),
                         child: Center(
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeDefault),
@@ -287,13 +289,14 @@ class DeliverymanAdditionalDataSectionWidget extends StatelessWidget {
                               File(file.files.single.path!), width: 500, height: 70, fit: BoxFit.cover,
                             ),
                           ) : DottedBorder(
-                            color: Theme.of(context).disabledColor,
-                            strokeWidth: 1,
-                            strokeCap: StrokeCap.butt,
-                            dashPattern: const [5, 5],
-                            padding: const EdgeInsets.all(0),
-                            borderType: BorderType.RRect,
-                            radius: const Radius.circular(Dimensions.radiusDefault),
+                            options: RoundedRectDottedBorderOptions(
+                              color: Theme.of(context).disabledColor,
+                              strokeWidth: 1,
+                              strokeCap: StrokeCap.butt,
+                              dashPattern: const [5, 5],
+                              padding: const EdgeInsets.all(0),
+                              radius: const Radius.circular(Dimensions.radiusDefault),
+                            ),
                             child: Container(
                               padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeDefault),
                               decoration: BoxDecoration(

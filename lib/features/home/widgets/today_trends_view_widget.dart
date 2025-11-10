@@ -46,11 +46,15 @@ class _TodayTrendsViewWidgetState extends State<TodayTrendsViewWidget> {
   Widget build(BuildContext context) {
     return GetBuilder<CampaignController>(builder: (campaignController) {
         return (campaignController.itemCampaignList != null && campaignController.itemCampaignList!.isEmpty) ? const SizedBox() : Padding(
-          padding: EdgeInsets.symmetric(vertical: ResponsiveHelper.isMobile(context)  ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeLarge),
+          //padding: EdgeInsets.symmetric(vertical: ResponsiveHelper.isMobile(context)  ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeLarge),
+          padding: EdgeInsets.only(
+            top: ResponsiveHelper.isMobile(context) ? 0 : Dimensions.paddingSizeLarge,
+            bottom: ResponsiveHelper.isMobile(context) ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeLarge,
+          ),
           child: Container(
             height: ResponsiveHelper.isDesktop(context) ? 406 : 400,
             width: Dimensions.webMaxWidth,
-            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+            color: Theme.of(context).primaryColor.withValues(alpha: 0.07),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
                 Padding(
@@ -60,7 +64,7 @@ class _TodayTrendsViewWidgetState extends State<TodayTrendsViewWidget> {
 
                 Padding(
                   padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault, bottom: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeDefault),
-                  child: Text('here_what_you_might_like_to_taste'.tr, style: robotoRegular.copyWith(color: const Color(0xffB48453), fontSize: Dimensions.fontSizeSmall)),
+                  child: Text('here_what_you_might_like_to_taste'.tr, style: robotoRegular.copyWith(/*color: const Color(0xffB48453),*/ fontSize: Dimensions.fontSizeSmall)),
                 ),
 
                campaignController.itemCampaignList != null ? Expanded(
@@ -91,18 +95,20 @@ class _TodayTrendsViewWidgetState extends State<TodayTrendsViewWidget> {
 
                 Padding(
                   padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-                  child: SizedBox(
-                    height: 15, width: 150,
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall),
-                      width: 30, height: 5,
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.all(Radius.circular(Dimensions.radiusSmall)),
-                        child: LinearProgressIndicator(
-                          minHeight: 5,
-                          value: _progressValue,
-                          valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
-                          backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.25),
+                  child: Center(
+                    child: SizedBox(
+                      height: 15, width: context.width*0.3,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall),
+                        width: 30, height: 5,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.all(Radius.circular(Dimensions.radiusSmall)),
+                          child: LinearProgressIndicator(
+                            minHeight: 5,
+                            value: _progressValue,
+                            valueColor: AlwaysStoppedAnimation<Color>(Theme.of(context).primaryColor),
+                            backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.25),
+                          ),
                         ),
                       ),
                     ),

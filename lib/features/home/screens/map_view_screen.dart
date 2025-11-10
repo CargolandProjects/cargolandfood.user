@@ -1,8 +1,6 @@
 import 'dart:collection';
 import 'dart:developer';
-import 'dart:ui' as ui;
 import 'package:custom_info_window/custom_info_window.dart';
-import 'package:flutter/services.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/menu_drawer_widget.dart';
@@ -20,6 +18,7 @@ import 'package:stackfood_multivendor/common/models/restaurant_model.dart';
 import 'package:stackfood_multivendor/features/restaurant/screens/restaurant_screen.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/theme_controller.dart';
 import 'package:stackfood_multivendor/helper/address_helper.dart';
+import 'package:stackfood_multivendor/helper/marker_helper.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
@@ -342,7 +341,7 @@ class _MapViewScreenState extends State<MapViewScreen> {
     );
   }
 
-  _animateMarker(Restaurant restaurant, int index) async {
+  Future<void> _animateMarker(Restaurant restaurant, int index) async {
     Get.find<RestaurantController>().setNearestRestaurantIndex(index);
 
     LatLng latLng = LatLng(
@@ -363,8 +362,9 @@ class _MapViewScreenState extends State<MapViewScreen> {
 
   void _setMarkers(List<Restaurant> restaurants, bool selected, {AddressModel? address}) async {
     try{
-      Uint8List restaurantMarkerIcon = await _convertAssetToUnit8List(Images.nearbyRestaurantMarker, width: 120);
-      final Uint8List myLocationMarkerIcon = await _convertAssetToUnit8List(Images.myLocationMarker, width: 130);
+
+      BitmapDescriptor restaurantMarkerIcon = await MarkerHelper.convertAssetToBitmapDescriptor(width: 50, imagePath: Images.nearbyRestaurantMarker);
+      BitmapDescriptor myLocationMarkerIcon = await MarkerHelper.convertAssetToBitmapDescriptor(width: 50, imagePath: Images.myLocationMarker);
 
       _markers = {};
       List<LatLng> latLngs = [];
@@ -373,7 +373,7 @@ class _MapViewScreenState extends State<MapViewScreen> {
         markerId: const MarkerId('id--1'),
         visible: true,
         draggable: false,
-        zIndex: 2,
+        zIndexInt: 2,
         flat: true,
         anchor: const Offset(0.5, 0.5),
         position: LatLng(
@@ -389,7 +389,7 @@ class _MapViewScreenState extends State<MapViewScreen> {
               ),
           );
         },
-        icon: BitmapDescriptor.fromBytes(myLocationMarkerIcon),
+        icon: myLocationMarkerIcon,
       ));
 
 
@@ -399,14 +399,14 @@ class _MapViewScreenState extends State<MapViewScreen> {
           markerId: const MarkerId('id--2'),
           visible: true,
           draggable: false,
-          zIndex: 2,
+          zIndexInt: 2,
           flat: true,
           anchor: const Offset(0.5, 0.5),
           position: LatLng(
             double.parse(address.latitude!),
             double.parse(address.longitude!),
           ),
-          icon: BitmapDescriptor.fromBytes(myLocationMarkerIcon),
+          icon: myLocationMarkerIcon,
         ));
         setState(() {});
       }
@@ -420,17 +420,14 @@ class _MapViewScreenState extends State<MapViewScreen> {
           markerId: MarkerId('id-$index0'),
           visible: true,
           draggable: false,
-          zIndex: 2,
+          zIndexInt: 2,
           flat: true,
           anchor: const Offset(0.5, 0.5),
           position: latLng,
           onTap: () {
-            // Get.find<RestaurantController>().setNearestRestaurantIndex(index);
             _animateMarker(restaurants[index], index);
-            // pageController.animateToPage(index, duration: const Duration(milliseconds: 1000), curve: Curves.bounceInOut);
-            // _customInfoWindowController.addInfoWindow!(MapCustomInfoWindowWidget(restaurant: restaurants[index]), latLng);
           },
-          icon: BitmapDescriptor.fromBytes(restaurantMarkerIcon),
+          icon: restaurantMarkerIcon,
         ));
       }
 
@@ -480,13 +477,6 @@ class _MapViewScreenState extends State<MapViewScreen> {
       setState(() {});
       _reload = 2;
     }
-  }
-
-  Future<Uint8List> _convertAssetToUnit8List(String imagePath, {int width = 50}) async {
-    ByteData data = await rootBundle.load(imagePath);
-    ui.Codec codec = await ui.instantiateImageCodec(data.buffer.asUint8List(), targetWidth: width);
-    ui.FrameInfo fi = await codec.getNextFrame();
-    return (await fi.image.toByteData(format:ui. ImageByteFormat.png))!.buffer.asUint8List();
   }
 
   void _checkPermission(Function onTap) async {

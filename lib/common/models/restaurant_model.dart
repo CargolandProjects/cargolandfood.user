@@ -96,6 +96,7 @@ class Restaurant {
   bool? isActiveDineIn;
   int? dineInBookingDuration;
   String? dineInBookingDurationTimeFormat;
+  double? priceStartFrom;
 
   Restaurant({
     this.id,
@@ -161,6 +162,7 @@ class Restaurant {
     this.isActiveDineIn,
     this.dineInBookingDuration,
     this.dineInBookingDurationTimeFormat,
+    this.priceStartFrom,
   });
 
   Restaurant.fromJson(Map<String, dynamic> json) {
@@ -213,12 +215,6 @@ class Restaurant {
       });
     }
     orderSubscriptionActive = json['order_subscription_active'];
-    // if(json['cuisine_ids'] != null){
-    //   cuisineIds = [];
-    //   json['cuisine_ids'].forEach((v){
-    //     cuisineIds.add(v);
-    //   });
-    // }
     cutlery = json['cutlery'];
     slug = json['slug'];
     foodsCount = json['foods_count'];
@@ -257,6 +253,7 @@ class Restaurant {
     isActiveDineIn = json['is_dine_in_active'] ?? false;
     dineInBookingDuration = json['schedule_advance_dine_in_booking_duration'] ?? 0;
     dineInBookingDurationTimeFormat = json['schedule_advance_dine_in_booking_duration_time_format'];
+    priceStartFrom = json['price_starts_from']?.toDouble();
   }
 
   Map<String, dynamic> toJson() {
@@ -328,6 +325,7 @@ class Restaurant {
     data['is_dine_in_active'] = isActiveDineIn;
     data['schedule_advance_dine_in_booking_duration'] = dineInBookingDuration;
     data['schedule_advance_dine_in_booking_duration_time_format'] = dineInBookingDurationTimeFormat;
+    data['price_starts_from'] = priceStartFrom;
     return data;
   }
 }

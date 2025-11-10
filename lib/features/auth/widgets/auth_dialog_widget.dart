@@ -1,3 +1,4 @@
+import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/auth/widgets/sign_in/sign_in_view.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/helper/centralize_login_helper.dart';
@@ -18,6 +19,13 @@ class AuthDialogWidget extends StatefulWidget {
 class AuthDialogWidgetState extends State<AuthDialogWidget> {
 
   bool _isOtpViewEnable = false;
+
+  @override
+  void initState() {
+    super.initState();
+    Get.find<AuthController>().resetOtpView(isUpdate: false);
+    _isOtpViewEnable = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,8 +49,6 @@ class AuthDialogWidgetState extends State<AuthDialogWidget> {
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeOverLarge),
                 child: Column(children: [
-
-                  // const SizedBox(height: 60),
 
                   Row(mainAxisSize: MainAxisSize.min, children: [
                     Image.asset(Images.logo, height: 40, width: 40),

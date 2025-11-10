@@ -16,15 +16,12 @@ abstract class AuthRepoInterface<SignUpModel> extends RepositoryInterface<SignUp
   Future<Response> login({required String emailOrPhone, required String password, required String loginType, required String fieldType});
   Future<Response> otpLogin({required String phone, required String otp, required String loginType, required String verified});
   Future<Response> updatePersonalInfo({required String name, required String? phone, required String loginType, required String? email, required String? referCode});
-  Future<void> saveUserNumberAndPassword(String number, String password, String countryCode);
+  Future<void> saveUserNumberAndPassword({required String number, required String password, required String countryCode, required String otpPoneNumber});
   Future<bool> clearUserNumberAndPassword();
   Future<ResponseModel> guestLogin();
   Future<bool> saveGuestId(String id);
   bool isGuestLoggedIn();
   Future<Response> loginWithSocialMedia(SocialLogInBodyModel socialLogInModel);
-  // Future<Response> registerWithSocialMedia(SocialLogInBodyModel socialLogInModel);
-  Future<bool> saveDmTipIndex(String index);
-  String getDmTipIndex();
   bool isLoggedIn();
   Future<bool> clearSharedData({bool removeToken = true});
   bool isNotificationActive();
@@ -32,4 +29,5 @@ abstract class AuthRepoInterface<SignUpModel> extends RepositoryInterface<SignUp
   String getUserToken();
   Future<bool> saveGuestContactNumber(String number);
   String getGuestContactNumber();
+  String getUserOtpPhoneNumber();
 }

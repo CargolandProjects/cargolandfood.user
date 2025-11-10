@@ -2,15 +2,16 @@ import 'dart:convert';
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:stackfood_multivendor/common/models/response_model.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_image_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/validate_check.dart';
 import 'package:stackfood_multivendor/features/auth/domain/centralize_login_enum.dart';
+import 'package:stackfood_multivendor/features/auth/widgets/auth_dialog_widget.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
 import 'package:stackfood_multivendor/features/language/controllers/localization_controller.dart';
 import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/auth/domain/models/signup_body_model.dart';
-import 'package:stackfood_multivendor/features/auth/screens/sign_in_screen.dart';
 import 'package:stackfood_multivendor/features/auth/widgets/trams_conditions_check_box_widget.dart';
 import 'package:stackfood_multivendor/features/verification/screens/verification_screen.dart';
 import 'package:stackfood_multivendor/helper/custom_validator.dart';
@@ -47,6 +48,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
   final TextEditingController _referCodeController = TextEditingController();
   String? _countryDialCode;
   GlobalKey<FormState>? _formKeySignUp;
+  bool _isReferFieldGap = false;
 
   @override
   void initState() {
@@ -76,16 +78,15 @@ class SignUpWidgetState extends State<SignUpWidget> {
             ) : const SizedBox(),
 
             Padding(
-              padding: EdgeInsets.all(isDesktop ? Dimensions.paddingSizeExtraLarge : 0),
+              padding: EdgeInsets.all(isDesktop ? Dimensions.paddingSizeLarge : 0),
               child: Column(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
 
                   isDesktop ? Padding(
                     padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      Image.asset(Images.logo, height: 40, width: 40),
-                      const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-                      Image.asset(Images.logoName, height: 50, width: 120),
-                    ]),
+                    child: CustomImageWidget(
+                      image: Get.find<SplashController>().configModel?.logoFullUrl ?? '',
+                      height: 50, width: 200, fit: BoxFit.contain,
+                    ),
                   ) : const SizedBox(),
 
                   isDesktop ? Align(
@@ -93,7 +94,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
                     child: Text('sign_up'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge)),
                   ) : const SizedBox(),
 
-                SizedBox(height: isDesktop ? Dimensions.paddingSizeExtraLarge : Dimensions.paddingSizeSmall),
+                SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeSmall),
 
                   Row(children: [
                     Expanded(
@@ -114,23 +115,25 @@ class SignUpWidgetState extends State<SignUpWidget> {
                     SizedBox(width: Get.find<SplashController>().configModel!.refEarningStatus == 1 && isDesktop ? Dimensions.paddingSizeSmall : 0),
 
                     (Get.find<SplashController>().configModel!.refEarningStatus == 1 && isDesktop) ? Expanded(
-                      child: CustomTextFieldWidget(
-                        hintText: 'refer_code'.tr,
-                        labelText: 'refer_code'.tr,
-                        showLabelText: true,
-                        controller: _referCodeController,
-                        focusNode: _referCodeFocus,
-                        nextFocus: isDesktop ? _emailFocus : _phoneFocus,
-                        // inputAction: TextInputAction.done,
-                        inputType: TextInputType.text,
-                        capitalization: TextCapitalization.words,
-                        prefixImage : Images.referCode,
-                        divider: false,
-                        prefixSize: 14,
+                      child: Padding(
+                        padding: EdgeInsets.only(bottom: _isReferFieldGap ? Dimensions.paddingSizeLarge + 1 : 0),
+                        child: CustomTextFieldWidget(
+                          hintText: 'refer_code'.tr,
+                          labelText: 'refer_code'.tr,
+                          showLabelText: true,
+                          controller: _referCodeController,
+                          focusNode: _referCodeFocus,
+                          nextFocus: isDesktop ? _emailFocus : _phoneFocus,
+                          inputType: TextInputType.text,
+                          capitalization: TextCapitalization.words,
+                          prefixImage : Images.referCode,
+                          divider: false,
+                          prefixSize: 14,
+                        ),
                       ),
                     ) : const SizedBox(),
                   ]),
-                SizedBox(height: isDesktop ? Dimensions.paddingSizeExtraLarge : Dimensions.paddingSizeLarge),
+                SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeLarge),
 
                   Row(children: [
                     isDesktop ? Expanded(
@@ -170,7 +173,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
                     ),
 
                   ]),
-                SizedBox(height: isDesktop ? Dimensions.paddingSizeExtraLarge : Dimensions.paddingSizeLarge),
+                SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeLarge),
 
                   !isDesktop ? CustomTextFieldWidget(
                     labelText: 'email'.tr,
@@ -208,7 +211,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
                     SizedBox(width: isDesktop ? Dimensions.paddingSizeSmall : 0),
 
                     isDesktop ? Expanded(child: CustomTextFieldWidget(
-                      hintText: '8+characters'.tr,
+                      hintText: 're_enter_your_password'.tr,
                       labelText: 'confirm_password'.tr,
                       showLabelText: true,
                       required: true,
@@ -224,10 +227,10 @@ class SignUpWidgetState extends State<SignUpWidget> {
                     )) : const SizedBox()
 
                   ]),
-                SizedBox(height: isDesktop ? Dimensions.paddingSizeExtraLarge : Dimensions.paddingSizeLarge),
+                SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeLarge),
 
                   !isDesktop ? CustomTextFieldWidget(
-                    hintText: '8+characters'.tr,
+                    hintText: 're_enter_your_password'.tr,
                     labelText: 'confirm_password'.tr,
                     showLabelText: true,
                     required: true,
@@ -257,10 +260,10 @@ class SignUpWidgetState extends State<SignUpWidget> {
                     divider: false,
                     prefixSize: 14,
                   ) : const SizedBox(),
-                  const SizedBox(height: Dimensions.paddingSizeLarge),
+                  SizedBox(height: (Get.find<SplashController>().configModel!.refEarningStatus == 1 && !isDesktop) ? Dimensions.paddingSizeLarge : 0),
 
                   TramsConditionsCheckBoxWidget(authController: authController, fromSignUp : true, fromDialog: isDesktop ? true : false),
-                  SizedBox(height: isDesktop ? Dimensions.paddingSizeExtraLarge : Dimensions.paddingSizeDefault),
+                  SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeDefault),
 
                   CustomButtonWidget(
                     height: isDesktop ? 50 : null,
@@ -272,9 +275,9 @@ class SignUpWidgetState extends State<SignUpWidget> {
                     isLoading: authController.isLoading,
                     onPressed: authController.acceptTerms ? () => _register(authController, _countryDialCode!) : null,
                   ),
-                  SizedBox(height: isDesktop ? Dimensions.paddingSizeExtraLarge : Dimensions.paddingSizeDefault),
+                  SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeDefault),
 
-                  !isDesktop ?  Padding(
+                  Padding(
                     padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeLarge),
                     child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                       Text('already_have_account'.tr, style: robotoRegular.copyWith(color: Theme.of(context).hintColor)),
@@ -283,7 +286,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
                         onTap: authController.isLoading ? null : () {
                           if(isDesktop){
                             Get.back();
-                            Get.dialog(const SignInScreen(exitFromApp: false, backFromThis: false));
+                            Get.dialog(const Center(child: AuthDialogWidget(exitFromApp: false, backFromThis: false)), barrierDismissible: false);
                           }else{
                             if(Get.currentRoute == RouteHelper.signUp) {
                             Get.back();
@@ -298,7 +301,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
                         ),
                       ),
                     ]),
-                  ) : const SizedBox(),
+                  ),
 
                 ]),
             ),
@@ -370,6 +373,14 @@ class SignUpWidgetState extends State<SignUpWidget> {
         }
       }
     } else {
+      if(status.code == 'phone'){
+        FocusScope.of(context).requestFocus(_phoneFocus);
+      }else if(status.code == 'email'){
+        FocusScope.of(context).requestFocus(_emailFocus);
+      }else if(status.code == 'ref_code'){
+        FocusScope.of(context).requestFocus(_referCodeFocus);
+      }
+
       showCustomSnackBar(status.message);
     }
   }
@@ -382,9 +393,24 @@ class SignUpWidgetState extends State<SignUpWidget> {
     String confirmPassword = _confirmPasswordController.text.trim();
     String referCode = _referCodeController.text.trim();
 
+    bool isDesktop = ResponsiveHelper.isDesktop(context);
+
     String numberWithCountryCode = countryCode + number;
     PhoneValid phoneValid = await CustomValidator.isPhoneValid(numberWithCountryCode);
     numberWithCountryCode = phoneValid.phone;
+
+    if(isDesktop){
+      if(_formKeySignUp!.currentState!.validate()){
+        _isReferFieldGap = false;
+        setState(() {});
+      }else if(name.isNotEmpty && !_formKeySignUp!.currentState!.validate()){
+        _isReferFieldGap = false;
+        setState(() {});
+      }else if(!_formKeySignUp!.currentState!.validate()){
+        _isReferFieldGap = true;
+        setState(() {});
+      }
+    }
 
     if (_formKeySignUp!.currentState!.validate()) {
       if (name.isEmpty) {
@@ -400,7 +426,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
       } else if (password.isEmpty) {
         showCustomSnackBar('enter_password'.tr);
       } else if (password.length < 8) {
-        showCustomSnackBar('password_should_be_8_characters'.tr);
+        showCustomSnackBar('password_should_be'.tr);
       } else if (password != confirmPassword) {
         showCustomSnackBar('confirm_password_does_not_matched'.tr);
       } else if (referCode.isNotEmpty && referCode.length != 10) {

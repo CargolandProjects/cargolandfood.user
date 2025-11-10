@@ -70,11 +70,11 @@ class OrderProductWidget extends StatelessWidget {
 
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(mainAxisAlignment: MainAxisAlignment.start,children: [
+              Row(mainAxisAlignment: MainAxisAlignment.start, children: [
                 Expanded(child: Text(
                   orderDetails.foodDetails!.name!,
                   style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall),
-                  maxLines: 2, overflow: TextOverflow.ellipsis,
+                  maxLines: 1, overflow: TextOverflow.ellipsis,
                 )),
                 const SizedBox(width: Dimensions.paddingSizeExtraSmall),
                 Text('${'quantity'.tr}: ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall)),
@@ -103,33 +103,33 @@ class OrderProductWidget extends StatelessWidget {
 
               ]),
 
+              addOnText.isNotEmpty ? Padding(
+                padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  //SizedBox(width: orderDetails.foodDetails!.imageFullUrl != null && orderDetails.foodDetails!.imageFullUrl!.isNotEmpty ? 80 : 0),
+                  Text('${'addons'.tr}: ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
+                  Flexible(child: Text(
+                      addOnText,
+                      style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor,
+                      ))),
+                ]),
+              ) : const SizedBox(),
+
+              variationText != '' ? (orderDetails.foodDetails!.variations != null && orderDetails.foodDetails!.variations!.isNotEmpty) ? Padding(
+                padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall),
+                child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  //SizedBox(width: orderDetails.foodDetails!.imageFullUrl != null && orderDetails.foodDetails!.imageFullUrl!.isNotEmpty ? 80 : 0),
+                  Text('${'variations'.tr}: ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
+                  Flexible(child: Text(
+                      variationText!,
+                      style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor,
+                      ))),
+                ]),
+              ) : const SizedBox() : const SizedBox(),
+
             ]),
           ),
         ]),
-
-        addOnText.isNotEmpty ? Padding(
-          padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall),
-          child: Row(children: [
-            SizedBox(width: orderDetails.foodDetails!.imageFullUrl != null && orderDetails.foodDetails!.imageFullUrl!.isNotEmpty ? 80 : 0),
-            Text('${'addons'.tr}: ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
-            Flexible(child: Text(
-                addOnText,
-                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor,
-            ))),
-          ]),
-        ) : const SizedBox(),
-
-        variationText != '' ? (orderDetails.foodDetails!.variations != null && orderDetails.foodDetails!.variations!.isNotEmpty) ? Padding(
-          padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall),
-          child: Row(children: [
-            SizedBox(width: orderDetails.foodDetails!.imageFullUrl != null && orderDetails.foodDetails!.imageFullUrl!.isNotEmpty ? 80 : 0),
-            Text('${'variations'.tr}: ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
-            Flexible(child: Text(
-                variationText!,
-                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor,
-            ))),
-          ]),
-        ) : const SizedBox() : const SizedBox(),
 
         (!ResponsiveHelper.isDesktop(context) && index == itemLength! - 1) ? const SizedBox() : const Divider(height: Dimensions.paddingSizeLarge),
         SizedBox(height: (!ResponsiveHelper.isDesktop(context) && index == itemLength! - 1) ? 0 : Dimensions.paddingSizeSmall),

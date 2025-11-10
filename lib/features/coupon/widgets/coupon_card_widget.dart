@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:dotted_border/dotted_border.dart';
-import 'package:stackfood_multivendor/features/coupon/domain/models/coupon_model.dart';
+import 'package:stackfood_multivendor/features/coupon/domain/models/customer_coupon_model.dart';
 import 'package:stackfood_multivendor/features/language/controllers/localization_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/theme_controller.dart';
@@ -11,16 +11,16 @@ import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 
 class CouponCardWidget extends StatelessWidget {
-  final List<CouponModel>? couponList;
+  final List<Coupon>? couponList;
   final List<JustTheController>? toolTipController;
   final int index;
   final Function()? onCopyClick;
-  const CouponCardWidget({super.key, required this.index, this.couponList, this.toolTipController, this.onCopyClick});
+  final bool unavailable;
+  const CouponCardWidget({super.key, required this.index, this.couponList, this.toolTipController, this.onCopyClick, this.unavailable = false});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,7 @@ class CouponCardWidget extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-        boxShadow: [BoxShadow(color: Get.isDarkMode ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.2), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
+        boxShadow: unavailable ? null : [BoxShadow(color: Get.isDarkMode ? Colors.black.withValues(alpha: 0.2) : Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
       ),
       child: Stack(children: [
 
@@ -40,6 +40,7 @@ class CouponCardWidget extends StatelessWidget {
               Get.find<ThemeController>().darkTheme ? Images.couponBgDark : Images.couponBgLight,
               height: ResponsiveHelper.isMobilePhone() ? 160 : 150, width: size.width,
               fit: ResponsiveHelper.isMobilePhone() ? BoxFit.cover : BoxFit.contain,
+              color: unavailable ? Theme.of(context).disabledColor.withValues(alpha: 0.07) : null,
             ),
           ),
         ),
@@ -56,7 +57,7 @@ class CouponCardWidget extends StatelessWidget {
                 Image.asset(
                   couponList![index].discountType == 'percent' ? Images.percentCouponOffer : couponList![index].couponType
                       == 'free_delivery' ? Images.freeDelivery : Images.money,
-                  height: 25, width: 25,
+                  height: 25, width: 25, //color: unavailable ? Theme.of(context).disabledColor.withValues(alpha: 0.05) : null,
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
@@ -64,7 +65,7 @@ class CouponCardWidget extends StatelessWidget {
                   '${couponList![index].couponType == 'free_delivery' ? '' : couponList![index].discount}${couponList![index].discountType == 'percent' ? '%'
                       : couponList![index].couponType == 'free_delivery' ?  'free_delivery'.tr
                       : Get.find<SplashController>().configModel!.currencySymbol} ${couponList![index].couponType == 'free_delivery' ? '' : 'off'.tr}',
-                  style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+                  style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge, color: unavailable ? Theme.of(context).hintColor.withValues(alpha: 0.8) : null),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
@@ -93,54 +94,45 @@ class CouponCardWidget extends StatelessWidget {
                   tailLength: 14,
                   tailBaseWidth: 20,
                   triggerMode: TooltipTriggerMode.manual,
-                  content: Padding(
+                  content: unavailable ? SizedBox() : Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text('${'code_copied'.tr} !',style: robotoRegular.copyWith(color: Theme.of(context).cardColor)),
                   ),
-                  child: InkWell(
-                    onTap: onCopyClick ?? () async {
-                      toolTipController![index].showTooltip();
-                      Clipboard.setData(ClipboardData(text: couponList![index].code!));
-
-                      Future.delayed(const Duration(milliseconds: 750), () {
-                        toolTipController![index].hideTooltip();
-                      });
-                    },
-                    child: DottedBorder(
-                      color: Theme.of(context).primaryColor,
+                  child: DottedBorder(
+                    options: RoundedRectDottedBorderOptions(
+                      color: unavailable ? Theme.of(context).primaryColor.withValues(alpha: 0.5) : Theme.of(context).primaryColor,
                       strokeWidth: 1,
                       strokeCap: StrokeCap.butt,
                       dashPattern: const [5, 5],
                       padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeExtraSmall),
-                      borderType: BorderType.RRect,
                       radius: const Radius.circular(50),
-                      child: Row(mainAxisSize: MainAxisSize.min, children: [
-
-                        Text(
-                          '${couponList![index].code}',
-                          style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall),
-                          maxLines: 1, overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                        Icon(Icons.copy_rounded, color: Theme.of(context).primaryColor, size: 20),
-
-                      ]),
                     ),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [
+
+                      Text(
+                        '${couponList![index].code}',
+                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: unavailable ? Theme.of(context).disabledColor : null),
+                        maxLines: 1, overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(width: Dimensions.paddingSizeSmall),
+
+                      Icon(Icons.copy_rounded, color: unavailable ? Theme.of(context).primaryColor.withValues(alpha: 0.5) : Theme.of(context).primaryColor, size: 20),
+
+                    ]),
                   ),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeSmall),
 
                 Text(
                   '${DateConverter.stringDateTimeToDate(couponList![index].startDate!)} ${'to'.tr} ${DateConverter.stringDateTimeToDate(couponList![index].expireDate!)}',
-                  style: robotoMedium.copyWith(color: Theme.of(context).textTheme.bodyLarge?.color, fontSize: Dimensions.fontSizeSmall),
+                  style: robotoMedium.copyWith(color: unavailable ? Theme.of(context).hintColor.withValues(alpha: 0.8) : Theme.of(context).textTheme.bodyLarge?.color, fontSize: Dimensions.fontSizeSmall),
                   maxLines: 1, overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                 Row(mainAxisAlignment: MainAxisAlignment.center, children: [
 
-                  Text('*', style: robotoRegular.copyWith(color: Theme.of(context).colorScheme.error, fontSize: Dimensions.fontSizeSmall)),
+                  Text('*', style: robotoRegular.copyWith(color: unavailable ? Theme.of(context).disabledColor : Theme.of(context).colorScheme.error, fontSize: Dimensions.fontSizeSmall)),
 
                   Text(
                     '${'min_purchase'.tr} ',

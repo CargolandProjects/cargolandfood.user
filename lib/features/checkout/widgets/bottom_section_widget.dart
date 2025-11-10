@@ -3,7 +3,6 @@ import 'package:stackfood_multivendor/features/checkout/controllers/checkout_con
 import 'package:stackfood_multivendor/features/checkout/widgets/condition_check_box.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/coupon_section.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/order_place_button.dart';
-import 'package:stackfood_multivendor/features/checkout/widgets/partial_pay_view.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/payment_section.dart';
 import 'package:stackfood_multivendor/features/coupon/controllers/coupon_controller.dart';
 import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
@@ -41,7 +40,7 @@ class BottomSectionWidget extends StatelessWidget {
   final int subscriptionQty;
   final double taxPercent;
   final bool fromCart;
-  final List<CartModel> cartList;
+  final List<CartModel>? cartList;
   final double price;
   final double addOns;
   final TextEditingController guestNameTextEditingController;
@@ -49,7 +48,7 @@ class BottomSectionWidget extends StatelessWidget {
   final TextEditingController guestEmailController;
   final FocusNode guestNumberNode;
   final FocusNode guestEmailNode;
-  final ExpansionTileController expansionTileController;
+  final ExpansibleController expansionTileController;
   final JustTheController serviceFeeTooltipController;
   final double referralDiscount;
   final double extraPackagingAmount;
@@ -93,8 +92,6 @@ class BottomSectionWidget extends StatelessWidget {
         ) : const SizedBox(),
         SizedBox(height: !isDesktop ? Dimensions.paddingSizeExtraSmall : 0),
 
-        isDesktop && !isGuestLoggedIn ? PartialPayView(totalPrice: total) : const SizedBox(),
-
         isDesktop ? Padding(
           padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge),
           child: pricingView(context, isDesktop),
@@ -118,11 +115,11 @@ class BottomSectionWidget extends StatelessWidget {
             ),
             const SizedBox(height: Dimensions.paddingSizeLarge),
 
-
             pricingView(context, isDesktop),
             const SizedBox(height: Dimensions.paddingSizeLarge),
 
             const CheckoutCondition(),
+
           ]),
         ) : const SizedBox(),
 
@@ -162,9 +159,7 @@ class BottomSectionWidget extends StatelessWidget {
               ),
             ],
           ),
-          // child: orderPlaceButton(
-          //     checkoutController, restaurantController, locationController, todayClosed, tomorrowClosed, orderAmount, deliveryCharge, tax, discount, total, maxCodOrderAmount, subscriptionQty
-          // ),
+
         ) : const SizedBox(),
       ]),
     );
@@ -206,7 +201,6 @@ class BottomSectionWidget extends StatelessWidget {
                   Text('(-) ', style: robotoRegular),
                   PriceConverter.convertAnimationPrice(discount, textStyle: robotoRegular)
                 ]),
-                // Text('(-) ${PriceConverter.convertPrice(discount)}', style: robotoRegular, textDirection: TextDirection.ltr),
               ]),
               const SizedBox(height: Dimensions.paddingSizeSmall),
 
@@ -238,17 +232,11 @@ class BottomSectionWidget extends StatelessWidget {
                 const SizedBox(height: Dimensions.paddingSizeSmall),
               ]) : const SizedBox(),
 
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Row(children: [
-                  Text('${'vat_tax'.tr} ${taxIncluded ? 'tax_included'.tr : ''}', style: robotoRegular),
-                  Text('($taxPercent%)', style: robotoRegular, textDirection: TextDirection.ltr),
-                ]),
-                Row(children: [
-                  Text('(+) ', style: robotoRegular),
-                  Text(PriceConverter.convertPrice(tax), style: robotoRegular, textDirection: TextDirection.ltr),
-                ]),
+              ((checkoutController.taxIncluded == null) || taxIncluded || (checkoutController.orderTax == 0)) ? const SizedBox() : Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text('vat_tax'.tr, style: robotoRegular),
+                Text(('(+) ') + PriceConverter.convertPrice(tax), style: robotoRegular, textDirection: TextDirection.ltr),
               ]),
-              const SizedBox(height: Dimensions.paddingSizeSmall),
+              SizedBox(height: ((checkoutController.taxIncluded == null) || taxIncluded || (checkoutController.orderTax == 0)) ? 0 : Dimensions.paddingSizeSmall),
 
               (checkoutController.orderType != 'take_away' && checkoutController.orderType != 'dine_in' && Get.find<SplashController>().configModel!.dmTipsStatus == 1 && !checkoutController.subscriptionOrder) ? Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -258,7 +246,6 @@ class BottomSectionWidget extends StatelessWidget {
                     Text('(+) ', style: robotoRegular),
                     PriceConverter.convertAnimationPrice(checkoutController.tips, textStyle: robotoRegular)
                   ]),
-                  // Text('(+) ${PriceConverter.convertPrice(checkoutController.tips)}', style: robotoRegular, textDirection: TextDirection.ltr),
                 ],
               ) : const SizedBox.shrink(),
               SizedBox(height: checkoutController.orderType != 'take_away' && checkoutController.orderType != 'dine_in' && Get.find<SplashController>().configModel!.dmTipsStatus == 1 && !checkoutController.subscriptionOrder ? Dimensions.paddingSizeSmall : 0.0),
@@ -297,7 +284,7 @@ class BottomSectionWidget extends StatelessWidget {
 
                 ]),
                 Text(
-                  '(+) ${PriceConverter.convertPrice((Get.find<SplashController>().configModel!.additionCharge! * subTotal) /100)}',
+                  '(+) ${PriceConverter.convertPrice(Get.find<SplashController>().configModel!.additionCharge)}',
                   style: robotoRegular, textDirection: TextDirection.ltr,
                 ),
               ]) : const SizedBox(),
@@ -305,13 +292,39 @@ class BottomSectionWidget extends StatelessWidget {
 
               (isDesktop || checkoutController.isPartialPay) && checkoutController.subscriptionOrder ? Column(
                 children: [
-                  Divider(thickness: 1, color: Theme.of(context).hintColor.withValues(alpha: 0.5)),
+                  Divider(thickness: 1, color: Theme.of(context).disabledColor.withValues(alpha: 0.5)),
 
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Row(children: [
                     Text(
                       checkoutController.subscriptionOrder ? 'subtotal'.tr : 'total_amount'.tr,
                       style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: checkoutController.isPartialPay ? Theme.of(context).textTheme.bodyMedium!.color : Theme.of(context).primaryColor),
                     ),
+
+                    (checkoutController.taxIncluded == 1) ? Text(' ${'vat_tax_inc'.tr}', style: robotoMedium.copyWith(
+                      fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).primaryColor,
+                    )) : const SizedBox(),
+
+                    const Expanded(child: SizedBox()),
+
+                    PriceConverter.convertAnimationPrice(
+                      total,
+                      textStyle: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: checkoutController.isPartialPay ? Theme.of(context).textTheme.bodyMedium!.color : Theme.of(context).primaryColor),
+                    ),
+                  ]),
+                ],
+              ) : const SizedBox(),
+
+              !isDesktop && checkoutController.subscriptionOrder ? Column(
+                children: [
+                  Divider(thickness: 1, color: Theme.of(context).disabledColor.withValues(alpha: 0.5)),
+
+                  Row(children: [
+                    Text(
+                      'subtotal'.tr,
+                      style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: checkoutController.isPartialPay ? Theme.of(context).textTheme.bodyMedium!.color : Theme.of(context).primaryColor),
+                    ),
+                    const Expanded(child: SizedBox()),
+
                     PriceConverter.convertAnimationPrice(
                       total,
                       textStyle: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: checkoutController.isPartialPay ? Theme.of(context).textTheme.bodyMedium!.color : Theme.of(context).primaryColor),
@@ -328,7 +341,7 @@ class BottomSectionWidget extends StatelessWidget {
                 ]),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                  child: Divider(thickness: 1, color: Theme.of(context).hintColor.withValues(alpha: 0.5)),
+                  child: Divider(thickness: 1, color: Theme.of(context).disabledColor.withValues(alpha: 0.5)),
                 ),
 
               ]) : const SizedBox(),

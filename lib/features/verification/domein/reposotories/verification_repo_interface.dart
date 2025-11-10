@@ -4,9 +4,9 @@ import 'package:stackfood_multivendor/interface/repository_interface.dart';
 import 'package:get/get_connect/http/src/response/response.dart';
 
 abstract class VerificationRepoInterface<T> extends RepositoryInterface<T>{
-  Future<ResponseModel> forgetPassword(String? phone);
-  Future<ResponseModel> verifyToken(String? phone, String token);
-  Future<ResponseModel> resetPassword(String? resetToken, String number, String password, String confirmPassword);
+  Future<ResponseModel> forgetPassword({String? phone, String? email});
+  Future<ResponseModel> verifyToken({String? phone, String? email, required String token});
+  Future<ResponseModel> resetPassword({String? resetToken, String? phone, String? email, required String password, required String confirmPassword});
   Future<ResponseModel> checkEmail(String email);
   Future<Response> verifyEmail(String email, String token);
   Future<Response> verifyPhone(VerificationDataModel data);

@@ -7,7 +7,7 @@ import 'package:get/get_connect/http/src/response/response.dart';
 
 abstract class CategoryRepositoryInterface implements RepositoryInterface {
   @override
-  Future<List<CategoryModel>?> getList({int? offset, DataSourceEnum? source});
+  Future<List<CategoryModel>?> getList({int? offset, DataSourceEnum? source, String? search});
   Future<List<CategoryModel>?> getSubCategoryList(String? parentID);
   Future<ProductModel?> getCategoryProductList(String? categoryID, int offset, String type);
   Future<RestaurantModel?> getCategoryRestaurantList(String? categoryID, int offset, String type);

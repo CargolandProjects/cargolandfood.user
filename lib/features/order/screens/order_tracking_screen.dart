@@ -41,10 +41,7 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
   GoogleMapController? _controller;
   bool _isLoading = true;
   Set<Marker> _markers = HashSet<Marker>();
-  // Set<Polyline> _polyline = {};
-  // Map<PolylineId, Polyline> _polyline = {};
-  // List<LatLng> _polylineCoordinates = [];
-  // PolylinePoints _polylinePoints = PolylinePoints();
+  Timer? _timer;
 
   void _loadData() async {
     await Get.find<LocationController>().getCurrentLocation(true, notify: false, defaultLatLng: LatLng(
@@ -52,9 +49,37 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
       double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!),
     ));
     await Get.find<OrderController>().trackOrder(widget.orderID, null, true, contactNumber: widget.contactNumber);
-    Get.find<OrderController>().callTrackOrderApi(orderModel: Get.find<OrderController>().trackModel!, orderId: widget.orderID.toString());
-
+    _timerTrackOrder();
   }
+
+  void _timerTrackOrder(){
+    if(Get.find<OrderController>().trackModel?.orderStatus != 'delivered' && Get.find<OrderController>().trackModel?.orderStatus != 'failed' && Get.find<OrderController>().trackModel?.orderStatus != 'canceled') {
+    //if(Get.find<OrderController>().trackModel?.orderStatus == 'picked_up') {
+      Get.find<OrderController>().timerTrackOrder(widget.orderID.toString(), contactNumber: widget.contactNumber);
+      _timer?.cancel();
+      _timer = Timer.periodic(const Duration(seconds: 10), (timer) {
+        if(Get.currentRoute.contains(RouteHelper.orderDetails) || Get.currentRoute.contains(RouteHelper.orderTracking)){
+          Get.find<OrderController>().timerTrackOrder(widget.orderID.toString(), contactNumber: widget.contactNumber);
+
+          updateMarker(
+            Get.find<OrderController>().trackModel?.restaurant, Get.find<OrderController>().trackModel?.deliveryMan,
+            Get.find<OrderController>().trackModel?.orderType == 'take_away' ? Get.find<LocationController>().position.latitude == 0 ? Get.find<OrderController>().trackModel?.deliveryAddress : AddressModel(
+              latitude: Get.find<LocationController>().position.latitude.toString(),
+              longitude: Get.find<LocationController>().position.longitude.toString(),
+              address: Get.find<LocationController>().address,
+            ) : Get.find<OrderController>().trackModel?.deliveryAddress,
+            Get.find<OrderController>().trackModel?.orderType == 'take_away',
+          );
+
+        } else {
+          _timer?.cancel();
+        }
+      });
+    }else{
+      Get.find<OrderController>().timerTrackOrder(widget.orderID.toString(), contactNumber: widget.contactNumber);
+    }
+  }
+
 
   @override
   void initState() {
@@ -67,7 +92,7 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
   @override
   void didChangeAppLifecycleState(final AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      Get.find<OrderController>().callTrackOrderApi(orderModel: Get.find<OrderController>().trackModel!, orderId: widget.orderID.toString(), contactNumber: widget.contactNumber);
+      _timerTrackOrder();
     }else if(state == AppLifecycleState.paused){
       Get.find<OrderController>().cancelTimer();
     }
@@ -77,6 +102,7 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
   void dispose() {
     super.dispose();
     _controller?.dispose();
+    _timer?.cancel();
     Get.find<OrderController>().cancelTimer();
     WidgetsBinding.instance.removeObserver(this);
   }
@@ -103,7 +129,6 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
               minMaxZoomPreference: const MinMaxZoomPreference(0, 16),
               zoomControlsEnabled: true,
               markers: _markers,
-              // polylines: Set<Polyline>.of(_polyline.values),
               mapType: MapType.normal,
               onMapCreated: (GoogleMapController controller) {
                 _controller = controller;
@@ -165,7 +190,7 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
                   imageFullUrl: takeAway ? track.restaurant!.logoFullUrl : track.deliveryMan!.imageFullUrl,
                 ),
               ));
-              orderController.callTrackOrderApi(orderModel: track, orderId: track.id.toString(), contactNumber: widget.contactNumber);
+              _timerTrackOrder();
             }),
           ),
 
@@ -177,17 +202,14 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
   void setMarker(Restaurant? restaurant, DeliveryMan? deliveryMan, AddressModel? addressModel, bool takeAway, {AddressModel? currentAddress, bool fromCurrentLocation = false}) async {
     try {
       BitmapDescriptor restaurantImageData = await MarkerHelper.convertAssetToBitmapDescriptor(
-        width: 120, imagePath: Images.restaurantMarker,
+        width: 50, imagePath: Images.restaurantMarker,
       );
       BitmapDescriptor deliveryBoyImageData = await MarkerHelper.convertAssetToBitmapDescriptor(
-        width: 120, imagePath: Images.deliveryManMarker,
+        width: 50, imagePath: Images.deliveryManMarker,
       );
       BitmapDescriptor destinationImageData = await MarkerHelper.convertAssetToBitmapDescriptor(
-        width: 120, imagePath: Images.myLocationMarker,
+        width: 50, imagePath: Images.myLocationMarker,
       );
-      // Uint8List restaurantImageData = await convertAssetToUnit8List(Images.restaurantMarker, width: 120);
-      // Uint8List deliveryBoyImageData = await convertAssetToUnit8List(Images.deliveryManMarker, width: 120);
-      // Uint8List destinationImageData = await convertAssetToUnit8List(Images.myLocationMarker, width: 120);
 
       // Animate to coordinate
       LatLngBounds? bounds;
@@ -229,24 +251,6 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
 
       // Marker
       _markers = HashSet<Marker>();
-      // _polyline = {};
-
-
-      // if(addressModel != null && restaurant != null){
-      //   print('================ss====ijhiuhui');
-      //   _getPolyline(double.parse(addressModel.latitude!), double.parse(addressModel.longitude!), double.parse(restaurant.latitude!), double.parse(restaurant.longitude!));
-      // }
-
-      // _polyline.add(Polyline(
-      //   polylineId: const PolylineId('destination'),
-      //   visible: true,
-      //   width: 2,
-      //   patterns: [
-      //     PatternItem.dash(20.0),
-      //     PatternItem.gap(10)
-      //   ],
-      //   points: latLng,
-      // ));
 
       ///current location marker set
       if(currentAddress != null) {
@@ -254,7 +258,7 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
           markerId: const MarkerId('current_location'),
           visible: true,
           draggable: false,
-          zIndex: 2,
+          zIndexInt: 2,
           flat: true,
           anchor: const Offset(0.5, 0.5),
           position: LatLng(
@@ -301,35 +305,97 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
     }catch(_) {}
     setState(() {});
   }
-  //
-  // _getPolyline(double destinationLat, double destinationLng, double restaurantLat, double restaurantLng) async {
-  //   print('0sknjjkddskfn-======= $destinationLat , $destinationLng, $restaurantLat, $restaurantLng');
-  //   PolylineResult result = await _polylinePoints.getRouteBetweenCoordinates(
-  //     AppConstants.mapKey,
-  //     PointLatLng(restaurantLat, restaurantLng),
-  //     PointLatLng(destinationLat, destinationLng),
-  //       travelMode: TravelMode.driving,
-  //       // wayPoints: [PolylineWayPoint(location: "Sabo, Yaba Lagos Nigeria")],
-  //   );
-  //
-  //   print('================ss====> $result');
-  //   if (result.points.isNotEmpty) {
-  //     for (var point in result.points) {
-  //       _polylineCoordinates.add(LatLng(point.latitude, point.longitude));
-  //     }
-  //   }
-  //   _addPolyLine();
-  // }
-  //
-  // _addPolyLine() {
-  //   PolylineId id = const PolylineId("destination");
-  //   Polyline polyline = Polyline(
-  //     polylineId: id,
-  //     color: Colors.red,
-  //     points: _polylineCoordinates,
-  //   );
-  //   _polyline[id] = polyline;
-  // }
+
+  void updateMarker(Restaurant? restaurant, DeliveryMan? deliveryMan, AddressModel? addressModel, bool takeAway, {AddressModel? currentAddress, bool fromCurrentLocation = false}) async {
+    try {
+      BitmapDescriptor restaurantImageData = await MarkerHelper.convertAssetToBitmapDescriptor(
+        width: 50, imagePath: Images.restaurantMarker,
+      );
+      BitmapDescriptor deliveryBoyImageData = await MarkerHelper.convertAssetToBitmapDescriptor(
+        width: 50, imagePath: Images.deliveryManMarker,
+      );
+      BitmapDescriptor destinationImageData = await MarkerHelper.convertAssetToBitmapDescriptor(
+        width: 50, imagePath: Images.myLocationMarker,
+      );
+
+      // Animate to coordinate
+      LatLngBounds? bounds;
+      debugPrint(bounds.toString());
+
+      double rotation = 0;
+      if(_controller != null) {
+        if (double.parse(addressModel!.latitude!) < double.parse(restaurant!.latitude!)) {
+          bounds = LatLngBounds(
+            southwest: LatLng(double.parse(addressModel.latitude!), double.parse(addressModel.longitude!)),
+            northeast: LatLng(double.parse(restaurant.latitude!), double.parse(restaurant.longitude!)),
+          );
+          rotation = 0;
+        }else {
+          bounds = LatLngBounds(
+            southwest: LatLng(double.parse(restaurant.latitude!), double.parse(restaurant.longitude!)),
+            northeast: LatLng(double.parse(addressModel.latitude!), double.parse(addressModel.longitude!)),
+          );
+          rotation = 180;
+        }
+      }
+
+      // Marker
+      _markers = HashSet<Marker>();
+
+      ///current location marker set
+      if(currentAddress != null) {
+        _markers.add(Marker(
+          markerId: const MarkerId('current_location'),
+          visible: true,
+          draggable: false,
+          zIndexInt: 2,
+          flat: true,
+          anchor: const Offset(0.5, 0.5),
+          position: LatLng(
+            double.parse(currentAddress.latitude!),
+            double.parse(currentAddress.longitude!),
+          ),
+          icon: destinationImageData,
+        ));
+        setState(() {});
+      }
+
+      if(currentAddress == null){
+        addressModel != null ? _markers.add(Marker(
+          markerId: const MarkerId('destination'),
+          position: LatLng(double.parse(addressModel.latitude!), double.parse(addressModel.longitude!)),
+          infoWindow: InfoWindow(
+            title: 'Destination',
+            snippet: addressModel.address,
+          ),
+          icon: destinationImageData,
+        )) : const SizedBox();
+      }
+
+      restaurant != null ? _markers.add(Marker(
+        markerId: const MarkerId('restaurant'),
+        position: LatLng(double.parse(restaurant.latitude!), double.parse(restaurant.longitude!)),
+        infoWindow: InfoWindow(
+          title: 'restaurant'.tr,
+          snippet: restaurant.address,
+        ),
+        icon: restaurantImageData,
+      )) : const SizedBox();
+
+      deliveryMan != null ? _markers.add(Marker(
+        markerId: const MarkerId('delivery_boy'),
+        position: LatLng(double.parse(deliveryMan.lat ?? '0'), double.parse(deliveryMan.lng ?? '0')),
+        infoWindow: InfoWindow(
+          title: 'delivery_man'.tr,
+          snippet: deliveryMan.location,
+        ),
+        rotation: rotation,
+        icon: deliveryBoyImageData,
+      )) : const SizedBox();
+    }catch(_) {}
+    setState(() {});
+  }
+
 
   Future<void> zoomToFit(GoogleMapController? controller, LatLngBounds? bounds, LatLng centerBounds, {double padding = 0.5}) async {
     bool keepZoomingOut = true;

@@ -1,6 +1,4 @@
-
 import 'dart:convert';
-
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/dashboard/domain/repositories/dashboard_repo.dart';
 import 'package:stackfood_multivendor/features/dashboard/domain/repositories/dashboard_repo_interface.dart';
@@ -72,7 +70,7 @@ import 'package:stackfood_multivendor/features/profile/domain/repositories/profi
 import 'package:stackfood_multivendor/features/profile/domain/repositories/profile_repository_interface.dart';
 import 'package:stackfood_multivendor/features/profile/domain/services/profile_service.dart';
 import 'package:stackfood_multivendor/features/profile/domain/services/profile_service_interface.dart';
-import 'package:stackfood_multivendor/features/refer%20and%20earn/controllers/refer_and_earn_controller.dart';
+import 'package:stackfood_multivendor/features/refer_and_earn/controllers/refer_and_earn_controller.dart';
 import 'package:stackfood_multivendor/features/restaurant/domain/repositories/restaurant_repository.dart';
 import 'package:stackfood_multivendor/features/restaurant/domain/repositories/restaurant_repository_interface.dart';
 import 'package:stackfood_multivendor/features/restaurant/domain/services/restaurant_service.dart';
@@ -286,7 +284,7 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => restaurantRepositoryInterface);
   RestaurantServiceInterface restaurantServiceInterface = RestaurantService(restaurantRepositoryInterface: Get.find());
   Get.lazyPut(() => restaurantServiceInterface);
-  CheckoutRepositoryInterface checkoutRepositoryInterface = CheckoutRepository(apiClient: Get.find());
+  CheckoutRepositoryInterface checkoutRepositoryInterface = CheckoutRepository(apiClient: Get.find(), sharedPreferences: Get.find());
   Get.lazyPut(() => checkoutRepositoryInterface);
   CheckoutServiceInterface checkoutServiceInterface = CheckoutService(checkoutRepositoryInterface: Get.find());
   Get.lazyPut(() => checkoutServiceInterface);

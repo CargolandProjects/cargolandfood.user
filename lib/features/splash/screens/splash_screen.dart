@@ -42,10 +42,13 @@ class SplashScreenState extends State<SplashScreen> {
         ));
         if(isConnected) {
           _route();
+        }else {
+          Get.to(const NoInternetScreen());
         }
       }
 
       firstTime = false;
+
     });
 
     Get.find<SplashController>().initSharedData();

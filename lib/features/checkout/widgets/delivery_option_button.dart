@@ -1,6 +1,5 @@
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_tool_tip.dart';
-import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/helper/auth_helper.dart';
@@ -10,7 +9,6 @@ import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 
 class DeliveryOptionButton extends StatelessWidget {
   final String value;
@@ -59,9 +57,6 @@ class DeliveryOptionButton extends StatelessWidget {
               }
 
               if(AuthHelper.isLoggedIn()) {
-                // if (Get.find<ProfileController>().userInfoModel == null) {
-                //   await Get.find<ProfileController>().getUserInfo();
-                // }
                 String phone = await _splitPhoneNumber(Get.find<ProfileController>().userInfoModel?.userInfo?.phone ?? '');
 
                 guestNameTextEditingController?.text = '${Get.find<ProfileController>().userInfoModel?.userInfo?.fName ?? ''} ${Get.find<ProfileController>().userInfoModel?.userInfo?.fName ?? ''}';
@@ -71,7 +66,7 @@ class DeliveryOptionButton extends StatelessWidget {
 
             }else{
               checkoutController.updateTips(
-                Get.find<AuthController>().getDmTipIndex().isNotEmpty ? int.parse(Get.find<AuthController>().getDmTipIndex()) : 0, notify: false,
+                checkoutController.getDmTipIndex().isNotEmpty ? int.parse(checkoutController.getDmTipIndex()) : 0, notify: false,
               );
 
               if(checkoutController.isPartialPay){
@@ -90,15 +85,17 @@ class DeliveryOptionButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeSmall),
             child: Row(
               children: [
-                Radio(
-                  value: value,
+                RadioGroup(
                   groupValue: checkoutController.orderType,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   onChanged: (String? value) {
                     checkoutController.setOrderType(value!);
                   },
-                  activeColor: Theme.of(context).primaryColor,
-                  visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
+                  child: Radio(
+                    value: value,
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    activeColor: Theme.of(context).primaryColor,
+                    visualDensity: const VisualDensity(horizontal: -3, vertical: -3),
+                  ),
                 ),
                 const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
@@ -119,12 +116,6 @@ class DeliveryOptionButton extends StatelessWidget {
 
                 ]),
                 const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                // Text(
-                //   '(${(value == 'take_away' || isFree!) ? 'free'.tr : charge != -1 ? PriceConverter.convertPrice(charge) : 'calculating'.tr})',
-                //   style: robotoMedium,
-                // ),
-
               ],
             ),
           ),

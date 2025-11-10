@@ -3,7 +3,6 @@ import 'dart:convert';
 class RestaurantBodyModel {
   String? translation;
   String? deliveryTimeType;
-  String? vat;
   String? minDeliveryTime;
   String? maxDeliveryTime;
   String? lat;
@@ -17,11 +16,12 @@ class RestaurantBodyModel {
   List<String>? cuisineId;
   String? businessPlan;
   String? packageId;
+  String? tin;
+  String? tinExpireDate;
 
   RestaurantBodyModel({
     this.translation,
     this.deliveryTimeType,
-    this.vat,
     this.minDeliveryTime,
     this.maxDeliveryTime,
     this.lat,
@@ -35,12 +35,13 @@ class RestaurantBodyModel {
     this.cuisineId,
     this.businessPlan,
     this.packageId,
+    this.tin,
+    this.tinExpireDate,
   });
 
   RestaurantBodyModel.fromJson(Map<String, dynamic> json) {
     translation = json['translations'];
     deliveryTimeType = json['delivery_time_type'];
-    vat = json['vat'];
     minDeliveryTime = json['min_delivery_time'];
     maxDeliveryTime = json['max_delivery_time'];
     lat = json['lat'];
@@ -54,13 +55,14 @@ class RestaurantBodyModel {
     cuisineId = json['cuisine_ids'];
     businessPlan = json['business_plan'];
     packageId = json['package_id'];
+    tin = json['tin'];
+    tinExpireDate = json['tin_expire_date'];
   }
 
   Map<String, String> toJson() {
     final Map<String, String> data = <String, String>{};
     data['translations'] = translation!;
     data['delivery_time_type'] = deliveryTimeType!;
-    data['vat'] = vat!;
     data['min_delivery_time'] = minDeliveryTime!;
     data['max_delivery_time'] = maxDeliveryTime!;
     data['lat'] = lat!;
@@ -74,6 +76,8 @@ class RestaurantBodyModel {
     data['cuisine_ids'] = jsonEncode(cuisineId);
     data['business_plan'] = businessPlan ?? '';
     data['package_id'] = packageId!;
+    data['tin'] = tin ?? '';
+    data['tin_expire_date'] = tinExpireDate ?? '';
     return data;
   }
 }

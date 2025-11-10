@@ -203,7 +203,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             SizedBox(height: isLoggedIn ? Dimensions.paddingSizeSmall : 0),
 
                             isLoggedIn ? ProfileButtonWidget(icon: Icons.lock, title: 'change_password'.tr, onTap: () {
-                              Get.toNamed(RouteHelper.getResetPasswordRoute('', '', 'password-change'));
+                              Get.toNamed(RouteHelper.getResetPasswordRoute(phone: '', email: '', token: '', page: 'password-change'));
                             }) : const SizedBox(),
                             SizedBox(height: isLoggedIn ? Dimensions.paddingSizeSmall : 0),
 
@@ -259,10 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       Text(
                         'guest_user'.tr,
-                        style: robotoBold.copyWith(
-                          fontSize: Dimensions.fontSizeExtraLarge,
-                          color: Theme.of(context).textTheme.bodyLarge?.color,
-                        ),
+                        style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge),
                       ),
                       const SizedBox(height: Dimensions.paddingSizeSmall),
 
@@ -270,8 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         width: context.width * 0.6,
                         child: Text(
                           'currently_you_are_in_guest_mode_please_login_to_view_all_the_features'.tr,
-                          style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall,
-                              color: Theme.of(context).disabledColor),
+                          style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
                           textAlign: TextAlign.center,
                         ),
                       ),

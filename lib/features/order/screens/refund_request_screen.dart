@@ -95,13 +95,14 @@ class _RefundRequestScreenState extends State<RefundRequestScreen> {
                           const SizedBox(height: Dimensions.paddingSizeLarge),
 
                           DottedBorder(
-                            color: Theme.of(context).disabledColor,
-                            strokeWidth: 2,
-                            strokeCap: StrokeCap.butt,
-                            dashPattern: const [8, 5],
-                            padding: const EdgeInsets.all(0),
-                            borderType: BorderType.RRect,
-                            radius: const Radius.circular(Dimensions.radiusSmall),
+                            options: RoundedRectDottedBorderOptions(
+                              color: Theme.of(context).disabledColor,
+                              strokeWidth: 2,
+                              strokeCap: StrokeCap.butt,
+                              dashPattern: const [8, 5],
+                              padding: const EdgeInsets.all(0),
+                              radius: const Radius.circular(Dimensions.radiusSmall),
+                            ),
                             child: Stack(children: [
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(Dimensions.radiusSmall),

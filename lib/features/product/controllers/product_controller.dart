@@ -96,7 +96,7 @@ class ProductController extends GetxController implements GetxService {
     }
   }
 
-  _preparePopularProductList(List<Product>? popularProductList) {
+  void _preparePopularProductList(List<Product>? popularProductList) {
     if(popularProductList != null) {
       _popularProductList = [];
       _popularProductList!.addAll(popularProductList);

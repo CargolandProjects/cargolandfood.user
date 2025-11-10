@@ -354,22 +354,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               validator: (value) => ValidateCheck.validateEmptyText(value, "first_name_field_is_required".tr),
                             ),
                           ),
-                          // const SizedBox(width: Dimensions.paddingSizeLarge),
-                          //
-                          // Expanded(
-                          //   child: CustomTextFieldWidget(
-                          //     titleText: 'write_last_name'.tr,
-                          //     controller: _lastNameController,
-                          //     capitalization: TextCapitalization.words,
-                          //     inputType: TextInputType.name,
-                          //     focusNode: _lastNameFocus,
-                          //     nextFocus: _emailFocus,
-                          //     prefixIcon: CupertinoIcons.person_alt_circle_fill,
-                          //     labelText: 'last_name'.tr,
-                          //     required: true,
-                          //     validator: (value) => ValidateCheck.validateEmptyText(value, "last_name_field_is_required".tr),
-                          //   ),
-                          // ),
 
                         ]),
                         const SizedBox(height: Dimensions.paddingSizeExtraOverLarge),

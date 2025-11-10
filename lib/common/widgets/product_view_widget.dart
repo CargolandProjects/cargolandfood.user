@@ -25,7 +25,7 @@ class ProductViewWidget extends StatelessWidget {
   final bool? fromFavorite;
   final bool? fromSearch;
   const ProductViewWidget({super.key, required this.restaurants, required this.products, required this.isRestaurant, this.isScrollable = false,
-    this.shimmerLength = 20, this.padding = const EdgeInsets.all(Dimensions.paddingSizeSmall), this.noDataText,
+    this.shimmerLength = 20, this.padding = const EdgeInsets.all(Dimensions.paddingSizeDefault), this.noDataText,
     this.isCampaign = false, this.inRestaurantPage = false, this.showTheme1Restaurant = false, this.isWebRestaurant = false, this.fromFavorite = false, this.fromSearch = false});
 
   @override
@@ -51,7 +51,6 @@ class ProductViewWidget extends StatelessWidget {
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisSpacing: Dimensions.paddingSizeLarge,
           mainAxisSpacing: ResponsiveHelper.isDesktop(context) && !isWebRestaurant! ? Dimensions.paddingSizeLarge : isWebRestaurant! ? Dimensions.paddingSizeLarge : 0.01,
-          //childAspectRatio: ResponsiveHelper.isDesktop(context) && !isWebRestaurant! ? 3 : isWebRestaurant! ? 1.5 : showTheme1Restaurant ? 1.9 : 3.3,
           mainAxisExtent: ResponsiveHelper.isDesktop(context) && !isWebRestaurant! ? 142 : isWebRestaurant! ? 280 : showTheme1Restaurant ? 200 : 150,
           crossAxisCount: ResponsiveHelper.isMobile(context) && !isWebRestaurant! ? 1 : isWebRestaurant! ? 4 : 3,
         ),
@@ -77,7 +76,6 @@ class ProductViewWidget extends StatelessWidget {
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisSpacing: Dimensions.paddingSizeLarge,
           mainAxisSpacing: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeLarge : 0.01,
-          //childAspectRatio: ResponsiveHelper.isDesktop(context) && !isWebRestaurant! ? 3 : isWebRestaurant! ? 1.5 : showTheme1Restaurant ? 1.9 : 3.3,
           mainAxisExtent: ResponsiveHelper.isDesktop(context) && !isWebRestaurant! ? 142 : isWebRestaurant! ? 280 : showTheme1Restaurant ? 200 : 150,
           crossAxisCount: ResponsiveHelper.isMobile(context) && !isWebRestaurant! ? 1 : isWebRestaurant! ? 4 : 3,
         ),

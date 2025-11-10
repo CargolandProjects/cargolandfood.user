@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:stackfood_multivendor/common/widgets/custom_asset_image_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/paginated_list_view_widget.dart';
+import 'package:stackfood_multivendor/common/widgets/web_page_title_widget.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/chat/widgets/conversion_details_shimmer.dart';
 import 'package:stackfood_multivendor/features/notification/domain/models/notification_body_model.dart';
@@ -71,6 +72,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool isDesktop = ResponsiveHelper.isDesktop(context);
     return GetBuilder<ChatController>(builder: (chatController) {
 
       bool isLoggedIn = Get.find<AuthController>().isLoggedIn();
@@ -85,9 +87,9 @@ class _ChatScreenState extends State<ChatScreen> {
           }
         },
         child: Scaffold(
-          endDrawer: ResponsiveHelper.isDesktop(context) ? const MenuDrawerWidget() : null,
+          endDrawer: isDesktop ? const MenuDrawerWidget() : null,
           endDrawerEnableOpenDragGesture: false,
-          appBar: !ResponsiveHelper.isDesktop(context) ? AppBar(
+          appBar: !isDesktop ? AppBar(
             titleSpacing: 0,
             backgroundColor: Theme.of(context).cardColor,
             surfaceTintColor: Theme.of(context).cardColor,
@@ -131,508 +133,534 @@ class _ChatScreenState extends State<ChatScreen> {
 
           body: isLoggedIn ? SafeArea(
             child: Center(
-              child: SizedBox(
-                width: ResponsiveHelper.isDesktop(context) ? Dimensions.webMaxWidth : MediaQuery.of(context).size.width,
-                child: Column(children: [
-                  SizedBox(height: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeSmall : 0),
+              child: Column(
+                children: [
+                  WebScreenTitleWidget(title: 'chat_with_restaurant'.tr),
+                  // SizedBox(height: isDesktop ? Dimensions.paddingSizeSmall : 0),
 
-                  ResponsiveHelper.isDesktop(context) ? Container(
-                    color: Theme.of(context).cardColor,
-                    padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
-                    child: Row(children: [
+                  Expanded(
+                    child: Container(
+                      decoration: isDesktop ? BoxDecoration(
+                        color: Theme.of(context).cardColor,
+                        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                        boxShadow: [BoxShadow(color: Theme.of(context).disabledColor.withValues(alpha: 0.2), blurRadius: 10)],
+                      ) : null,
+                      width: isDesktop ? Dimensions.webMaxWidth : MediaQuery.of(context).size.width,
+                      margin: isDesktop ? const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge) : null,
+                      child: Column(children: [
 
-                      ClipOval(child: CustomImageWidget(
-                        image:'${chatController.messageModel != null ? chatController.messageModel!.conversation!.receiver!.imageFullUrl : ''}',
-                        fit: BoxFit.cover, height: 35, width: 35,
-                      )),
-                      const SizedBox(width: Dimensions.paddingSizeSmall),
+                        isDesktop ? Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).primaryColor.withValues(alpha: 0.04),
+                            borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                            // boxShadow: [BoxShadow(color: Theme.of(context).disabledColor.withValues(alpha: 0.2), blurRadius: 2)],
+                          ),
+                          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                          margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                          child: Row(children: [
 
-                      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                            ClipOval(child: CustomImageWidget(
+                              image:'${chatController.messageModel != null ? chatController.messageModel!.conversation!.receiver!.imageFullUrl : ''}',
+                              fit: BoxFit.cover, height: 35, width: 35,
+                            )),
+                            const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                        chatController.messageModel != null ? Text(
-                          '${chatController.messageModel!.conversation!.receiver!.fName}'
-                              ' ${chatController.messageModel!.conversation!.receiver!.lName}',
-                          style: robotoRegular,
-                        ) : Container(
-                          height: 20, width: 100, color: Theme.of(context).disabledColor,
-                        ),
+                            Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-                        (chatController.messageModel != null && chatController.messageModel!.conversation!.receiver!.phone != null) ? Text(
-                          '${chatController.messageModel!.conversation!.receiver!.phone}',
-                          style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor),
+                              chatController.messageModel != null ? Text(
+                                '${chatController.messageModel!.conversation!.receiver!.fName}'
+                                    ' ${chatController.messageModel!.conversation!.receiver!.lName}',
+                                style: robotoRegular,
+                              ) : Container(
+                                height: 20, width: 100, color: Theme.of(context).disabledColor,
+                              ),
+
+                              (chatController.messageModel != null && chatController.messageModel!.conversation!.receiver!.phone != null) ? Text(
+                                '${chatController.messageModel!.conversation!.receiver!.phone}',
+                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor),
+                              ) : widget.user != null ? Text(
+                                widget.user?.phone??'',
+                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor),
+                              ) : const SizedBox(),
+
+                            ]),
+
+                          ]),
                         ) : const SizedBox(),
 
-                      ]),
-
-                    ]),
-                  ) : const SizedBox(),
-
-                  GetBuilder<ChatController>(builder: (chatController) {
-                    return Expanded(child: chatController.messageModel != null ? chatController.messageModel!.messages!.isNotEmpty ? SingleChildScrollView(
-                      controller: _scrollController,
-                      reverse: true,
-                      child: PaginatedListViewWidget(
-                        scrollController: _scrollController,
-                        reverse: true,
-                        totalSize: chatController.messageModel?.totalSize,
-                        offset: chatController.messageModel?.offset,
-                        onPaginate: (int? offset) async => await chatController.getMessages(
-                          offset!, widget.notificationBody, widget.user, widget.conversationID,
-                        ),
-                        productView: ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          reverse: true,
-                          itemCount: chatController.messageModel!.messages!.length,
-                          itemBuilder: (context, index) {
-                            return MessageBubbleWidget(
-                              previousMessage: index == 0 ? null : chatController.messageModel?.messages?.elementAt(index-1),
-                              currentMessage: chatController.messageModel!.messages![index],
-                              nextMessage: index == (chatController.messageModel!.messages!.length - 1) ? null : chatController.messageModel?.messages?.elementAt(index+1),
-                              user: chatController.messageModel!.conversation!.receiver,
-                              userType: widget.notificationBody!.adminId != null ? UserType.admin
-                                  : widget.notificationBody!.deliverymanId != null ? UserType.delivery_man : UserType.vendor,
-                            );
-                          },
-                        ),
-                      ),
-                    ) : Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
-                        const CustomAssetImageWidget(
-                          Images.messageEmpty,
-                          height: 70, width: 70,
-                        ),
-                        const SizedBox(height: Dimensions.paddingSizeSmall),
-
-                        Text(
-                          'no_message_found'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor),
-                        ),
-                      ],
-                    )) : const ConversationDetailsShimmer());
-                  }),
-
-                  (chatController.messageModel != null && (chatController.messageModel!.status! || chatController.messageModel!.messages!.isEmpty)) ? Container(
-                    color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
-                    child: Column(children: [
-
-                      chatController.takeImageLoading && !ResponsiveHelper.isDesktop(context) ? const LinearProgressIndicator(minHeight: 2) : const SizedBox(),
-
-                      GetBuilder<ChatController>(builder: (chatController) {
-
-                        if(chatController.pickedWebVideoFile != null && ResponsiveHelper.isDesktop(context)) {
-                          return Container(
-                            width: 250,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).cardColor,
-                              borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            margin: const EdgeInsets.only(top: 10),
-                            child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
-
-                              const Icon(Icons.video_collection, size: 30),
-                              const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
-
-                              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
-
-                                Text(chatController.pickedWebVideoFile!.files.first.name,
-                                  maxLines: 2, overflow: TextOverflow.ellipsis,
-                                  style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                                ),
-
-                                // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
-                                //   color: Theme.of(context).hintColor,
-                                // )),
-                              ])),
-
-
-                              InkWell(
-                                onTap: () {
-                                  chatController.pickVideoFile(true);
-                                },
-                                child: Padding(padding: const EdgeInsets.only(top: 5),
-                                  child: Align(alignment: Alignment.topRight,
-                                    child: Icon(Icons.close,
-                                      size: Dimensions.paddingSizeLarge,
-                                      color: Theme.of(context).hintColor,
-                                    ),
-                                  ),
-                                ),
-                              )
-
-                            ]),
-                          );
-                        }
-                        if(chatController.objWebFile.isNotEmpty && ResponsiveHelper.isDesktop(context)){
-                          return SizedBox(
-                            height: 70,
-                            child: ListView.separated(
-                              shrinkWrap: true, scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.only(bottom: 0, top: 5),
-                              separatorBuilder: (context, index) => const SizedBox(width: Dimensions.paddingSizeDefault),
-                              itemCount: chatController.objWebFile.length,
-                              itemBuilder: (context, index){
-                                // String fileSize = ImageSize.getImageSizeFromXFile(chatController.objFile![index]);
-                                return Container(
-                                  width: 180,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).cardColor,
-                                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                                  ),
-                                  padding: const EdgeInsets.only(left: 10, right: 5),
-                                  child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
-
-                                    Image.asset(Images.fileIcon,height: 30, width: 30),
-                                    const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
-
-                                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
-
-                                      Text(chatController.objWebFile[index].names.first??'attachment'.tr,
-                                        maxLines: 1, overflow: TextOverflow.ellipsis,
-                                        style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                                      ),
-
-                                      // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
-                                      //   color: Theme.of(context).hintColor,
-                                      // )),
-                                    ])),
-
-
-                                    InkWell(
-                                      onTap: () {
-                                        chatController.pickFile(true, index: index);
-                                      },
-                                      child: Padding(padding: const EdgeInsets.only(top: 5),
-                                        child: Align(alignment: Alignment.topRight,
-                                          child: Icon(Icons.close,
-                                            size: Dimensions.paddingSizeLarge,
-                                            color: Theme.of(context).hintColor,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-
-                                  ]),
-                                );
-                              },
-                            ),
-                          );
-                        }
-
-                        if(chatController.pickedVideoFile != null) {
-                          return Container(
-                            width: 250,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).cardColor,
-                              borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                            margin: const EdgeInsets.only(top: 10),
-                            child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
-
-                              const Icon(Icons.video_collection, size: 30),
-                              const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
-
-                              Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
-
-                                Text(chatController.pickedVideoFile!.name,
-                                  maxLines: 2, overflow: TextOverflow.ellipsis,
-                                  style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                                ),
-
-                                // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
-                                //   color: Theme.of(context).hintColor,
-                                // )),
-                              ])),
-
-
-                              InkWell(
-                                onTap: () {
-                                  chatController.pickVideoFile(true);
-                                },
-                                child: Padding(padding: const EdgeInsets.only(top: 5),
-                                  child: Align(alignment: Alignment.topRight,
-                                    child: Icon(Icons.close,
-                                      size: Dimensions.paddingSizeLarge,
-                                      color: Theme.of(context).hintColor,
-                                    ),
-                                  ),
-                                ),
-                              )
-
-                            ]),
-                          );
-                        }
-
-                        if(chatController.objFile.isNotEmpty){
-                          return SizedBox(
-                            height: 70,
-                            child: ListView.separated(
-                              shrinkWrap: true, scrollDirection: Axis.horizontal,
-                              padding: const EdgeInsets.only(bottom: 0, top: 5),
-                              separatorBuilder: (context, index) => const SizedBox(width: Dimensions.paddingSizeDefault),
-                              itemCount: chatController.objFile.length,
-                              itemBuilder: (context, index){
-                                // String fileSize = ImageSize.getImageSizeFromXFile(chatController.objFile![index]);
-                                return Container(
-                                  width: 180,
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).cardColor,
-                                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                                  ),
-                                  padding: const EdgeInsets.only(left: 10, right: 5),
-                                  child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
-
-                                    Image.asset(Images.fileIcon,height: 30, width: 30),
-                                    const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
-
-                                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
-
-                                      Text(chatController.objFile[index].name,
-                                        maxLines: 1, overflow: TextOverflow.ellipsis,
-                                        style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
-                                      ),
-
-                                      // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
-                                      //   color: Theme.of(context).hintColor,
-                                      // )),
-                                    ])),
-
-
-                                    InkWell(
-                                      onTap: () {
-                                        chatController.pickFile(true, index: index);
-                                      },
-                                      child: Padding(padding: const EdgeInsets.only(top: 5),
-                                        child: Align(alignment: Alignment.topRight,
-                                          child: Icon(Icons.close,
-                                            size: Dimensions.paddingSizeLarge,
-                                            color: Theme.of(context).hintColor,
-                                          ),
-                                        ),
-                                      ),
-                                    )
-
-                                  ]),
-                                );
-                              },
-                            ),
-                          );
-                        }
-
-
-
-                        if(chatController.chatImage.isNotEmpty && !chatController.isLoading) {
-                          return SizedBox(
-                            height: 70,
-                            child: ListView.builder(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: chatController.chatImage.length,
-                              itemBuilder: (BuildContext context, index){
-                                return  chatController.chatImage.isNotEmpty ? Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeSmall,
-                                    top: Dimensions.paddingSizeDefault,
-                                  ),
-                                  child: Stack(clipBehavior: Clip.none, children: [
-
-                                    Container(width: 50, height: 60,
-                                      decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(20))),
-                                      child: ClipRRect(
-                                        borderRadius: const BorderRadius.all(Radius.circular(Dimensions.radiusSmall)),
-                                        child: Image.memory(
-                                          chatController.chatRawImage[index], width: 50, height: 60, fit: BoxFit.cover,
-                                        ),
-                                      ),
-                                    ),
-
-                                    Positioned(
-                                      top: -5, right: -10,
-                                      child: InkWell(
-                                        onTap : () => chatController.removeImage(index, _inputMessageController.text.trim()),
-                                        child: Container(
-                                          decoration: const BoxDecoration(
-                                            color: Colors.grey,
-                                            borderRadius: BorderRadius.all(Radius.circular(Dimensions.paddingSizeDefault)),
-                                          ),
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(3),
-                                            child: Icon(Icons.clear, color: Theme.of(context).cardColor, size: 15),
-                                          ),
-                                        ),
-                                      ),
-                                    )],
-                                  ),
-                                ) : const SizedBox();
-                              },
-                            ),
-                          );
-                        }
-
-                        return const SizedBox();
-
-                        // return chatController.chatImage.isNotEmpty && !chatController.isLoading ?  : const SizedBox();
-                      }),
-
-                      (chatController.isLoading && chatController.chatImage.isNotEmpty)
-                          ? Align(alignment: Alignment.centerRight, child: Padding(
-                            padding: const EdgeInsets.only(right: Dimensions.paddingSizeLarge, top: Dimensions.paddingSizeExtraSmall),
-                            child: Text(
-                              '${'uploading'.tr} ${chatController.chatImage.length} ${'images'.tr}',
-                              style: robotoMedium.copyWith(color: Theme.of(context).hintColor),
-                            ),
-                          ))
-                          : const SizedBox(),
-
-                      Container(
-                        margin: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-                        child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-
-                          Expanded(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                                color: Theme.of(context).cardColor,
-                                border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.5), width: 1),
+                        GetBuilder<ChatController>(builder: (chatController) {
+                          return Expanded(child: chatController.messageModel != null ? chatController.messageModel!.messages!.isNotEmpty ? SingleChildScrollView(
+                            controller: _scrollController,
+                            reverse: true,
+                            child: PaginatedListViewWidget(
+                              scrollController: _scrollController,
+                              reverse: true,
+                              totalSize: chatController.messageModel?.totalSize,
+                              offset: chatController.messageModel?.offset,
+                              onPaginate: (int? offset) async => await chatController.getMessages(
+                                offset!, widget.notificationBody, widget.user, widget.conversationID,
                               ),
-                              child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                                const SizedBox(width: Dimensions.paddingSizeSmall),
+                              productView: ListView.builder(
+                                physics: const NeverScrollableScrollPhysics(),
+                                shrinkWrap: true,
+                                reverse: true,
+                                itemCount: chatController.messageModel!.messages!.length,
+                                itemBuilder: (context, index) {
+                                  return MessageBubbleWidget(
+                                    previousMessage: index == 0 ? null : chatController.messageModel?.messages?.elementAt(index-1),
+                                    currentMessage: chatController.messageModel!.messages![index],
+                                    nextMessage: index == (chatController.messageModel!.messages!.length - 1) ? null : chatController.messageModel?.messages?.elementAt(index+1),
+                                    user: chatController.messageModel!.conversation!.receiver,
+                                    userType: widget.notificationBody!.adminId != null ? UserType.admin
+                                        : widget.notificationBody!.deliverymanId != null ? UserType.delivery_man : UserType.vendor,
+                                  );
+                                },
+                              ),
+                            ),
+                          ) : Center(child: Column(mainAxisSize: MainAxisSize.min, children: [
+                              const CustomAssetImageWidget(
+                                Images.messageEmpty,
+                                height: 70, width: 70,
+                              ),
+                              const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                                Expanded(
-                                  child: TextField(
-                                    inputFormatters: [LengthLimitingTextInputFormatter(Dimensions.messageInputLength)],
-                                    controller: _inputMessageController,
-                                    focusNode: _inputMessageFocus,
-                                    textCapitalization: TextCapitalization.sentences,
-                                    style: robotoRegular,
-                                    keyboardType: TextInputType.multiline,
-                                    maxLines: 5,
-                                    minLines: 1,
-                                    decoration: InputDecoration(
-                                      border: InputBorder.none,
-                                      hintText: 'type_a_massage'.tr,
-                                      hintStyle: robotoRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeLarge),
-                                    ),
-                                    onSubmitted: (String newText) {
-                                      if(newText.trim().isNotEmpty && !Get.find<ChatController>().isSendButtonActive) {
-                                        Get.find<ChatController>().toggleSendButtonActivity();
-                                      }else if(newText.isEmpty && Get.find<ChatController>().isSendButtonActive) {
-                                        Get.find<ChatController>().toggleSendButtonActivity();
-                                      }
-                                    },
-                                    onChanged: (String newText) {
-                                      if(newText.trim().isNotEmpty && !Get.find<ChatController>().isSendButtonActive) {
-                                        Get.find<ChatController>().toggleSendButtonActivity();
-                                      }else if(newText.isEmpty && Get.find<ChatController>().isSendButtonActive) {
-                                        Get.find<ChatController>().toggleSendButtonActivity();
-                                      }
-                                    },
+                              Text(
+                                'no_message_found'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor),
+                              ),
+                            ],
+                          )) : const ConversationDetailsShimmer());
+                        }),
+
+                        (chatController.messageModel != null && (chatController.messageModel!.status! || chatController.messageModel!.messages!.isEmpty)) ? Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
+                            borderRadius: isDesktop ? BorderRadius.circular(Dimensions.radiusSmall) : null,
+                          ),
+                          margin: isDesktop ? EdgeInsets.only(bottom: Dimensions.paddingSizeSmall, left: Dimensions.paddingSizeSmall, right: Dimensions.paddingSizeSmall) : EdgeInsets.zero,
+                          child: Column(children: [
+
+                            chatController.takeImageLoading && !isDesktop ? const LinearProgressIndicator(minHeight: 2) : const SizedBox(),
+
+                            GetBuilder<ChatController>(builder: (chatController) {
+
+                              if(chatController.pickedWebVideoFile != null && isDesktop) {
+                                return Container(
+                                  width: 250,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).cardColor,
+                                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                                   ),
-                                ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                  margin: const EdgeInsets.only(top: 10),
+                                  child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
 
-                                InkWell(
-                                  onTap: () async {
-                                    Get.find<ChatController>().pickImage(false);
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                                    child: CustomAssetImageWidget(Images.image, width: 25, height: 25, color: Theme.of(context).hintColor),
-                                  ),
-                                ),
+                                    const Icon(Icons.video_collection, size: 30),
+                                    const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
 
-                                // InkWell(
-                                //   onTap: () async {
-                                //     // Get.find<ChatController>().pickFile(false);
-                                //     Get.find<ChatController>().pickVideoFile(false);
-                                //   },
-                                //   child: Padding(
-                                //     padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
-                                //     child: CustomAssetImageWidget(Images.file, width: 25, height: 25, color: Theme.of(context).hintColor),
-                                //   ),
-                                // ),
-                                MenuAnchor(
-                                    builder: (BuildContext context, MenuController controller, Widget? child) {
-                                      return InkWell(
-                                        onTap: () async {
-                                          _inputMessageFocus.unfocus();
+                                    Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
 
-                                          if (controller.isOpen) {
-                                            controller.close();
-                                          } else {
-                                            controller.open();
-                                          }
-                                        },
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
-                                          child: CustomAssetImageWidget(Images.file, width: 25, height: 25, color: Theme.of(context).hintColor),
+                                      Text(chatController.pickedWebVideoFile!.files.first.name,
+                                        maxLines: 2, overflow: TextOverflow.ellipsis,
+                                        style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+                                      ),
+
+                                      // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
+                                      //   color: Theme.of(context).hintColor,
+                                      // )),
+                                    ])),
+
+
+                                    InkWell(
+                                      onTap: () {
+                                        chatController.pickVideoFile(true);
+                                      },
+                                      child: Padding(padding: const EdgeInsets.only(top: 5),
+                                        child: Align(alignment: Alignment.topRight,
+                                          child: Icon(Icons.close,
+                                            size: Dimensions.paddingSizeLarge,
+                                            color: Theme.of(context).hintColor,
+                                          ),
                                         ),
+                                      ),
+                                    )
+
+                                  ]),
+                                );
+                              }
+                              if(chatController.objWebFile.isNotEmpty && isDesktop){
+                                return SizedBox(
+                                  height: 70,
+                                  child: ListView.separated(
+                                    shrinkWrap: true, scrollDirection: Axis.horizontal,
+                                    padding: const EdgeInsets.only(bottom: 0, top: 5),
+                                    separatorBuilder: (context, index) => const SizedBox(width: Dimensions.paddingSizeDefault),
+                                    itemCount: chatController.objWebFile.length,
+                                    itemBuilder: (context, index){
+                                      // String fileSize = ImageSize.getImageSizeFromXFile(chatController.objFile![index]);
+                                      return Container(
+                                        width: 180,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).cardColor,
+                                          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                                        ),
+                                        padding: const EdgeInsets.only(left: 10, right: 5),
+                                        child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
+
+                                          Image.asset(Images.fileIcon,height: 30, width: 30),
+                                          const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
+
+                                          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
+
+                                            Text(chatController.objWebFile[index].names.first??'attachment'.tr,
+                                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                                              style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+                                            ),
+
+                                            // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
+                                            //   color: Theme.of(context).hintColor,
+                                            // )),
+                                          ])),
+
+
+                                          InkWell(
+                                            onTap: () {
+                                              chatController.pickFile(true, index: index);
+                                            },
+                                            child: Padding(padding: const EdgeInsets.only(top: 5),
+                                              child: Align(alignment: Alignment.topRight,
+                                                child: Icon(Icons.close,
+                                                  size: Dimensions.paddingSizeLarge,
+                                                  color: Theme.of(context).hintColor,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+
+                                        ]),
                                       );
                                     },
-                                    menuChildren: List<MenuItemButton>.generate(2, (int index) => MenuItemButton(
-                                        onPressed: () {
-                                          if(index == 0) {
-                                            Get.find<ChatController>().pickFile(false);
-                                          } else {
-                                            Get.find<ChatController>().pickVideoFile(false);
-                                          }
-                                        },
-                                        child: Row(
-                                          children: [
-                                            Icon(index == 0 ? Icons.file_copy_outlined : Icons.video_collection_outlined, size: 18, color: Theme.of(context).primaryColor),
-                                            const SizedBox(width: Dimensions.paddingSizeSmall),
+                                  ),
+                                );
+                              }
 
-                                            Text(index == 0 ? 'pick_files'.tr : 'pick_video'.tr, style: robotoMedium),
-                                          ],
+                              if(chatController.pickedVideoFile != null) {
+                                return Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    width: 250,
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).cardColor,
+                                      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                    margin: const EdgeInsets.only(top: 10, left: Dimensions.paddingSizeDefault),
+                                    child: Row(crossAxisAlignment: CrossAxisAlignment.start,children: [
+
+                                      Icon(Icons.video_file, size: 35, color: Theme.of(context).disabledColor),
+                                      const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
+
+                                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
+
+                                        Text(chatController.pickedVideoFile!.name,
+                                          maxLines: 2, overflow: TextOverflow.ellipsis,
+                                          style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+                                        ),
+
+                                        Text('${chatController.videoSize.toStringAsFixed(2)}MB', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
+                                          color: Theme.of(context).disabledColor,
+                                        )),
+                                      ])),
+
+
+                                      InkWell(
+                                        onTap: () {
+                                          chatController.pickVideoFile(true);
+                                        },
+                                        child: Align(
+                                          alignment: Alignment.topRight,
+                                          child: Icon(Icons.close,
+                                            size: Dimensions.paddingSizeLarge,
+                                            color: Theme.of(context).disabledColor,
+                                          ),
+                                        ),
+                                      )
+
+                                    ]),
+                                  ),
+                                );
+                              }
+
+                              if(chatController.objFile.isNotEmpty){
+                                return SizedBox(
+                                  height: 70,
+                                  child: ListView.separated(
+                                    shrinkWrap: true, scrollDirection: Axis.horizontal,
+                                    padding: const EdgeInsets.only(bottom: 0, top: 10, left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeDefault),
+                                    separatorBuilder: (context, index) => const SizedBox(width: Dimensions.paddingSizeDefault),
+                                    itemCount: chatController.objFile.length,
+                                    itemBuilder: (context, index){
+
+                                      return Container(
+                                        width: 180,
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).cardColor,
+                                          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                                        ),
+                                        padding: const EdgeInsets.only(left: 10, right: 5),
+                                        child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
+
+                                          Image.asset(Images.fileIcon,height: 30, width: 30),
+                                          const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
+
+                                          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
+
+                                            Text(chatController.objFile[index].name,
+                                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                                              style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
+                                            ),
+
+                                            Text('${chatController.fileSizeList[index].toStringAsFixed(2)} MB', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall,
+                                              color: Theme.of(context).disabledColor,
+                                            )),
+                                          ])),
+
+
+                                          InkWell(
+                                            onTap: () {
+                                              chatController.pickFile(true, index: index);
+                                            },
+                                            child: Padding(padding: const EdgeInsets.only(top: 5),
+                                              child: Align(alignment: Alignment.topRight,
+                                                child: Icon(Icons.close,
+                                                  size: Dimensions.paddingSizeLarge,
+                                                  color: Theme.of(context).disabledColor,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+
+                                        ]),
+                                      );
+                                    },
+                                  ),
+                                );
+                              }
+
+                              if(chatController.chatImage.isNotEmpty && !chatController.isLoading) {
+                                return SizedBox(
+                                  height: 70,
+                                  child: ListView.builder(
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: chatController.chatImage.length,
+                                    itemBuilder: (BuildContext context, index){
+                                      return  chatController.chatImage.isNotEmpty ? Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeSmall,
+                                          top: Dimensions.paddingSizeDefault,
+                                        ),
+                                        child: Stack(clipBehavior: Clip.none, children: [
+
+                                          Container(width: 50, height: 60,
+                                            decoration: const BoxDecoration(color: Colors.white, borderRadius: BorderRadius.all(Radius.circular(20))),
+                                            child: ClipRRect(
+                                              borderRadius: const BorderRadius.all(Radius.circular(Dimensions.radiusSmall)),
+                                              child: Image.memory(
+                                                chatController.chatRawImage[index], width: 50, height: 60, fit: BoxFit.cover,
+                                              ),
+                                            ),
+                                          ),
+
+                                          Positioned(
+                                            top: -5, right: -10,
+                                            child: InkWell(
+                                              onTap : () => chatController.removeImage(index, _inputMessageController.text.trim()),
+                                              child: Container(
+                                                decoration: const BoxDecoration(
+                                                  color: Colors.grey,
+                                                  borderRadius: BorderRadius.all(Radius.circular(Dimensions.paddingSizeDefault)),
+                                                ),
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(3),
+                                                  child: Icon(Icons.clear, color: Theme.of(context).cardColor, size: 15),
+                                                ),
+                                              ),
+                                            ),
+                                          )],
+                                        ),
+                                      ) : const SizedBox();
+                                    },
+                                  ),
+                                );
+                              }
+
+                              return const SizedBox();
+
+                              // return chatController.chatImage.isNotEmpty && !chatController.isLoading ?  : const SizedBox();
+                            }),
+
+                            (chatController.isLoading && chatController.chatImage.isNotEmpty)
+                                ? Align(alignment: Alignment.centerRight, child: Padding(
+                                  padding: const EdgeInsets.only(right: Dimensions.paddingSizeLarge, top: Dimensions.paddingSizeExtraSmall),
+                                  child: Text(
+                                    '${'uploading'.tr} ${chatController.chatImage.length} ${'images'.tr}',
+                                    style: robotoMedium.copyWith(color: Theme.of(context).hintColor),
+                                  ),
+                                ))
+                                : const SizedBox(),
+
+                            Container(
+                              margin: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                              child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+
+                                Expanded(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                                      color: Theme.of(context).cardColor,
+                                      border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.5), width: 1),
+                                    ),
+                                    child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                                      const SizedBox(width: Dimensions.paddingSizeSmall),
+
+                                      Expanded(
+                                        child: TextField(
+                                          inputFormatters: [LengthLimitingTextInputFormatter(Dimensions.messageInputLength)],
+                                          controller: _inputMessageController,
+                                          focusNode: _inputMessageFocus,
+                                          textCapitalization: TextCapitalization.sentences,
+                                          style: robotoRegular,
+                                          keyboardType: TextInputType.multiline,
+                                          maxLines: 5,
+                                          minLines: 1,
+                                          decoration: InputDecoration(
+                                            border: InputBorder.none,
+                                            hintText: 'type_a_massage'.tr,
+                                            hintStyle: robotoRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeLarge),
+                                          ),
+                                          onSubmitted: (String newText) {
+                                            if(newText.trim().isNotEmpty && !Get.find<ChatController>().isSendButtonActive) {
+                                              Get.find<ChatController>().toggleSendButtonActivity();
+                                            }else if(newText.isEmpty && Get.find<ChatController>().isSendButtonActive) {
+                                              Get.find<ChatController>().toggleSendButtonActivity();
+                                            }
+                                          },
+                                          onChanged: (String newText) {
+                                            if(newText.trim().isNotEmpty && !Get.find<ChatController>().isSendButtonActive) {
+                                              Get.find<ChatController>().toggleSendButtonActivity();
+                                            }else if(newText.isEmpty && Get.find<ChatController>().isSendButtonActive) {
+                                              Get.find<ChatController>().toggleSendButtonActivity();
+                                            }
+                                          },
                                         ),
                                       ),
-                                    ),
+
+                                      InkWell(
+                                        onTap: () async {
+                                          Get.find<ChatController>().pickImage(false);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
+                                          child: CustomAssetImageWidget(Images.image, width: 25, height: 25, color: Theme.of(context).hintColor),
+                                        ),
+                                      ),
+
+                                      // InkWell(
+                                      //   onTap: () async {
+                                      //     // Get.find<ChatController>().pickFile(false);
+                                      //     Get.find<ChatController>().pickVideoFile(false);
+                                      //   },
+                                      //   child: Padding(
+                                      //     padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
+                                      //     child: CustomAssetImageWidget(Images.file, width: 25, height: 25, color: Theme.of(context).hintColor),
+                                      //   ),
+                                      // ),
+                                      MenuAnchor(
+                                          builder: (BuildContext context, MenuController controller, Widget? child) {
+                                            return InkWell(
+                                              onTap: () async {
+                                                _inputMessageFocus.unfocus();
+
+                                                if (controller.isOpen) {
+                                                  controller.close();
+                                                } else {
+                                                  controller.open();
+                                                }
+                                              },
+                                              child: Padding(
+                                                padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
+                                                child: CustomAssetImageWidget(Images.file, width: 25, height: 25, color: Theme.of(context).hintColor),
+                                              ),
+                                            );
+                                          },
+                                          menuChildren: List<MenuItemButton>.generate(2, (int index) => MenuItemButton(
+                                              onPressed: () {
+                                                if(index == 0) {
+                                                  Get.find<ChatController>().pickFile(false);
+                                                } else {
+                                                  Get.find<ChatController>().pickVideoFile(false);
+                                                }
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  Icon(index == 0 ? Icons.file_copy_outlined : Icons.video_collection_outlined, size: 18, color: Theme.of(context).primaryColor),
+                                                  const SizedBox(width: Dimensions.paddingSizeSmall),
+
+                                                  Text(index == 0 ? 'pick_files'.tr : 'pick_video'.tr, style: robotoMedium),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+
+                                    ]),
                                   ),
+                                ),
+                                const SizedBox(width: Dimensions.paddingSizeSmall),
+
+                                Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                                    color: Theme.of(context).cardColor,
+                                    border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.5), width: 1),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  child: GetBuilder<ChatController>(builder: (chatController) {
+                                    return chatController.isLoading ? const Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: 7),
+                                      child: SizedBox(height: 25, width: 27, child: CircularProgressIndicator()),
+                                    ) : InkWell(
+                                      onTap: () async {
+                                        if(chatController.isSendButtonActive) {
+                                          await chatController.sendMessage(
+                                            message: _inputMessageController.text, notificationBody: widget.notificationBody,
+                                            conversationID: widget.conversationID, index: widget.index,
+                                          );
+                                          _inputMessageController.clear();
+                                        } else {
+                                          showCustomSnackBar('write_something'.tr);
+                                        }
+                                      },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                                        child: CustomAssetImageWidget(
+                                          Images.send, width: 40, height: 40,
+                                          color: Theme.of(context).primaryColor,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  ),
+                                ),
 
                               ]),
                             ),
-                          ),
-                          const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                              color: Theme.of(context).cardColor,
-                              border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.5), width: 1),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: GetBuilder<ChatController>(builder: (chatController) {
-                              return chatController.isLoading ? const Padding(
-                                padding: EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: 7),
-                                child: SizedBox(height: 25, width: 27, child: CircularProgressIndicator()),
-                              ) : InkWell(
-                                onTap: () async {
-                                  if(chatController.isSendButtonActive) {
-                                    await chatController.sendMessage(
-                                      message: _inputMessageController.text, notificationBody: widget.notificationBody,
-                                      conversationID: widget.conversationID, index: widget.index,
-                                    );
-                                    _inputMessageController.clear();
-                                  } else {
-                                    showCustomSnackBar('write_something'.tr);
-                                  }
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                                  child: CustomAssetImageWidget(
-                                    Images.send, width: 40, height: 40,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                ),
-                              );
-                            }
-                            ),
-                          ),
-
-                        ]),
+                          ]),
+                        ) : const SizedBox(),
+                      ],
                       ),
-                    ]),
-                  ) : const SizedBox(),
+                    ),
+                  ),
                 ],
-                ),
               ),
             ),
           ) : NotLoggedInScreen(callBack: (value){

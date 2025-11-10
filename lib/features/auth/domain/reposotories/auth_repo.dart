@@ -56,7 +56,7 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
         FirebaseMessaging.instance.subscribeToTopic(AppConstants.maintenanceModeTopic);
       }
     }
-    return await apiClient.postData(AppConstants.tokenUri, {"_method": "put", "cm_firebase_token": notificationDeviceToken.isNotEmpty ? notificationDeviceToken : deviceToken});
+    return await apiClient.postData(AppConstants.tokenUri, {"_method": "put", "cm_firebase_token": notificationDeviceToken.isNotEmpty ? notificationDeviceToken : deviceToken??'@'});
   }
 
   Future<String?> _saveDeviceToken() async {
@@ -157,11 +157,12 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
   }
 
   @override
-  Future<void> saveUserNumberAndPassword(String number, String password, String countryCode) async {
+  Future<void> saveUserNumberAndPassword({required String number, required String password, required String countryCode, required String otpPoneNumber}) async {
     try {
       await sharedPreferences.setString(AppConstants.userPassword, password);
       await sharedPreferences.setString(AppConstants.userNumber, number);
       await sharedPreferences.setString(AppConstants.userCountryCode, countryCode);
+      await sharedPreferences.setString(AppConstants.userOtpPhoneNumber, otpPoneNumber);
     } catch (e) {
       rethrow;
     }
@@ -171,6 +172,7 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
   Future<bool> clearUserNumberAndPassword() async {
     await sharedPreferences.remove(AppConstants.userPassword);
     await sharedPreferences.remove(AppConstants.userCountryCode);
+    await sharedPreferences.remove(AppConstants.userOtpPhoneNumber);
     return await sharedPreferences.remove(AppConstants.userNumber);
   }
 
@@ -190,6 +192,11 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
   }
 
   @override
+  String getUserOtpPhoneNumber() {
+    return sharedPreferences.getString(AppConstants.userOtpPhoneNumber) ?? "";
+  }
+
+  @override
   String getGuestId() {
     return sharedPreferences.getString(AppConstants.guestId) ?? "";
   }
@@ -204,25 +211,9 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
     return await apiClient.postData(AppConstants.loginUri, data);
   }
 
-  // @override
-  // Future<Response> registerWithSocialMedia(SocialLogInBodyModel socialLogInModel) async {
-  //   return await apiClient.postData(AppConstants.loginUri, socialLogInModel.toJson());
-  // }
-
   @override
   bool isLoggedIn() {
     return sharedPreferences.containsKey(AppConstants.token);
-  }
-
-  ///TODO: This methods need to remove from here.
-  @override
-  Future<bool> saveDmTipIndex(String index) async {
-    return await sharedPreferences.setString(AppConstants.dmTipIndex, index);
-  }
-  ///TODO: This methods need to remove from here.
-  @override
-  String getDmTipIndex() {
-    return sharedPreferences.getString(AppConstants.dmTipIndex) ?? "";
   }
 
   @override
@@ -237,9 +228,7 @@ class AuthRepo implements AuthRepoInterface<SignUpBodyModel> {
     sharedPreferences.remove(AppConstants.token);
     sharedPreferences.remove(AppConstants.guestId);
     sharedPreferences.setStringList(AppConstants.cartList, []);
-    // sharedPreferences.remove(AppConstants.userAddress);
     apiClient.token = null;
-    // apiClient.updateHeader(null, null, null,null, null);
     await guestLogin();
     if(sharedPreferences.getString(AppConstants.userAddress) != null){
       AddressModel? addressModel = AddressModel.fromJson(jsonDecode(sharedPreferences.getString(AppConstants.userAddress)!));

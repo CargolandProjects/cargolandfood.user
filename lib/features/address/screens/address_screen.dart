@@ -151,7 +151,10 @@ class _AddressScreenState extends State<AddressScreen> {
                               );
                             },
                           ),
-                        ) : NoDataScreen(title: 'no_address_found'.tr, isEmptyAddress: true, fromAddress: true) : const Center(child: CircularProgressIndicator()),
+                        ) : NoDataScreen(title: 'no_address_found'.tr, isEmptyAddress: true, fromAddress: true) : Center(child: Padding(
+                          padding: EdgeInsets.only(top: context.height * 0.4),
+                          child: CircularProgressIndicator(),
+                        )),
 
                       ]),
                     ),

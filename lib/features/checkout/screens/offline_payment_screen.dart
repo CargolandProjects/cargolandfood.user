@@ -147,7 +147,7 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen> {
                     const SizedBox(height: Dimensions.paddingSizeLarge),
 
                     Text(
-                      '${'amount'.tr} '' ${PriceConverter.convertPrice(widget.total)}',
+                      '${'amount'.tr} '' ${PriceConverter.convertPrice(checkoutController.isPartialPay ? checkoutController.viewTotalPrice : widget.total)}',
                       style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge),
                     ),
                     const SizedBox(height: Dimensions.paddingSizeExtraLarge),
@@ -232,21 +232,23 @@ class _OfflinePaymentScreenState extends State<OfflinePaymentScreen> {
               color: Theme.of(context).cardColor,
               boxShadow: [BoxShadow(color: Theme.of(context).primaryColor.withValues(alpha: 0.1), blurRadius: 10)],
             ),
-            child: CustomButtonWidget(
-              buttonText: 'complete'.tr,
-              isLoading: checkoutController.isLoading,
-              onPressed: () async {
-                bool complete = _completelyProvideInput(methodInformation, checkoutController);
-                String text = _setMessageText(methodInformation, checkoutController);
+            child: SafeArea(
+              child: CustomButtonWidget(
+                buttonText: 'complete'.tr,
+                isLoading: checkoutController.isLoading,
+                onPressed: () async {
+                  bool complete = _completelyProvideInput(methodInformation, checkoutController);
+                  String text = _setMessageText(methodInformation, checkoutController);
 
-                // if(_formKeyOffline!.currentState!.validate()) {
-                  if(complete) {
-                    await _saveOfflineInformation(checkoutController, methodInformation);
-                  } else {
-                    showCustomSnackBar(text);
-                  }
-                // }
-              },
+                  // if(_formKeyOffline!.currentState!.validate()) {
+                    if(complete) {
+                      await _saveOfflineInformation(checkoutController, methodInformation);
+                    } else {
+                      showCustomSnackBar(text);
+                    }
+                  // }
+                },
+              ),
             ),
           ),
 

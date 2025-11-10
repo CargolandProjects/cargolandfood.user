@@ -117,11 +117,11 @@ class _ConversationScreenState extends State<ConversationScreen>  with TickerPro
         ) : Column(children: [
 
           (Get.find<AuthController>().isLoggedIn() && conversation != null) ? Center(child: Container(
-              width: Dimensions.webMaxWidth,
-              padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-              child: ChatSearchFieldWidget(
+            width: Dimensions.webMaxWidth,
+            padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+            child: ChatSearchFieldWidget(
             controller: _searchController,
-            hint: 'search'.tr,
+            hint: '${'search'.tr}.....',
             suffixIcon: chatController.searchConversationModel != null ? Icons.close : Icons.search,
             onSubmit: (String text) {
               if(_searchController.text.trim().isNotEmpty) {

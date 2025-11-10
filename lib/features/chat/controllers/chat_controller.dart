@@ -111,11 +111,15 @@ class ChatController extends GetxController implements GetxService {
   List<XFile> objFile = [];
   List<FilePickerResult> objWebFile = [];
 
+  List<double> fileSizeList = [];
+
   bool _singleFIleCrossMaxLimit = false;
   bool get singleFIleCrossMaxLimit => _singleFIleCrossMaxLimit;
 
   XFile? _pickedVideoFile;
   XFile? get pickedVideoFile => _pickedVideoFile;
+
+  double videoSize = 0.0;
 
   FilePickerResult? _pickedWebVideoFile ;
   FilePickerResult? get pickedWebVideoFile => _pickedWebVideoFile;
@@ -154,69 +158,15 @@ class ChatController extends GetxController implements GetxService {
         _conversationModel!.offset = conversationModel.offset;
         _conversationModel!.conversations!.addAll(conversationModel.conversations!);
       }
-      // int index0 = chatServiceInterface.setIndex(_conversationModel!.conversations);
       bool sender = chatServiceInterface.checkSender(_conversationModel!.conversations);
       _hasAdmin = false;
-      // print('========type : $sender');
       if(sender && !ResponsiveHelper.isDesktop(Get.context)) {
         _hasAdmin = true;
-        // _adminConversationModel.unreadMessageCount = null;
-        // _adminConversationModel.unreadMessageCount = _conversationModel!.conversations![0]?.unreadMessageCount??0;
-        // _adminConversationModel.lastMessage = _conversationModel!.conversations![0]?.lastMessage;
-
       }
     }
     _tabLoading = false;
     update();
   }
-
-  // Future<void> getConversationList(int offset, {String type = ''}) async {
-  //   _hasAdmin = true;
-  //   _searchConversationModel = null;
-  //   Response response = await chatRepo.getConversationList(offset, type);
-  //   if(response.statusCode == 200) {
-  //     if(offset == 1) {
-  //       _conversationModel = ConversationsModel.fromJson(response.body);
-  //     }else {
-  //       _conversationModel!.totalSize = ConversationsModel.fromJson(response.body).totalSize;
-  //       _conversationModel!.offset = ConversationsModel.fromJson(response.body).offset;
-  //       _conversationModel!.conversations!.addAll(ConversationsModel.fromJson(response.body).conversations!);
-  //     }
-  //     int index0 = -1;
-  //     late bool sender;
-  //     for(int index=0; index<_conversationModel!.conversations!.length; index++) {
-  //       if(_conversationModel!.conversations![index]!.receiverType == UserType.admin.name) {
-  //         index0 = index;
-  //         sender = false;
-  //         break;
-  //       }else if(_conversationModel!.conversations![index]!.receiverType == UserType.admin.name) {
-  //         index0 = index;
-  //         sender = true;
-  //         break;
-  //       }
-  //     }
-  //     _hasAdmin = false;
-  //     if(index0 != -1 && !ResponsiveHelper.isDesktop(Get.context)) {
-  //       _hasAdmin = true;
-  //       if(sender) {
-  //         _conversationModel!.conversations![index0]!.sender = User(
-  //           id: 0, fName: Get.find<SplashController>().configModel!.businessName, lName: '',
-  //           phone: Get.find<SplashController>().configModel!.phone, email: Get.find<SplashController>().configModel!.email,
-  //           image: Get.find<SplashController>().configModel!.logo,
-  //         );
-  //       }else {
-  //         _conversationModel!.conversations![index0]!.receiver = User(
-  //           id: 0, fName: Get.find<SplashController>().configModel!.businessName, lName: '',
-  //           phone: Get.find<SplashController>().configModel!.phone, email: Get.find<SplashController>().configModel!.email,
-  //           image: Get.find<SplashController>().configModel!.logo,
-  //         );
-  //       }
-  //     }
-  //   }else {
-  //     ApiChecker.checkApi(response);
-  //   }
-  //   update();
-  // }
 
   Future<void> searchConversation(String name) async {
     _searchConversationModel = ConversationsModel();
@@ -370,7 +320,10 @@ class ChatController extends GetxController implements GetxService {
 
     if(isRemove) {
       objFile.removeAt(index!);
-      objWebFile.removeAt(index);
+      if(GetPlatform.isWeb) {
+        objWebFile.removeAt(index);
+      }
+      // fileSizeList.removeAt(index);
     } else {
       if(GetPlatform.isWeb) {
         FilePickerResult? result = await FilePicker.platform.pickFiles();
@@ -380,7 +333,6 @@ class ChatController extends GetxController implements GetxService {
           objFile = [];
           objWebFile = [];
           _chatImage = [];
-          // _chatWebImage = [];
           _pickedVideoFile = null;
           _pickedWebVideoFile = null;
           objWebFile.add(result);
@@ -391,12 +343,12 @@ class ChatController extends GetxController implements GetxService {
           withReadStream: true,
           type: FileType.custom,
           allowedExtensions: ['pdf', 'doc'],
-        ))?.files ;
+        ))?.files;
 
         objFile = [];
+        fileSizeList = [];
         objWebFile = [];
         _chatImage = [];
-        // _chatWebImage = [];
         _pickedVideoFile = null;
         _pickedWebVideoFile = null;
 
@@ -407,8 +359,9 @@ class ChatController extends GetxController implements GetxService {
             if(objFile.length < AppConstants.maxLimitOfTotalFileSent){
               if((await _getMultipleFileSizeFromPlatformFiles(objFile) + _getFileSizeFromPlatformFileToDouble(element)) < AppConstants.maxLimitOfFileSentINConversation){
                 objFile.add(element.xFile);
+                double fileSize = await ImageSize.getImageSizeFromXFile(element.xFile);
+                fileSizeList.add(fileSize);
               }
-              // objFile.add(element.xFile);
             }
 
           }
@@ -418,11 +371,15 @@ class ChatController extends GetxController implements GetxService {
       _isSendButtonActive = true;
     }
     _takeImageLoading = false;
-    update();
+
+    Future.delayed(const Duration(milliseconds: 400), (){
+      update();
+    });
   }
 
   void pickVideoFile(bool isRemove) async {
     _takeImageLoading = true;
+    videoSize = 0.0;
     update();
 
     if(isRemove) {
@@ -444,7 +401,7 @@ class ChatController extends GetxController implements GetxService {
       } else {
         _pickedVideoFile = await ImagePicker().pickVideo(source: ImageSource.gallery);
         if(_pickedVideoFile != null){
-          double videoSize = await ImageSize.getImageSizeFromXFile(_pickedVideoFile!);
+          videoSize = await ImageSize.getImageSizeFromXFile(_pickedVideoFile!);
           if(videoSize > AppConstants.limitOfPickedVideoSizeInMB){
             _pickedVideoFile = null;
             showCustomSnackBar('${"video_size_greater_than".tr} ${AppConstants.limitOfPickedVideoSizeInMB}mb');
@@ -793,6 +750,15 @@ class ChatController extends GetxController implements GetxService {
     // Generate a timestamp to ensure the filename is unique
     String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
     return 'file_$timestamp.$fileExtension';
+  }
+
+  bool isVideoExtension(String path) {
+    final fileExtension = path.split('.').last.toLowerCase();
+
+    const videoExtensions = [
+      'mp4', 'mkv', 'avi', 'mov', 'flv', 'wmv', 'webm', 'mpeg', 'mpg', '3gp', 'ogv'
+    ];
+    return videoExtensions.contains(fileExtension);
   }
 
 }

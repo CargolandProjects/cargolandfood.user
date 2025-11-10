@@ -4,10 +4,10 @@ class OnBoardingModel{
   final String _title;
   final String _description;
 
-  get imageUrl => _imageUrl;
-  get frameImageUrl => _frameImageUrl;
-  get title => _title;
-  get description => _description;
+  String get imageUrl => _imageUrl;
+  String get frameImageUrl => _frameImageUrl;
+  String get title => _title;
+  String get description => _description;
 
   OnBoardingModel(this._imageUrl, this._frameImageUrl, this._title, this._description);
 }

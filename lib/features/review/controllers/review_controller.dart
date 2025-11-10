@@ -90,7 +90,7 @@ class ReviewController extends GetxController implements GetxService {
     }
   }
 
-  _prepareReviewedProductList(List<Product>? reviewedProductList) {
+  void _prepareReviewedProductList(List<Product>? reviewedProductList) {
     if(reviewedProductList != null) {
       _reviewedProductList = [];
       _reviewedProductList = reviewedProductList;

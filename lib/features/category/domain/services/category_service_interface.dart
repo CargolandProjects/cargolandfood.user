@@ -5,7 +5,7 @@ import 'package:stackfood_multivendor/features/category/domain/models/category_m
 import 'package:get/get_connect/connect.dart';
 
 abstract class CategoryServiceInterface{
-  Future<List<CategoryModel>?> getCategoryList({DataSourceEnum? source});
+  Future<List<CategoryModel>?> getCategoryList({DataSourceEnum? source, String? search});
   Future<List<CategoryModel>?> getSubCategoryList(String? parentID);
   Future<ProductModel?> getCategoryProductList(String? categoryID, int offset, String type);
   Future<RestaurantModel?> getCategoryRestaurantList(String? categoryID, int offset, String type);

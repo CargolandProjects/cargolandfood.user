@@ -26,7 +26,7 @@ class RatingWidget extends StatelessWidget {
       padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
       decoration: BoxDecoration(
         color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
         boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
       ),
       child: ResponsiveHelper.isDesktop(context) ? Column(children: [
@@ -69,7 +69,7 @@ class RatingWidget extends StatelessWidget {
       ]) : Row(children: [
 
         Expanded(
-          flex: 2,
+          flex: 3,
           child: Column(children: [
 
             Row(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.end, children: [
@@ -104,7 +104,7 @@ class RatingWidget extends StatelessWidget {
         ),
 
         Expanded(
-          flex: 3,
+          flex: 4,
           child: Column(children: [
 
             RatingProgressWidget(ratingNumber: '5', ratingPercent: percentages![0], progressValue: progressForEach[0]),

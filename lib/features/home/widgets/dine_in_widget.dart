@@ -30,7 +30,7 @@ class DineInWidget extends StatelessWidget {
 
           Text('want_to_dine_in'.tr, style: robotoBold),
           CustomButtonWidget(
-            width: 115, height: 35,
+            width: 115, height: 35, radius: Dimensions.radiusSmall,
             buttonText: 'view_restaurants'.tr,
             isBold: false, fontSize: Dimensions.fontSizeSmall,
             onPressed: () {

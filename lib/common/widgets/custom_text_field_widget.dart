@@ -100,12 +100,22 @@ class CustomTextFieldWidget extends StatefulWidget {
 class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
   bool _obscureText = true;
 
+  void _handleFocusChange() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
   @override
   void initState() {
     super.initState();
-    widget.focusNode?.addListener(() {
-      setState(() {});
-    });
+    widget.focusNode?.addListener(_handleFocusChange);
+  }
+
+  @override
+  void dispose() {
+    widget.focusNode?.removeListener(_handleFocusChange);
+    super.dispose();
   }
 
   @override
@@ -118,6 +128,8 @@ class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
         SizedBox(height: widget.showTitle ? ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeExtraSmall : 0),
 
         InkWell(
+          focusColor: Colors.transparent,
+          splashColor: Colors.transparent,
           onTap: () {
             FocusScope.of(context).requestFocus(widget.focusNode);
           },
@@ -136,7 +148,7 @@ class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
             autofocus: false,
             obscureText: widget.isPassword ? _obscureText : false,
             inputFormatters: widget.inputType == TextInputType.phone ? <TextInputFormatter>[FilteringTextInputFormatter.allow(RegExp('[0-9]'))]
-                : widget.isAmount ? [FilteringTextInputFormatter.allow(RegExp(r'\d'))] : widget.isNumber ? [FilteringTextInputFormatter.allow(RegExp(r'\d'))] : null,
+                : widget.isAmount ? [FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d*'))] : widget.isNumber ? [FilteringTextInputFormatter.allow(RegExp(r'\d'))] : null,
             decoration: InputDecoration(
               errorMaxLines: 2,
               enabledBorder: OutlineInputBorder(
@@ -183,7 +195,7 @@ class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
               ])) : null,
               prefixIcon: (widget.isPhone || widget.countryDialCode != null) ? SizedBox(width: 95, child: Row(children: [
                 Container(
-                  width: 85,height: 50,
+                  width: 85, height: 45,
                   decoration: const BoxDecoration(
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(Dimensions.radiusSmall),

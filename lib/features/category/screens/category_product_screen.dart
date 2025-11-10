@@ -112,7 +112,7 @@ class CategoryProductScreenState extends State<CategoryProductScreen> with Ticke
                   : catController.subCategoryList![catController.subCategoryIndex].id.toString(),
                 catController.type,
               ),
-            ) : Text(widget.categoryName, style: robotoRegular.copyWith(
+            ) : Text(widget.categoryName, style: robotoMedium.copyWith(
               fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).textTheme.bodyLarge!.color,
             )),
             centerTitle: true,
@@ -128,41 +128,49 @@ class CategoryProductScreenState extends State<CategoryProductScreen> with Ticke
               },
             ),
             backgroundColor: Theme.of(context).cardColor,
-            elevation: 0,
+            elevation: 6,
+            surfaceTintColor: Theme.of(context).cardColor,
+            shadowColor: Theme.of(context).shadowColor,
             actions: [
               IconButton(
                 onPressed: () => catController.toggleSearch(),
                 icon: Icon(
                   catController.isSearching ? Icons.close_sharp : Icons.search,
-                  color: Theme.of(context).textTheme.bodyLarge!.color,
+                  color: catController.isSearching ? Theme.of(context).textTheme.bodyLarge!.color : Theme.of(context).primaryColor,
                 ),
               ),
 
               IconButton(
                 onPressed: () => Get.toNamed(RouteHelper.getCartRoute()),
-                icon: CartWidget(color: Theme.of(context).textTheme.bodyLarge!.color, size: 25),
+                icon: CartWidget(color: Theme.of(context).primaryColor, size: 25),
               ),
 
-              VegFilterWidget(type: catController.type, fromAppBar: true, onSelected: (String type) {
-                if(catController.isSearching) {
-                  catController.searchData(
-                    catController.subCategoryIndex == 0 ? widget.categoryID
-                        : catController.subCategoryList![catController.subCategoryIndex].id.toString(), '1', type,
-                  );
-                }else {
-                  if(catController.isRestaurant) {
-                    catController.getCategoryRestaurantList(
-                      catController.subCategoryIndex == 0 ? widget.categoryID
-                          : catController.subCategoryList![catController.subCategoryIndex].id.toString(), 1, type, true,
-                    );
-                  }else {
-                    catController.getCategoryProductList(
-                      catController.subCategoryIndex == 0 ? widget.categoryID
-                          : catController.subCategoryList![catController.subCategoryIndex].id.toString(), 1, type, true,
-                    );
-                  }
-                }
-              }),
+              VegFilterWidget(
+                iconColor: Theme.of(context).primaryColor,
+                type: catController.type, fromAppBar: true,
+                onSelected: (String type) {
+                  if(catController.isSearching) {
+                      catController.searchData(
+                        catController.subCategoryIndex == 0 ? widget.categoryID
+                            : catController.subCategoryList![catController.subCategoryIndex].id.toString(), '1', type,
+                      );
+                    }else {
+                      if(catController.isRestaurant) {
+                        catController.getCategoryRestaurantList(
+                          catController.subCategoryIndex == 0 ? widget.categoryID
+                              : catController.subCategoryList![catController.subCategoryIndex].id.toString(), 1, type, true,
+                        );
+                      }else {
+                        catController.getCategoryProductList(
+                          catController.subCategoryIndex == 0 ? widget.categoryID
+                              : catController.subCategoryList![catController.subCategoryIndex].id.toString(), 1, type, true,
+                        );
+                      }
+                    }
+                  },
+              ),
+
+              const SizedBox(width: Dimensions.paddingSizeSmall),
             ],
           ),
           endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
@@ -267,6 +275,7 @@ class CategoryProductScreenState extends State<CategoryProductScreen> with Ticke
                             children: [
                               ProductViewWidget(
                                 isRestaurant: false, products: products, restaurants: null, noDataText: 'no_category_food_found'.tr,
+                                padding: EdgeInsets.all(Dimensions.paddingSizeDefault),
                               ),
 
                               catController.isLoading ? Center(
@@ -291,6 +300,7 @@ class CategoryProductScreenState extends State<CategoryProductScreen> with Ticke
                             children: [
                               ProductViewWidget(
                                 isRestaurant: true, products: null, restaurants: restaurants, noDataText: 'no_category_restaurant_found'.tr,
+                                padding: EdgeInsets.all(Dimensions.paddingSizeDefault),
                               ),
 
                               catController.isLoading ? Center(

@@ -1,51 +1,64 @@
 {
   "project_info": {
-    "project_number": "860443497637",
-    "project_id": "cargoland--food",
-    "storage_bucket": "cargoland--food.firebasestorage.app"
+    "project_number": "194583925856",
+    "project_id": "cargoland-project",
+    "storage_bucket": "cargoland-project.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:860443497637:android:19dd245070f682cb3c694c",
+        "mobilesdk_app_id": "1:194583925856:android:5094e3bdcf228ed7491f05",
         "android_client_info": {
-          "package_name": "com.cargolandfood.cargolandfooduser"
+          "package_name": "com.cargolandfood.cargoland_rider"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "860443497637-qjrjqoa54u0pq17lsrpknu5ndopgipdb.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.cargolandfood.cargolandfooduser",
-            "certificate_hash": "5edef2b00485a27731688c3c11c1671473553efe"
-          }
-        },
-        {
-          "client_id": "860443497637-rb19j3irc7oeb4gbgukurmm8coqo7ecc.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDmIjTsmArHfCApAg1b1PKuDjCtf8dsAz0"
+          "current_key": "AIzaSyCQSvrav1EQTxZrx1BuNT4jX1aYH7G7nlQ"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "860443497637-rb19j3irc7oeb4gbgukurmm8coqo7ecc.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "860443497637-u9n5sst5l0vn0cq8heqn43tpqmrpemgi.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.cargolandfood.cargolandfooduser"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194583925856:android:c1bcb38eb95ca5de491f05",
+        "android_client_info": {
+          "package_name": "com.cargolandfood.cargoland_user"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQSvrav1EQTxZrx1BuNT4jX1aYH7G7nlQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:194583925856:android:7ca8c550ad01e7d0491f05",
+        "android_client_info": {
+          "package_name": "com.cargolandfood.cargoland_vendor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQSvrav1EQTxZrx1BuNT4jX1aYH7G7nlQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
     }

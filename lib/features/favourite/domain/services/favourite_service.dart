@@ -21,46 +21,4 @@ class FavouriteService implements FavouriteServiceInterface {
     return await favouriteRepositoryInterface.getList();
   }
 
-  // @override
-  // List<Product?>? prepareFoods(Response response) {
-  //   List<Product?>? wishProductList = [];
-  //   response.body['food'].forEach((food) async {
-  //     Product product = Product.fromJson(food);
-  //     wishProductList.add(product);
-  //   });
-  //   return wishProductList;
-  // }
-  //
-  // @override
-  // List<int?> prepareFoodIds(List<Product?>? productList) {
-  //   List<int?> productIdList = [];
-  //   for (var product in productList!) {
-  //     productIdList.add(product!.id);
-  //   }
-  //   return productIdList;
-  // }
-  //
-  // @override
-  // List<Restaurant?>? prepareRestaurants(Response response) {
-  //   List<Restaurant?>? wishRestaurantList = [];
-  //   response.body['restaurant'].forEach((res) async {
-  //     Restaurant? restaurant = Restaurant.fromJson(res);
-  //     // try{
-  //     //   restaurant = Restaurant.fromJson(res);
-  //     // }catch(e){
-  //     //   debugPrint('exception create in restaurant list create : $e');
-  //     // }
-  //     wishRestaurantList.add(restaurant);
-  //   });
-  //   return wishRestaurantList;
-  // }
-  //
-  // @override
-  // List<int?> prepareRestaurantsIds(List<Restaurant?>? restaurantList) {
-  //   List<int?> restaurantIdList = [];
-  //   for (var restaurant in restaurantList!) {
-  //     restaurantIdList.add(restaurant!.id);
-  //   }
-  //   return restaurantIdList;
-  // }
 }

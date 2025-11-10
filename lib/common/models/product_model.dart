@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 class ProductModel {
   int? totalSize;
   double? minPrice;
@@ -69,6 +71,10 @@ class Product {
   int? itemStock;
   List<String>? nutritionsName;
   List<String>? allergiesName;
+  FoodSeoData? foodSeoData;
+  int? reviewCount;
+  List<Reviews>? reviews;
+  List<int>? ratings;
 
   Product({
     this.id,
@@ -101,6 +107,10 @@ class Product {
     this.itemStock,
     this.nutritionsName,
     this.allergiesName,
+    this.foodSeoData,
+    this.reviewCount,
+    this.reviews,
+    this.ratings,
   });
 
   Product.fromJson(Map<String, dynamic> json) {
@@ -160,6 +170,33 @@ class Product {
     itemStock = int.tryParse(json['item_stock'].toString());
     nutritionsName = json['nutritions_name']?.cast<String>();
     allergiesName = json['allergies_name']?.cast<String>();
+    foodSeoData = json['food_seo_data'] != null ? FoodSeoData.fromJson(json['food_seo_data']) : null;
+    reviewCount = json['review_count'];
+    if (json['reviews'] != null) {
+      reviews = <Reviews>[];
+      json['reviews'].forEach((v) {
+        reviews!.add(Reviews.fromJson(v));
+      });
+    }
+
+    if (json['ratings'] != null) {
+      ratings = List<int>.filled(5, 0);
+      if (json['ratings'] is Map) {
+        (json['ratings'] as Map).forEach((key, value) {
+          try {
+            int ratingIndex = int.parse(key.toString()) - 1;
+            if (ratingIndex >= 0 && ratingIndex < 5) {
+              ratings![ratingIndex] = value is int ? value : 0;
+            }
+          } catch (e) {
+            debugPrint('Error parsing rating key: $e');
+          }
+        });
+      } else if (json['ratings'] is List) {
+        ratings = List<int>.filled(5, 0);
+
+      }
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -202,6 +239,14 @@ class Product {
     data['item_stock'] = itemStock;
     data['nutritions_name'] = nutritionsName;
     data['allergies_name'] = allergiesName;
+    if (foodSeoData != null) {
+      data['food_seo_data'] = foodSeoData!.toJson();
+    }
+    data['review_count'] = reviewCount;
+    if (reviews != null) {
+      data['reviews'] = reviews!.map((v) => v.toJson()).toList();
+    }
+    data['ratings'] = ratings;
     return data;
   }
 }
@@ -345,6 +390,142 @@ class ChoiceOptions {
     data['name'] = name;
     data['title'] = title;
     data['options'] = options;
+    return data;
+  }
+}
+
+class FoodSeoData {
+  int? id;
+  int? foodId;
+  int? itemCampaignId;
+  String? title;
+  String? description;
+  String? index;
+  String? noFollow;
+  String? noImageIndex;
+  String? noArchive;
+  String? noSnippet;
+  String? maxSnippet;
+  String? maxSnippetValue;
+  String? maxVideoPreview;
+  String? maxVideoPreviewValue;
+  String? maxImagePreview;
+  String? maxImagePreviewValue;
+  String? image;
+  String? createdAt;
+  String? updatedAt;
+  String? imageFullUrl;
+
+  FoodSeoData({
+    this.id,
+    this.foodId,
+    this.itemCampaignId,
+    this.title,
+    this.description,
+    this.index,
+    this.noFollow,
+    this.noImageIndex,
+    this.noArchive,
+    this.noSnippet,
+    this.maxSnippet,
+    this.maxSnippetValue,
+    this.maxVideoPreview,
+    this.maxVideoPreviewValue,
+    this.maxImagePreview,
+    this.maxImagePreviewValue,
+    this.image,
+    this.createdAt,
+    this.updatedAt,
+    this.imageFullUrl,
+  });
+
+  FoodSeoData.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    foodId = json['food_id'];
+    itemCampaignId = json['item_campaign_id'];
+    title = json['title'];
+    description = json['description'];
+    index = json['index'];
+    noFollow = json['no_follow'];
+    noImageIndex = json['no_image_index'];
+    noArchive = json['no_archive'];
+    noSnippet = json['no_snippet'];
+    maxSnippet = json['max_snippet'];
+    maxSnippetValue = json['max_snippet_value'];
+    maxVideoPreview = json['max_video_preview'];
+    maxVideoPreviewValue = json['max_video_preview_value'];
+    maxImagePreview = json['max_image_preview'];
+    maxImagePreviewValue = json['max_image_preview_value'];
+    image = json['image'];
+    createdAt = json['created_at'];
+    updatedAt = json['updated_at'];
+    imageFullUrl = json['image_full_url'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['food_id'] = foodId;
+    data['item_campaign_id'] = itemCampaignId;
+    data['title'] = title;
+    data['description'] = description;
+    data['index'] = index;
+    data['no_follow'] = noFollow;
+    data['no_image_index'] = noImageIndex;
+    data['no_archive'] = noArchive;
+    data['no_snippet'] = noSnippet;
+    data['max_snippet'] = maxSnippet;
+    data['max_snippet_value'] = maxSnippetValue;
+    data['max_video_preview'] = maxVideoPreview;
+    data['max_video_preview_value'] = maxVideoPreviewValue;
+    data['max_image_preview'] = maxImagePreview;
+    data['max_image_preview_value'] = maxImagePreviewValue;
+    data['image'] = image;
+    data['created_at'] = createdAt;
+    data['updated_at'] = updatedAt;
+    data['image_full_url'] = imageFullUrl;
+    return data;
+  }
+}
+
+class Reviews {
+  int? id;
+  int? foodId;
+  int? rating;
+  String? comment;
+  int? userId;
+  String? createdAt;
+  String? userName;
+
+  Reviews({
+    this.id,
+    this.foodId,
+    this.rating,
+    this.comment,
+    this.userId,
+    this.createdAt,
+    this.userName,
+  });
+
+  Reviews.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    foodId = json['food_id'];
+    rating = json['rating'];
+    comment = json['comment'];
+    userId = json['user_id'];
+    createdAt = json['created_at'];
+    userName = json['user_name'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['food_id'] = foodId;
+    data['rating'] = rating;
+    data['comment'] = comment;
+    data['user_id'] = userId;
+    data['created_at'] = createdAt;
+    data['user_name'] = userName;
     return data;
   }
 }
