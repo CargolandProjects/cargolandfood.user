@@ -14,6 +14,7 @@ class PromoBannerDialog extends StatelessWidget {
     final title = status.banner?.title ?? 'Order three times and get free Coke';
     final subtitle = status.banner?.subtitle ?? 'First three orders: free Coke. Fourth order: free delivery.';
     final cta = status.banner?.cta ?? 'Okay';
+    final imageUrl = status.banner?.image;
 
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusLarge)),
@@ -23,6 +24,19 @@ class PromoBannerDialog extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (imageUrl != null && imageUrl.isNotEmpty) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                child: Image.network(
+                  imageUrl,
+                  height: 160,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                ),
+              ),
+              const SizedBox(height: Dimensions.paddingSizeDefault),
+            ],
             Text(title, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
             const SizedBox(height: Dimensions.paddingSizeSmall),
             Text(subtitle, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).hintColor)),

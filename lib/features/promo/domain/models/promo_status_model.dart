@@ -35,12 +35,14 @@ class PromoBannerModel {
   String? title;
   String? subtitle;
   String? cta;
+  String? image;
 
-  PromoBannerModel({this.title, this.subtitle, this.cta});
+  PromoBannerModel({this.title, this.subtitle, this.cta, this.image});
 
   PromoBannerModel.fromJson(Map<String, dynamic> json) {
     title = json['title'];
     subtitle = json['subtitle'];
     cta = json['cta'];
+    image = json['image'];
   }
 }
