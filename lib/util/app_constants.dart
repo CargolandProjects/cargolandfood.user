@@ -173,6 +173,7 @@ class AppConstants {
       '/api/v1/customer/cart/add-multiple';
   static const String promoStatusUri = '/api/v1/promo/status';
   static const String promoSeenUri = '/api/v1/promo/seen';
+  static const int promoRestaurantId = 47;
 
   /// Shared Key
   static const String theme = 'theme';

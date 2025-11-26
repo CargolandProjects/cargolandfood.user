@@ -91,6 +91,12 @@ class CartController extends GetxController implements GetxService {
     double variationPrice = 0;
     for (var cartModel in _cartList) {
 
+      if (cartModel.isPromo ?? false) {
+        _addOnsList.add([]);
+        _availableList.add(true);
+        continue;
+      }
+
       variationWithoutDiscountPrice = 0;
       variationPrice = 0;
 

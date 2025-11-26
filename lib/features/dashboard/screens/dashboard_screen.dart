@@ -60,6 +60,9 @@ class DashboardScreenState extends State<DashboardScreen> {
       }
       _suggestAddressBottomSheet();
       Get.find<OrderController>().getRunningOrders(1, notify: false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Get.find<PromoController>().checkAndShowBanner(context);
+      });
     }
 
     _pageIndex = widget.pageIndex;

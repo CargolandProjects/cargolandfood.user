@@ -7,6 +7,7 @@ import 'package:stackfood_multivendor/features/cart/domain/models/cart_model.dar
 import 'package:stackfood_multivendor/features/cart/domain/repositories/cart_repository_interface.dart';
 import 'package:stackfood_multivendor/features/cart/domain/services/cart_service_interface.dart';
 import 'package:stackfood_multivendor/helper/price_converter.dart';
+import 'package:stackfood_multivendor/util/app_constants.dart';
 import 'package:get/get_utils/get_utils.dart';
 
 class CartService implements CartServiceInterface {
@@ -23,13 +24,14 @@ class CartService implements CartServiceInterface {
 
     List<CartModel> cartList = [];
     for (OnlineCartModel cart in onlineCartModel) {
-      double price = cart.price!;
-      double? discount = cart.product!.restaurantDiscount == 0 ? cart.product!.discount! : cart.product!.restaurantDiscount!;
-      String? discountType = (cart.product!.restaurantDiscount == 0) ? cart.product!.discountType : 'percent';
-      double discountedPrice = PriceConverter.convertWithDiscount(price, discount, discountType)!;
+      bool isPromo = cart.isPromo ?? false;
+      double price = isPromo ? 0 : cart.price!;
+      double? discount = isPromo ? 0 : cart.product!.restaurantDiscount == 0 ? cart.product!.discount! : cart.product!.restaurantDiscount!;
+      String? discountType = isPromo ? 'percent' : (cart.product!.restaurantDiscount == 0) ? cart.product!.discountType : 'percent';
+      double discountedPrice = isPromo ? 0 : PriceConverter.convertWithDiscount(price, discount, discountType)!;
 
-      double? discountAmount = price - discountedPrice;
-      int? quantity = cart.quantity;
+      double? discountAmount = isPromo ? 0 : price - discountedPrice;
+      int? quantity = isPromo ? 1 : cart.quantity;
 
       List<List<bool?>> selectedFoodVariations = [];
       List<List<int?>> variationsStock = [];
@@ -64,6 +66,7 @@ class CartService implements CartServiceInterface {
         CartModel(
           cart.id, price, discountedPrice, discountAmount, quantity, addOnIdList,
           addOnsList, false, cart.product, selectedFoodVariations, quantityLimit, variationsStock,
+          isPromo: isPromo,
         ),
       );
     }
@@ -157,6 +160,9 @@ class CartService implements CartServiceInterface {
   @override
   bool existAnotherRestaurantProduct(int? restaurantID, List<CartModel> cartList) {
     for(CartModel cartModel in cartList) {
+      if ((cartModel.isPromo ?? false) || cartModel.product?.restaurantId == AppConstants.promoRestaurantId) {
+        continue;
+      }
       if(cartModel.product!.restaurantId != restaurantID) {
         return true;
       }

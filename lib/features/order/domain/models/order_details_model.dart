@@ -19,6 +19,7 @@ class OrderDetailsModel {
   int? itemCampaignId;
   double? totalAddOnPrice;
   int? zoneId;
+  bool? isPromo;
 
   OrderDetailsModel(
       {this.id,
@@ -66,16 +67,17 @@ class OrderDetailsModel {
         addOns!.add(AddOn.fromJson(v));
       });
     }
-    discountOnFood = json['discount_on_food'].toDouble();
+    discountOnFood = json['discount_on_food'] != null ? json['discount_on_food'].toDouble() : 0;
     discountType = json['discount_type'];
     quantity = json['quantity'];
-    taxAmount = json['tax_amount'].toDouble();
+    taxAmount = json['tax_amount'] != null ? json['tax_amount'].toDouble() : 0;
     variant = json['variant'];
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     itemCampaignId = json['item_campaign_id'];
-    totalAddOnPrice = json['total_add_on_price'].toDouble();
+    totalAddOnPrice = json['total_add_on_price'] != null ? json['total_add_on_price'].toDouble() : 0;
     zoneId = json['zone_id'];
+    isPromo = json['is_promo'] ?? false;
   }
 
   Map<String, dynamic> toJson() {
@@ -103,6 +105,7 @@ class OrderDetailsModel {
     data['item_campaign_id'] = itemCampaignId;
     data['total_add_on_price'] = totalAddOnPrice;
     data['zone_id'] = zoneId;
+    data['is_promo'] = isPromo;
     return data;
   }
 }
