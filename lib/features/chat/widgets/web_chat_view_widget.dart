@@ -149,7 +149,7 @@ class _WebChatViewWidgetState extends State<WebChatViewWidget> with TickerProvid
                                       restaurantId: null,
                                       deliverymanId: null,
                                       conversationId: 0,
-                                      image: '${Get.find<SplashController>().configModel!.logoFullUrl}',
+                                      image: '${Get.find<SplashController>().configModel!.favIconFullUrl}',
                                       name: '${Get.find<SplashController>().configModel!.businessName}',
                                       receiverType: 'admin',
                                     ),
@@ -177,7 +177,7 @@ class _WebChatViewWidgetState extends State<WebChatViewWidget> with TickerProvid
                                                 ),
                                                 child: ClipOval(child: CustomImageWidget(
                                                   height: 50, width: 50,
-                                                  image: '${Get.find<SplashController>().configModel!.logoFullUrl}',
+                                                  image: '${Get.find<SplashController>().configModel!.favIconFullUrl}',
                                                 )),
                                               ),
                                               const SizedBox(width: Dimensions.paddingSizeSmall),
@@ -190,7 +190,7 @@ class _WebChatViewWidgetState extends State<WebChatViewWidget> with TickerProvid
                                                 const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                                                 Text(
-                                                  widget.chatController.adminConversationModel.lastMessage?.message ?? 'start_conversation'.tr,
+                                                  widget.chatController.adminConversationModel?.lastMessage?.message ?? 'start_conversation'.tr,
                                                   style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
                                                 ),
 

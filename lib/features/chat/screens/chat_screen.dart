@@ -237,7 +237,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             borderRadius: isDesktop ? BorderRadius.circular(Dimensions.radiusSmall) : null,
                           ),
                           margin: isDesktop ? EdgeInsets.only(bottom: Dimensions.paddingSizeSmall, left: Dimensions.paddingSizeSmall, right: Dimensions.paddingSizeSmall) : EdgeInsets.zero,
-                          child: Column(children: [
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
                             chatController.takeImageLoading && !isDesktop ? const LinearProgressIndicator(minHeight: 2) : const SizedBox(),
 
@@ -263,10 +263,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                         maxLines: 2, overflow: TextOverflow.ellipsis,
                                         style: robotoBold.copyWith(fontSize: Dimensions.fontSizeDefault),
                                       ),
-
-                                      // Text(fileSize, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault,
-                                      //   color: Theme.of(context).hintColor,
-                                      // )),
                                     ])),
 
 
@@ -409,7 +405,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         padding: const EdgeInsets.only(left: 10, right: 5),
                                         child: Row(crossAxisAlignment: CrossAxisAlignment.center,children: [
 
-                                          Image.asset(Images.fileIcon,height: 30, width: 30),
+                                          Image.asset(Images.fileIcon, height: 30, width: 30),
                                           const SizedBox(width: Dimensions.paddingSizeExtraSmall,),
 
                                           Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start,mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -494,8 +490,6 @@ class _ChatScreenState extends State<ChatScreen> {
                               }
 
                               return const SizedBox();
-
-                              // return chatController.chatImage.isNotEmpty && !chatController.isLoading ?  : const SizedBox();
                             }),
 
                             (chatController.isLoading && chatController.chatImage.isNotEmpty)
@@ -564,53 +558,43 @@ class _ChatScreenState extends State<ChatScreen> {
                                         ),
                                       ),
 
-                                      // InkWell(
-                                      //   onTap: () async {
-                                      //     // Get.find<ChatController>().pickFile(false);
-                                      //     Get.find<ChatController>().pickVideoFile(false);
-                                      //   },
-                                      //   child: Padding(
-                                      //     padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
-                                      //     child: CustomAssetImageWidget(Images.file, width: 25, height: 25, color: Theme.of(context).hintColor),
-                                      //   ),
-                                      // ),
                                       MenuAnchor(
-                                          builder: (BuildContext context, MenuController controller, Widget? child) {
-                                            return InkWell(
-                                              onTap: () async {
-                                                _inputMessageFocus.unfocus();
+                                        builder: (BuildContext context, MenuController controller, Widget? child) {
+                                          return InkWell(
+                                            onTap: () async {
+                                              _inputMessageFocus.unfocus();
 
-                                                if (controller.isOpen) {
-                                                  controller.close();
-                                                } else {
-                                                  controller.open();
-                                                }
-                                              },
-                                              child: Padding(
-                                                padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
-                                                child: CustomAssetImageWidget(Images.file, width: 25, height: 25, color: Theme.of(context).hintColor),
-                                              ),
-                                            );
-                                          },
-                                          menuChildren: List<MenuItemButton>.generate(2, (int index) => MenuItemButton(
-                                              onPressed: () {
-                                                if(index == 0) {
-                                                  Get.find<ChatController>().pickFile(false);
-                                                } else {
-                                                  Get.find<ChatController>().pickVideoFile(false);
-                                                }
-                                              },
-                                              child: Row(
-                                                children: [
-                                                  Icon(index == 0 ? Icons.file_copy_outlined : Icons.video_collection_outlined, size: 18, color: Theme.of(context).primaryColor),
-                                                  const SizedBox(width: Dimensions.paddingSizeSmall),
+                                              if (controller.isOpen) {
+                                                controller.close();
+                                              } else {
+                                                controller.open();
+                                              }
+                                            },
+                                            child: Padding(
+                                              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
+                                              child: CustomAssetImageWidget(Images.file, width: 25, height: 25, color: Theme.of(context).hintColor),
+                                            ),
+                                          );
+                                        },
+                                        menuChildren: List<MenuItemButton>.generate(2, (int index) => MenuItemButton(
+                                            onPressed: () {
+                                              if(index == 0) {
+                                                Get.find<ChatController>().pickFile(false);
+                                              } else {
+                                                Get.find<ChatController>().pickVideoFile(false);
+                                              }
+                                            },
+                                            child: Row(
+                                              children: [
+                                                Icon(index == 0 ? Icons.file_copy_outlined : Icons.video_collection_outlined, size: 18, color: Theme.of(context).primaryColor),
+                                                const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                                                  Text(index == 0 ? 'pick_files'.tr : 'pick_video'.tr, style: robotoMedium),
-                                                ],
-                                              ),
+                                                Text(index == 0 ? 'pick_files'.tr : 'pick_video'.tr, style: robotoMedium),
+                                              ],
                                             ),
                                           ),
                                         ),
+                                      ),
 
                                     ]),
                                   ),
@@ -627,7 +611,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   child: GetBuilder<ChatController>(builder: (chatController) {
                                     return chatController.isLoading ? const Padding(
                                       padding: EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: 7),
-                                      child: SizedBox(height: 25, width: 27, child: CircularProgressIndicator()),
+                                      child: SizedBox(height: 24, width: 24, child: CircularProgressIndicator()),
                                     ) : InkWell(
                                       onTap: () async {
                                         if(chatController.isSendButtonActive) {
@@ -641,7 +625,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                         }
                                       },
                                       child: Padding(
-                                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                                        padding: const EdgeInsets.only(left: 10, right: 6),
                                         child: CustomAssetImageWidget(
                                           Images.send, width: 40, height: 40,
                                           color: Theme.of(context).primaryColor,

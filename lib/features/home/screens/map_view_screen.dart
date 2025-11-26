@@ -111,7 +111,10 @@ class _MapViewScreenState extends State<MapViewScreen> {
                           isSelected: isSelected,
                           onTap: () {
                             Get.toNamed(
-                              RouteHelper.getRestaurantRoute(widget.fromDineInScreen ? dineInController.dineInModel!.restaurants![index].id : restController.restaurantModel!.restaurants![index].id),
+                              RouteHelper.getRestaurantRoute(
+                                widget.fromDineInScreen ? dineInController.dineInModel!.restaurants![index].id : restController.restaurantModel!.restaurants![index].id,
+                                slug: widget.fromDineInScreen ? dineInController.dineInModel!.restaurants![index].slug ?? '' : restController.restaurantModel!.restaurants![index].slug ?? '',
+                              ),
                               arguments: RestaurantScreen(restaurant: widget.fromDineInScreen ? dineInController.dineInModel!.restaurants![index] : restController.restaurantModel!.restaurants![index]),
                             );
                           },
@@ -130,8 +133,8 @@ class _MapViewScreenState extends State<MapViewScreen> {
                       borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                       child: GoogleMap(
                         initialCameraPosition: CameraPosition(target: LatLng(
-                          double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!),
-                          double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!),
+                          double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'),
+                          double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0'),
                         ), zoom: 12),
                         minMaxZoomPreference: const MinMaxZoomPreference(0, 16),
                         zoomControlsEnabled: false,
@@ -215,8 +218,8 @@ class _MapViewScreenState extends State<MapViewScreen> {
 
             GoogleMap(
               initialCameraPosition: CameraPosition(target: LatLng(
-                double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!),
-                double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!),
+                double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'),
+                double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0'),
               ), zoom: 12),
               minMaxZoomPreference: const MinMaxZoomPreference(0, 16),
               zoomControlsEnabled: false,
@@ -377,15 +380,15 @@ class _MapViewScreenState extends State<MapViewScreen> {
         flat: true,
         anchor: const Offset(0.5, 0.5),
         position: LatLng(
-          double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!),
-          double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!),
+          double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'),
+          double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0'),
         ),
         onTap: () {
           _customInfoWindowController.addInfoWindow!(MapCustomInfoWindowWidget(
               userInfoModel: Get.find<ProfileController>().userInfoModel),
               LatLng(
-                double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!),
-                double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!),
+                double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'),
+                double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0'),
               ),
           );
         },
@@ -440,8 +443,8 @@ class _MapViewScreenState extends State<MapViewScreen> {
     List<LatLng> latLngs = [];
     _markers = HashSet<Marker>();
     _markers.add(Marker(markerId: const MarkerId('id-0'), position: LatLng(
-      double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!),
-      double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!),
+      double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'),
+      double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0'),
     ), icon: BitmapDescriptor.defaultMarker));
     int index0 = 0;
     for(int index=0; index<restaurants.length; index++) {
@@ -456,7 +459,7 @@ class _MapViewScreenState extends State<MapViewScreen> {
           title: '${restaurants[index].name}',
           onTap: () {
             Get.toNamed(
-              RouteHelper.getRestaurantRoute(restaurants[index].id),
+              RouteHelper.getRestaurantRoute(restaurants[index].id, slug: restaurants[index].slug ?? ''),
               arguments: RestaurantScreen(restaurant: restaurants[index]),
             );
           },

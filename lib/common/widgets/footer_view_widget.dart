@@ -192,7 +192,7 @@ class _FooterViewWidgetState extends State<FooterViewWidget> {
                             Text('about'.tr, style: robotoBold.copyWith(color: _color, fontSize: Dimensions.fontSizeSmall)),
                             const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                            FooterButton(title: 'about_us'.tr, route: RouteHelper.getHtmlRoute('about-us')),
+                            FooterButton(title: 'about_us'.tr, route: RouteHelper.getAboutUsRoute()),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
 
                             FooterButton(title: 'categories'.tr, route: RouteHelper.getCategoryRoute()),
@@ -208,20 +208,19 @@ class _FooterViewWidgetState extends State<FooterViewWidget> {
                             Text('quick_links'.tr, style: robotoBold.copyWith(color: _color, fontSize: Dimensions.fontSizeSmall)),
                             const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                            _config!.refundPolicyStatus == 1 ? FooterButton(title: 'refund_policy'.tr, route: RouteHelper.getHtmlRoute('refund-policy')) : const SizedBox(),
-                            SizedBox(height: _config.refundPolicyStatus == 1 ? Dimensions.paddingSizeSmall : 0.0),
+                            _config!.refundPolicyStatus! ? FooterButton(title: 'refund_policy'.tr, route: RouteHelper.getRefundPolicyRoute()) : const SizedBox(),
+                            SizedBox(height: _config.refundPolicyStatus! ? Dimensions.paddingSizeSmall : 0.0),
 
-                            _config.shippingPolicyStatus == 1 ? FooterButton(title: 'shipping_policy'.tr, route: RouteHelper.getHtmlRoute('shipping-policy')) : const SizedBox(),
-                            SizedBox(height: _config.shippingPolicyStatus == 1 ? Dimensions.paddingSizeSmall : 0.0),
+                            _config.shippingPolicyStatus! ? FooterButton(title: 'shipping_policy'.tr, route: RouteHelper.getShippingPolicyRoute()) : const SizedBox(),
+                            SizedBox(height: _config.shippingPolicyStatus! ? Dimensions.paddingSizeSmall : 0.0),
 
-
-                            FooterButton(title: 'cancellation_policy'.tr, route: RouteHelper.getHtmlRoute('cancellation-policy')),
+                            FooterButton(title: 'cancellation_policy'.tr, route: RouteHelper.getCancellationPolicyRoute()),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                            FooterButton(title: 'privacy_policy'.tr, route: RouteHelper.getHtmlRoute('privacy-policy')),
+                            FooterButton(title: 'privacy_policy'.tr, route: RouteHelper.getPrivacyPolicyRoute()),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
 
-                            FooterButton(title: 'terms_and_condition'.tr, route: RouteHelper.getHtmlRoute('terms-and-condition')),
+                            FooterButton(title: 'terms_and_condition'.tr, route: RouteHelper.getTermsAndConditionRoute()),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
 
                           ],

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_tool_tip.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
 import 'package:stackfood_multivendor/features/language/controllers/localization_controller.dart';
@@ -38,41 +39,78 @@ class WebMenuBar extends StatelessWidget implements PreferredSizeWidget {
               child: Row(children: [
                 SizedBox(
                   width: 500,
-                  child: AddressHelper.getAddressFromSharedPref() != null ? InkWell(
-                    onTap: () => Get.find<SplashController>().navigateToLocationScreen('home'),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
-                      child: GetBuilder<LocationController>(builder: (locationController) {
-                        return Row(children: [
-                          Icon(
-                            AddressHelper.getAddressFromSharedPref()!.addressType == 'home' ? CupertinoIcons.house_alt_fill
-                                : AddressHelper.getAddressFromSharedPref()!.addressType == 'office' ? CupertinoIcons.bag_fill : CupertinoIcons.location_solid,
-                            size: 16, color: Theme.of(context).primaryColor,
-                          ),
-                          const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-
-                          Text(
-                            '${AddressHelper.getAddressFromSharedPref()!.addressType == 'others' ? 'your_location'.tr : AddressHelper.getAddressFromSharedPref()!.addressType!.tr}: ',
-                            style: robotoMedium.copyWith(
-                              color: Theme.of(context).primaryColor, fontSize: Dimensions.fontSizeExtraSmall,
-                            ),
-                            maxLines: 1, overflow: TextOverflow.ellipsis,
-                          ),
-
-                          Flexible(
-                            child: Text(
-                              AddressHelper.getAddressFromSharedPref()!.address!,
-                              style: robotoRegular.copyWith(
-                                color: Theme.of(context).textTheme.bodyLarge!.color, fontSize: Dimensions.fontSizeExtraSmall,
+                  child: GetBuilder<LocationController>(builder: (locationController) {
+                      return AddressHelper.getAddressFromSharedPref() != null ? InkWell(
+                        onTap: () => Get.find<SplashController>().navigateToLocationScreen('home'),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+                          child: GetBuilder<LocationController>(builder: (locationController) {
+                            return Row(children: [
+                              Icon(
+                                AddressHelper.getAddressFromSharedPref()!.addressType == 'home' ? CupertinoIcons.house_alt_fill
+                                    : AddressHelper.getAddressFromSharedPref()!.addressType == 'office' ? CupertinoIcons.bag_fill : CupertinoIcons.location_solid,
+                                size: 16, color: Theme.of(context).primaryColor,
                               ),
-                              maxLines: 1, overflow: TextOverflow.ellipsis,
+                              const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                              Text(
+                                '${AddressHelper.getAddressFromSharedPref()!.addressType == 'others' ? 'your_location'.tr : AddressHelper.getAddressFromSharedPref()!.addressType!.tr}: ',
+                                style: robotoMedium.copyWith(
+                                  color: Theme.of(context).primaryColor, fontSize: Dimensions.fontSizeExtraSmall,
+                                ),
+                                maxLines: 1, overflow: TextOverflow.ellipsis,
+                              ),
+
+                              Flexible(
+                                child: Text(
+                                  AddressHelper.getAddressFromSharedPref()!.address!,
+                                  style: robotoRegular.copyWith(
+                                    color: Theme.of(context).textTheme.bodyLarge!.color, fontSize: Dimensions.fontSizeExtraSmall,
+                                  ),
+                                  maxLines: 1, overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const Icon(Icons.keyboard_arrow_down),
+                            ]);
+                          }),
+                        ),
+                      ) : InkWell(
+                        onTap: () {
+                          Get.find<SplashController>().navigateToLocationScreen('home');
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+                          child: Row(children: [
+                            Icon(
+                              CupertinoIcons.location_solid,
+                              size: 16, color: Theme.of(context).primaryColor,
                             ),
-                          ),
-                          const Icon(Icons.keyboard_arrow_down),
-                        ]);
-                      }),
-                    ),
-                  ) : const SizedBox(),
+                            const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                            CustomToolTip(
+                              message: 'please_setup_your_location_to_view_available_restaurants_and_foods_in_your_area'.tr,
+                              preferredDirection: AxisDirection.down,
+                              fontSize: Dimensions.fontSizeSmall,
+                              isShowOnInit: true,
+                              child: InkWell(
+                                onTap: () async {
+                                  Get.find<SplashController>().navigateToLocationScreen('home');
+                                },
+                                child: Text(
+                                  'select_your_location'.tr,
+                                  style: robotoMedium.copyWith(
+                                    color: Theme.of(context).primaryColor, fontSize: Dimensions.fontSizeExtraSmall,
+                                  ),
+                                  maxLines: 1, overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                            const Icon(Icons.keyboard_arrow_down),
+                          ]),
+                        ),
+                      );
+                    }
+                  ),
                 ),
 
                 const Spacer(),
@@ -254,38 +292,38 @@ class WebMenuBar extends StatelessWidget implements PreferredSizeWidget {
             Row(
               children: [
                 MenuButton(title: 'home'.tr, onTap: () {
-                  if(AddressHelper.getAddressFromSharedPref() != null) {
-                    Get.toNamed(RouteHelper.getInitialRoute());
-                  } else {
-                    showCustomSnackBar('please_select_address_first'.tr,);
-                  }
+                  Get.toNamed(RouteHelper.getInitialRoute());
+                  // if(AddressHelper.getAddressFromSharedPref() != null) {
+                  // } else {
+                  //   showCustomSnackBar('please_select_address_first'.tr,);
+                  // }
                 }),
                 const SizedBox(width: 20),
 
                 MenuButton(title: 'categories'.tr, onTap: () {
-                  if(AddressHelper.getAddressFromSharedPref() != null) {
-                    Get.toNamed(RouteHelper.getCategoryRoute());
-                  } else {
-                    showCustomSnackBar('please_select_address_first'.tr,);
-                  }
+                  Get.toNamed(RouteHelper.getCategoryRoute());
+                  // if(AddressHelper.getAddressFromSharedPref() != null) {
+                  // } else {
+                  //   showCustomSnackBar('please_select_address_first'.tr,);
+                  // }
                 }),
                 const SizedBox(width: 20),
 
                 MenuButton(title: 'cuisines'.tr, onTap: () {
-                  if(AddressHelper.getAddressFromSharedPref() != null) {
-                    Get.toNamed(RouteHelper.getCuisineRoute());
-                  } else {
-                    showCustomSnackBar('please_select_address_first'.tr,);
-                  }
+                  Get.toNamed(RouteHelper.getCuisineRoute());
+                  // if(AddressHelper.getAddressFromSharedPref() != null) {
+                  // } else {
+                  //   showCustomSnackBar('please_select_address_first'.tr,);
+                  // }
                 }),
                 const SizedBox(width: 20),
 
                 MenuButton(title: 'restaurants'.tr, onTap: () {
-                  if(AddressHelper.getAddressFromSharedPref() != null) {
-                    Get.toNamed(RouteHelper.getAllRestaurantRoute('popular'));
-                  } else {
-                    showCustomSnackBar('please_select_address_first'.tr,);
-                  }
+                  Get.toNamed(RouteHelper.getAllRestaurantRoute('popular'));
+                  // if(AddressHelper.getAddressFromSharedPref() != null) {
+                  // } else {
+                  //   showCustomSnackBar('please_select_address_first'.tr,);
+                  // }
                 }),
                 const SizedBox(width: 20),
 

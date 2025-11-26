@@ -342,8 +342,8 @@ class RestaurantController extends GetxController implements GetxService {
     if(!fromCart && slug.isEmpty){
       Get.find<CheckoutController>().getDistanceInKM(
         LatLng(
-          double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!),
-          double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!),
+          double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'),
+          double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0'),
         ),
         LatLng(double.parse(_restaurant!.latitude!), double.parse(_restaurant!.longitude!)),
       );

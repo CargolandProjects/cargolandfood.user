@@ -32,7 +32,7 @@ class _CuisineRestaurantScreenState extends State<CuisineRestaurantScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
 
-      appBar: CustomAppBarWidget(title: '${widget.name!} ${'cuisines'.tr}'),
+      appBar: CustomAppBarWidget(title: '${widget.name!} ${'cuisine'.tr}'),
       endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
 
       body: SingleChildScrollView(

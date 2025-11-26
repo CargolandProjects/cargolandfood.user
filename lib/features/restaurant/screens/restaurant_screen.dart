@@ -57,7 +57,7 @@ class _RestaurantScreenState extends State<RestaurantScreen> {
     if(Get.find<RestaurantController>().isSearching) {
       Get.find<RestaurantController>().changeSearchStatus(isUpdate: false);
     }
-    await Get.find<RestaurantController>().getRestaurantDetails(Restaurant(id: widget.restaurant!.id), slug: widget.slug);
+    await Get.find<RestaurantController>().getRestaurantDetails(Restaurant(id: widget.restaurant!.id), /*slug: widget.slug*/);
     if(Get.find<CategoryController>().categoryList == null) {
       Get.find<CategoryController>().getCategoryList(true, search: '');
     }

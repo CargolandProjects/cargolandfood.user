@@ -5,6 +5,7 @@ import 'package:stackfood_multivendor/features/location/domain/reposotories/loca
 import 'package:stackfood_multivendor/features/location/domain/services/location_service_interface.dart';
 import 'package:stackfood_multivendor/features/location/widgets/permission_dialog.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
+import 'package:stackfood_multivendor/helper/address_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -121,14 +122,24 @@ class LocationService implements LocationServiceInterface{
   }
 
   @override
-  void handleRoute(bool fromSignUp, String? route, bool canRoute) {
+  void handleRoute(bool fromSignUp, String? route, bool canRoute, {int? restaurantId, bool isDesktop = false}) {
     if(fromSignUp) {
       Get.offAllNamed(RouteHelper.getInterestRoute());
     }else {
       if(route != null && canRoute) {
         Get.offAllNamed(route);
       } else {
-        Get.offAllNamed(RouteHelper.getInitialRoute());
+        if(restaurantId != null) {
+          Get.offAllNamed(RouteHelper.getRestaurantRoute(restaurantId));
+        } else if(isDesktop) {
+          AddressHelper.getAddressFromSharedPref();
+          Get.back();
+          if(Get.isDialogOpen!) {
+            Get.back();
+          }
+        } else {
+          Get.offAllNamed(RouteHelper.getInitialRoute());
+        }
       }
     }
   }

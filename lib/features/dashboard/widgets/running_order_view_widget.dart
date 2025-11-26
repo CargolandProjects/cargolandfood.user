@@ -1,8 +1,8 @@
+import 'package:stackfood_multivendor/common/enums/order_status.dart';
 import 'package:stackfood_multivendor/features/order/controllers/order_controller.dart';
 import 'package:stackfood_multivendor/features/order/domain/models/order_model.dart';
 import 'package:stackfood_multivendor/features/order/screens/order_details_screen.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
-import 'package:stackfood_multivendor/util/app_constants.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -53,11 +53,11 @@ class RunningOrderViewWidget extends StatelessWidget {
                 String? orderStatus = reversOrder[index].orderStatus ?? '';
                 int status = 0;
 
-                if(orderStatus == AppConstants.pending){
+                if(orderStatus == OrderStatus.pending.name){
                   status = 1;
-                }else if(orderStatus == AppConstants.accepted || orderStatus == AppConstants.processing || orderStatus == AppConstants.confirmed){
+                }else if(orderStatus == OrderStatus.accepted.name || orderStatus == OrderStatus.processing.name || orderStatus == OrderStatus.confirmed.name){
                   status = 2;
-                }else if(orderStatus == AppConstants.handover || orderStatus == AppConstants.pickedUp){
+                }else if(orderStatus == OrderStatus.handover.name || orderStatus == OrderStatus.picked_up.name){
                   status = 3;
                 }
 
@@ -83,12 +83,12 @@ class RunningOrderViewWidget extends StatelessWidget {
 
                         Center(
                           child: SizedBox(
-                            height: orderStatus == AppConstants.pending ? 50 : 60, width: orderStatus == AppConstants.pending ? 50 : 60,
+                            height: orderStatus == OrderStatus.pending.name ? 50 : 60, width: orderStatus == OrderStatus.pending.name ? 50 : 60,
                             child: Padding(
                               padding: const EdgeInsets.all(8.0),
-                              child: Image.asset( status == 2 ? orderStatus == AppConstants.confirmed || orderStatus == AppConstants.accepted ? Images.processingGif
+                              child: Image.asset( status == 2 ? orderStatus == OrderStatus.confirmed.name || orderStatus == OrderStatus.accepted.name ? Images.processingGif
                                   : Images.cookingGif : status == 3
-                                  ? orderStatus == AppConstants.handover ? Images.handoverGif : Images.onTheWayGif : Images.pendingGif,
+                                  ? orderStatus == OrderStatus.handover.name ? Images.handoverGif : Images.onTheWayGif : Images.pendingGif,
                                   height: 60, width: 60, fit: BoxFit.fill),
                             ),
                           ),

@@ -201,7 +201,7 @@ class _DineInRestaurantScreenState extends State<DineInRestaurantScreen> {
             child: CustomInkWellWidget(
               onTap: () {
                 if(restaurant.restaurantStatus == 1){
-                  Get.toNamed(RouteHelper.getRestaurantRoute(restaurant.id, fromDinIn: true),
+                  Get.toNamed(RouteHelper.getRestaurantRoute(restaurant.id, slug: restaurant.slug ?? '', fromDinIn: true),
                     arguments: RestaurantScreen(restaurant: restaurant, fromDineIn: true),
                   );
                 }else if(restaurant.restaurantStatus == 0){

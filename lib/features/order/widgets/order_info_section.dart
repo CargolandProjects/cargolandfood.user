@@ -1,5 +1,9 @@
 import 'package:dotted_border/dotted_border.dart';
+import 'package:stackfood_multivendor/common/enums/order_status.dart';
+import 'package:stackfood_multivendor/common/enums/order_type.dart';
+import 'package:stackfood_multivendor/common/enums/payment_type.dart';
 import 'package:stackfood_multivendor/common/models/review_model.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_card.dart';
 import 'package:stackfood_multivendor/common/widgets/rating_bar_widget.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
@@ -7,7 +11,6 @@ import 'package:stackfood_multivendor/features/order/widgets/log_bottom_sheet_wi
 import 'package:stackfood_multivendor/features/order/widgets/offline_info_edit_dialog.dart';
 import 'package:stackfood_multivendor/features/notification/domain/models/notification_body_model.dart';
 import 'package:stackfood_multivendor/features/order/controllers/order_controller.dart';
-import 'package:stackfood_multivendor/features/order/widgets/delivery_details.dart';
 import 'package:stackfood_multivendor/features/order/widgets/order_product_widget.dart';
 import 'package:stackfood_multivendor/features/review/widgets/review_dialog_widget.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
@@ -18,7 +21,6 @@ import 'package:stackfood_multivendor/helper/date_converter.dart';
 import 'package:stackfood_multivendor/helper/price_converter.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
-import 'package:stackfood_multivendor/util/app_constants.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -41,36 +43,33 @@ class OrderInfoSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    ExpansibleController expansionTileController = ExpansibleController();
-    bool subscription = order.subscription != null;
-
-    bool pending = order.orderStatus == AppConstants.pending;
-    bool accepted = order.orderStatus == AppConstants.accepted;
-    bool confirmed = order.orderStatus == AppConstants.confirmed;
-    bool processing = order.orderStatus == AppConstants.processing;
-    bool pickedUp = order.orderStatus == AppConstants.pickedUp;
-    bool delivered = order.orderStatus == AppConstants.delivered;
-    bool cancelled = order.orderStatus == AppConstants.cancelled;
-    bool takeAway = order.orderType == 'take_away';
-    bool isDineIn = order.orderType == 'dine_in';
-    bool cod = order.paymentMethod == 'cash_on_delivery';
     bool isDesktop = ResponsiveHelper.isDesktop(context);
     bool isGuestLoggedIn = Get.find<AuthController>().isGuestLoggedIn();
+    ExpansibleController expansionTileController = ExpansibleController();
 
-    bool ongoing = ((isDineIn ? true : order.orderStatus != 'delivered') && order.orderStatus != 'failed'
-        && order.orderStatus != 'refund_requested' && order.orderStatus != 'refunded'
-        && order.orderStatus != 'refund_request_canceled' && order.orderStatus != 'canceled');
+    bool pending = order.orderStatus == OrderStatus.pending.name;
+    bool accepted = order.orderStatus == OrderStatus.accepted.name;
+    bool confirmed = order.orderStatus == OrderStatus.confirmed.name;
+    bool processing = order.orderStatus == OrderStatus.processing.name;
+    bool pickedUp = order.orderStatus == OrderStatus.picked_up.name;
+    bool delivered = order.orderStatus == OrderStatus.delivered.name;
+    bool cancelled = order.orderStatus == OrderStatus.canceled.name;
+    bool handover = order.orderStatus == OrderStatus.handover.name;
+    bool failed = order.orderStatus == OrderStatus.failed.name;
+    bool refunded = order.orderStatus == OrderStatus.refunded.name;
+    bool refundRequested = order.orderStatus == OrderStatus.refund_requested.name;
+    bool refundRequestCanceled = order.orderStatus == OrderStatus.refund_request_canceled.name;
 
-    bool pastOrder = ((isDineIn ? false : order.orderStatus == 'delivered') || order.orderStatus == 'failed'
-        || order.orderStatus == 'refund_requested' || order.orderStatus == 'refunded'
-        || order.orderStatus == 'refund_request_canceled' ||order.orderStatus == 'canceled');
+    bool takeAway = order.orderType == OrderType.take_away.name;
+    bool isDineIn = order.orderType == OrderType.dine_in.name;
+    bool subscription = order.subscription != null;
+    bool cod = order.paymentMethod == PaymentType.cash_on_delivery.name;
+
+    bool ongoing = ((isDineIn ? true : !delivered) && !failed && !refundRequested && !refunded && !refundRequestCanceled && !cancelled);
+
+    bool pastOrder = ((isDineIn ? false : delivered) || failed || refundRequested || refunded || refundRequestCanceled || cancelled);
 
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-      /*isDesktop ? Padding(
-        padding: EdgeInsets.only(top: subscription ? Dimensions.paddingSizeSmall : 0, bottom: Dimensions.paddingSizeSmall),
-        child: Text(subscription ? 'subscription_details'.tr : 'general_info'.tr, style: robotoMedium),
-      ) : const SizedBox(),*/
 
       Container(
         decoration: isDesktop ? BoxDecoration(
@@ -106,7 +105,7 @@ class OrderInfoSection extends StatelessWidget {
 
             ]) : const SizedBox(),
 
-            Container(
+            /*Container(
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
               ),
@@ -121,7 +120,7 @@ class OrderInfoSection extends StatelessWidget {
                             : order.orderStatus == 'processing' ? Images.cookingDineIn
                             : order.orderStatus == 'handover' ? Images.preparingFoodOrderDetails
                             : Images.servedDineIn,
-                        height: 200,),
+                        height: 200),
                     ),
                   ),
 
@@ -129,11 +128,11 @@ class OrderInfoSection extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: Dimensions.paddingSizeLarge),
                     child: order.orderStatus == 'pending' ? Text(
                       'your_order_is_pending_please_wait_for_restaurant_confirmation'.tr,
-                      textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                      textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge*//*, color: Theme.of(context).disabledColor*//*),
                     ) : order.orderStatus == 'processing' ? Column(children: [
                       Text(
                         'your_food_is_almost_ready'.tr,
-                        textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                        textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge*//*, color: Theme.of(context).disabledColor*//*),
                       ),
 
                       Row(mainAxisSize: MainAxisSize.min, children: [
@@ -162,7 +161,7 @@ class OrderInfoSection extends StatelessWidget {
                     ) : order.orderStatus == 'handover' ? DateConverter.differenceInMinute(null, order.createdAt, null, order.scheduleAt) > 0 ? Column(children: [
                       Text(
                         'your_food_is_ready_to_serve_you_are'.tr,
-                        textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                        textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge*//*, color: Theme.of(context).disabledColor*//*),
                       ),
 
                       Row(mainAxisSize: MainAxisSize.min, children: [
@@ -179,15 +178,15 @@ class OrderInfoSection extends StatelessWidget {
 
                       Text(
                         'away_from_restaurant_hurry_up'.tr,
-                        textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                        textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge*//*, color: Theme.of(context).disabledColor*//*),
                       ),
 
                     ]) : Text(
                       'your_food_is_ready_to_serve_hurry_up'.tr,
-                      textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                      textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge*//*, color: Theme.of(context).disabledColor*//*),
                     ) : Text(
                       'enjoy_your_meal'.tr,
-                      textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                      textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge*//*, color: Theme.of(context).disabledColor*//*),
                     ),
                   )),
 
@@ -195,53 +194,155 @@ class OrderInfoSection extends StatelessWidget {
 
                 ],
               ),
+            ),*/
+
+            Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Center(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.asset(
+                          pending ? Images.pendingDineIn :
+                          confirmed ? Images.confirmDineIn
+                              : processing ? Images.cookingDineIn
+                              : handover ? Images.preparingFoodOrderDetails
+                              : Images.servedDineIn,
+                        height: 100, width: 100,),
+                    ),
+                  ),
+
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall, horizontal: Dimensions.paddingSizeLarge),
+                      child: order.orderStatus == 'pending' ? Text(
+                        'your_order_is_pending_please_wait_for_restaurant_confirmation'.tr,
+                         style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge),
+                      ) : order.orderStatus == 'processing' ? Column(children: [
+                        Text(
+                          'your_food_is_almost_ready'.tr,
+                          textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                        ),
+
+                        Row(mainAxisSize: MainAxisSize.min, children: [
+
+                          Text(
+                            DateConverter.differenceInMinute(order.restaurant!.deliveryTime, order.createdAt, order.processingTime, order.scheduleAt, fromDineIn: true, processing: order.processing) < 5 ? '1 - 5'
+                                : '${DateConverter.differenceInMinute(order.restaurant!.deliveryTime, order.createdAt, order.processingTime, order.scheduleAt, fromDineIn: true, processing: order.processing)-5} '
+                                '- ${DateConverter.differenceInMinute(order.restaurant!.deliveryTime, order.createdAt, order.processingTime, order.scheduleAt, fromDineIn: true, processing: order.processing)}',
+                            style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge), textDirection: TextDirection.ltr,
+                          ),
+                          const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                          Text('min'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).textTheme.bodyMedium!.color)),
+                        ]),
+
+                      ]) : order.orderStatus == 'confirmed' ? RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(children: [
+                          TextSpan(text: 'your_dine_in_order_is_confirmed_please_make_sure_to_arrive_on_time'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge - 1, color: Theme.of(context).textTheme.bodyMedium!.color)),
+                          TextSpan(text: ' - ', style: robotoBold.copyWith(color: Theme.of(context).textTheme.bodyMedium!.color)),
+                          TextSpan(
+                            text: DateConverter.dateTimeStringToDateTime(order.scheduleAt!),
+                            style: robotoMedium.copyWith(fontSize:Dimensions.fontSizeLarge - 1, color: Theme.of(context).textTheme.bodyMedium!.color),
+                          ),
+                        ]),
+                      ) : order.orderStatus == 'handover' ? DateConverter.differenceInMinute(null, order.createdAt, null, order.scheduleAt) > 0 ? Column(children: [
+                        Text(
+                          'your_food_is_ready_to_serve_you_are'.tr,
+                          textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                        ),
+
+                        Row(mainAxisSize: MainAxisSize.min, children: [
+
+                          Text(
+                            DateConverter.differenceInMinute(null, order.createdAt, null, order.scheduleAt) < 5 ? '1 - 5 ${'min'.tr}'
+                                : DateConverter.convertMinutesToDayHourMinute(DateConverter.differenceInMinute(null, order.createdAt, null, order.scheduleAt)),
+                            style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge), textDirection: TextDirection.ltr,
+                          ),
+                        ]),
+
+                        Text(
+                          'away_from_restaurant_hurry_up'.tr,
+                          textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                        ),
+
+                      ]) : Text(
+                        'your_food_is_ready_to_serve_hurry_up'.tr,
+                        textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                      ) : Text(
+                        'enjoy_your_meal'.tr,
+                        textAlign: TextAlign.center, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge/*, color: Theme.of(context).disabledColor*/),
+                      ),
+                    ),
+                  ),
+
+                ],
+              ),
             ),
-            SizedBox(height: Dimensions.paddingSizeDefault),
 
-          ]) : Column(children: [
+          ]) : CustomCard(
+            isBorder: false,
+            borderRadius: 0,
+            child: Row(children: [
 
-            ClipRRect(borderRadius: BorderRadius.circular(10), child: Image.asset(order.orderStatus == 'pending' ? Images.pendingOrderDetails : (order.orderStatus == 'confirmed' || order.orderStatus == 'processing' || order.orderStatus == 'handover')
-                ? Images.preparingFoodOrderDetails : Images.animateDeliveryMan, fit: BoxFit.contain, height: 180)),
-            const SizedBox(height: Dimensions.paddingSizeDefault),
-
-            Text('your_food_will_delivered_within'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).disabledColor)),
-            const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
-            Center(
-              child: Row(mainAxisSize: MainAxisSize.min, children: [
-
-                Text(
-                  DateConverter.differenceInMinute(order.restaurant!.deliveryTime, order.createdAt, order.processingTime, order.scheduleAt) < 5 ? '1 - 5'
-                      : '${DateConverter.differenceInMinute(order.restaurant!.deliveryTime, order.createdAt, order.processingTime, order.scheduleAt)-5} '
-                      '- ${DateConverter.differenceInMinute(order.restaurant!.deliveryTime, order.createdAt, order.processingTime, order.scheduleAt)}',
-                  style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge), textDirection: TextDirection.ltr,
+              ClipRRect(
+                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                child: Image.asset(
+                  pending ? Images.pendingOrderDetails : (confirmed || processing || handover) ? Images.preparingFoodOrderDetails : Images.animateDeliveryMan,
+                  height: 100, width: 100,
                 ),
-                const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+              ),
+              const SizedBox(width: Dimensions.paddingSizeDefault),
 
-                Text('min'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor)),
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('your_food_will_delivered_within'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Theme.of(context).disabledColor)),
+                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+
+                Row(mainAxisSize: MainAxisSize.min, children: [
+                  Text(
+                    DateConverter.differenceInMinute(order.restaurant!.deliveryTime, order.createdAt, order.processingTime, order.scheduleAt) < 5 ? '1 - 5'
+                    : '${DateConverter.differenceInMinute(order.restaurant!.deliveryTime, order.createdAt, order.processingTime, order.scheduleAt)-5} '
+                    '- ${DateConverter.differenceInMinute(order.restaurant!.deliveryTime, order.createdAt, order.processingTime, order.scheduleAt)}',
+                    style: robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge), textDirection: TextDirection.ltr,
+                  ),
+                  const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                  Text('min'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge, color: Theme.of(context).primaryColor)),
+                ]),
               ]),
+            ]),
+          ) : const SizedBox() : const SizedBox(),
+          SizedBox(height: DateConverter.isBeforeTime(order.scheduleAt) || isDineIn ? (!cancelled && ongoing && !subscription) ?
+          isDineIn ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeSmall : 0 : 0),
+
+          pastOrder ? CustomCard(
+            isBorder: false,
+            borderRadius: 0,
+            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+              child: CustomImageWidget(
+                image: '${order.restaurant!.coverPhotoFullUrl}',
+                height: 160, width: double.infinity,
+                isRestaurant: true,
+              ),
             ),
-            const SizedBox(height: Dimensions.paddingSizeExtraLarge),
-
-          ]) : const SizedBox() : const SizedBox(),
-
-          (pastOrder) ? CustomImageWidget(
-            image: '${order.restaurant!.coverPhotoFullUrl}',
-            height: 160, width: double.infinity,
-            isRestaurant: true,
           ): const SizedBox(),
+          SizedBox(height: pastOrder ? Dimensions.paddingSizeSmall : 0),
 
-          Container(
-            decoration: !isDesktop ? BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(isDesktop ? Dimensions.radiusDefault : 0),
-              boxShadow: [BoxShadow(color: Theme.of(context).primaryColor.withValues(alpha: 0.05), blurRadius: 10)],
-            ) : null,
+          CustomCard(
+            isBorder: false,
+            borderRadius: 0,
             padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-              !isDesktop ? Text(subscription ? 'subscription_details'.tr : 'general_info'.tr, style: robotoMedium) : const SizedBox(),
-              SizedBox(height: !isDesktop ? Dimensions.paddingSizeLarge : 0),
+              Text(subscription ? 'subscription_details'.tr : 'general_info'.tr, style: robotoSemiBold),
+              SizedBox(height: Dimensions.paddingSizeLarge),
 
               subscription ? Row(children: [
                 Text('order_created'.tr, style: robotoRegular),
@@ -546,7 +647,7 @@ class OrderInfoSection extends StatelessWidget {
                 ]),
               ),
 
-              order.orderType != 'dine_in' ? Column(children: [
+              !isDineIn ? Column(children: [
                 subscription ? const SizedBox() : const Divider(height: Dimensions.paddingSizeLarge),
 
                 Row(children: [
@@ -610,7 +711,7 @@ class OrderInfoSection extends StatelessWidget {
               ]) : const SizedBox(),
               SizedBox(height: order.deliveryInstruction != null && order.orderType == 'delivery' ? Dimensions.paddingSizeSmall : 0),
 
-              cancelled ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              cancelled && order.cancellationReason != null && order.cancellationReason != '' ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Divider(height: Dimensions.paddingSizeLarge),
                 Text('${'cancellation_reason'.tr}:', style: robotoMedium),
                 const SizedBox(height: Dimensions.paddingSizeSmall),
@@ -690,22 +791,29 @@ class OrderInfoSection extends StatelessWidget {
               (order.orderNote  != null && order.orderNote!.isNotEmpty) ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Divider(height: Dimensions.paddingSizeLarge),
 
-                Text('additional_note'.tr, style: robotoRegular),
-                const SizedBox(height: Dimensions.paddingSizeSmall),
-
                 Container(
-                  width: Dimensions.webMaxWidth,
+                  width: double.infinity,
                   padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
                   decoration: BoxDecoration(
+                    color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                    border: Border.all(width: 1, color: Theme.of(context).disabledColor),
                   ),
-                  child: Text(
-                    order.orderNote!,
-                    style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text("${'additional_note'.tr}: ", style: robotoRegular),
+                      const SizedBox(height: Dimensions.paddingSizeSmall),
+
+                      Text(
+                        order.orderNote ?? '',
+                        style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
+                      ),
+
+                    ],
                   ),
                 ),
-                const SizedBox(height: Dimensions.paddingSizeLarge),
+                const SizedBox(height: Dimensions.paddingSizeSmall),
+
               ]) : const SizedBox(),
               
               (order.orderReference != null && (order.orderReference!.tableNumber != null || order.orderReference!.tokenNumber != null) && !isDesktop) ? Container(
@@ -818,27 +926,138 @@ class OrderInfoSection extends StatelessWidget {
 
         ]),
       ) : const SizedBox(),
-
-
-      !ResponsiveHelper.isDesktop(context) ? Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
-          child: Text('item_info'.tr, style: robotoMedium),
-        ),
-
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: orderController.orderDetails!.length,
-          itemBuilder: (context, index) {
-            return OrderProductWidget(order: order, orderDetails: orderController.orderDetails![index], itemLength: orderController.orderDetails!.length, index: index);
-          },
-        ),
-      ]) : const SizedBox(),
       const SizedBox(height: Dimensions.paddingSizeSmall),
 
-      isDesktop && !isDineIn ? Padding(
+      isDineIn ? SizedBox() : CustomCard(
+        isBorder: false,
+        borderRadius: 0,
+        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
+          Text('delivery_information'.tr, style: robotoSemiBold),
+          Divider(height: 25),
+
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(text: '${'name'.tr} : ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor)),
+              TextSpan(
+                text: order.deliveryAddress?.contactPersonName ?? '',
+                style: robotoSemiBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge?.color),
+              ),
+              TextSpan(text: ' (${order.deliveryAddress?.contactPersonNumber})', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor)),
+            ]),
+          ),
+          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+          Wrap(children: [
+
+            (order.deliveryAddress?.road != null && order.deliveryAddress!.road!.isNotEmpty) ? RichText(
+              text: TextSpan(children: [
+                TextSpan(text: '${'street_number'.tr} : ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor)),
+                TextSpan(
+                  text: order.deliveryAddress?.road ?? '',
+                  style: robotoSemiBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge?.color),
+                ),
+              ]),
+            ) : const SizedBox(),
+
+            (order.deliveryAddress?.road != null && order.deliveryAddress!.road!.isNotEmpty) ? Container(
+              height: 12, width: 1, color: Theme.of(context).hintColor,
+              margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+            ) : const SizedBox(),
+
+            (order.deliveryAddress?.house != null && order.deliveryAddress!.house!.isNotEmpty) ? RichText(
+              text: TextSpan(children: [
+                TextSpan(text: '${'house'.tr} : ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor)),
+                TextSpan(
+                  text: order.deliveryAddress?.house ?? '',
+                  style: robotoSemiBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge?.color),
+                ),
+              ]),
+            ) : const SizedBox(),
+
+            (order.deliveryAddress?.house != null && order.deliveryAddress!.house!.isNotEmpty) ? Container(
+              height: 12, width: 1, color: Theme.of(context).hintColor,
+              margin: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
+            ) : const SizedBox(),
+
+            (order.deliveryAddress?.floor != null && order.deliveryAddress!.floor!.isNotEmpty) ? RichText(
+              text: TextSpan(children: [
+                TextSpan(text: '${'floor'.tr} : ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor)),
+                TextSpan(
+                  text: order.deliveryAddress?.floor ?? '',
+                  style: robotoSemiBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).textTheme.bodyLarge?.color),
+                ),
+              ]),
+            ) : const SizedBox(),
+
+          ]),
+          SizedBox(
+            height: (order.deliveryAddress?.road != null && order.deliveryAddress!.road!.isNotEmpty) || (order.deliveryAddress?.house != null && order.deliveryAddress!.house!.isNotEmpty)
+                || (order.deliveryAddress?.floor != null && order.deliveryAddress!.floor!.isNotEmpty) ? Dimensions.paddingSizeSmall : 0,
+          ),
+
+          Row(children: [
+
+            Icon(Icons.location_on, size: 20, color: Theme.of(context).hintColor),
+            const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+            Expanded(
+              child: Text(
+                order.deliveryAddress?.address ?? '',
+                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor),
+                maxLines: 2, overflow: TextOverflow.ellipsis,
+              ),
+            ),
+
+          ]),
+
+        ]),
+      ),
+      const SizedBox(height: Dimensions.paddingSizeSmall),
+
+      !isDesktop ? CustomCard(
+        isBorder: false,
+        borderRadius: 0,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
+            child: Row(
+              children: [
+                Text('item_info'.tr, style: robotoSemiBold),
+                SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                Container(
+                  padding: EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(orderController.orderDetails!.length.toString(), style: robotoRegular.copyWith(color: Theme.of(context).primaryColor)),
+                ),
+              ],
+            ),
+          ),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge), child: Divider()),
+
+          ListView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: orderController.orderDetails!.length,
+            itemBuilder: (context, index) {
+              return Column(children: [
+                OrderProductWidget(order: order, orderDetails: orderController.orderDetails![index], itemLength: orderController.orderDetails!.length, index: index),
+
+                index == orderController.orderDetails!.length - 1 ? const SizedBox() : const Divider(height: Dimensions.paddingSizeLarge),
+              ]);
+            },
+          ),
+        ]),
+      ) : const SizedBox(),
+      const SizedBox(height: Dimensions.paddingSizeSmall),
+
+     /* isDesktop && !isDineIn ? Padding(
         padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
         child: Text('delivery_details'.tr, style: robotoMedium),
       ) : const SizedBox(),
@@ -895,157 +1114,144 @@ class OrderInfoSection extends StatelessWidget {
         ),
 
       ]) : const SizedBox(),
-      const SizedBox(height: Dimensions.paddingSizeSmall),
+      const SizedBox(height: Dimensions.paddingSizeSmall),*/
 
-      isDesktop ? Padding(
-        padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-        child: Text('restaurant_details'.tr, style: robotoMedium),
-      ) : const SizedBox(),
+      CustomCard(
+        isBorder: false,
+        borderRadius: 0,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-        !isDesktop ? Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
-          child: Text('restaurant_details'.tr, style: robotoMedium),
-        ) : const SizedBox(),
-
-        InkWell(
-          onTap: () => Get.toNamed(RouteHelper.getRestaurantRoute(order.restaurant?.id)),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(isDesktop ? Dimensions.radiusDefault : 0),
-              boxShadow: [BoxShadow(color: isDesktop ? Colors.black.withValues(alpha: 0.05) : Theme.of(context).primaryColor.withValues(alpha: 0.05), blurRadius: 10)],
-            ),
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-              order.restaurant != null ? Row(children: [
-
-                ClipOval(child: CustomImageWidget(
-                  image: '${order.restaurant!.logoFullUrl}',
-                  height: 50, width: 50, fit: BoxFit.cover, isRestaurant: true,
-                )),
-                const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(
-                    order.restaurant!.name!, maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: robotoMedium,
-                  ),
-                  const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
-                  Text(
-                    order.restaurant!.address!, maxLines: 1, overflow: TextOverflow.ellipsis,
-                    style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
-                  ),
-
-                ])),
-
-                (takeAway && !isDineIn && (pending || accepted || confirmed || processing || order.orderStatus == 'handover'
-                || pickedUp)) ? TextButton.icon(
-                  onPressed: () async {
-                    String url ='https://www.google.com/maps/dir/?api=1&destination=${order.restaurant!.latitude}'
-                        ',${order.restaurant!.longitude}&mode=d';
-                    if (await canLaunchUrlString(url)) {
-                      await launchUrlString(url, mode: LaunchMode.externalApplication);
-                    }else {
-                      showCustomSnackBar('unable_to_launch_google_map'.tr);
-                    }
-                  },
-                  icon: const Icon(Icons.directions), label: Text('direction'.tr),
-                ) : const SizedBox(),
-
-                isDineIn ? InkWell(
-                  onTap: ()=> Get.toNamed(RouteHelper.getMapRoute(
-                    AddressModel(
-                      id: order.restaurant!.id, address: order.restaurant!.address, latitude: order.restaurant!.latitude,
-                      longitude: order.restaurant!.longitude, contactPersonNumber: '', contactPersonName: '', addressType: '',
-                    ), 'order',
-                    restaurantName: order.restaurant!.name, restaurant: order.restaurant, isDineOrder: isDineIn,
-                  )),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Image.asset(Images.restaurantIconMarker, height: 25, width: 25, fit: BoxFit.cover),
-                  ),
-                ) : const SizedBox(),
-
-                (showChatPermission && !delivered && order.orderStatus != 'failed' && !cancelled && order.orderStatus != 'refunded' && !isGuestLoggedIn) ? InkWell(
-                  onTap: () async {
-                    orderController.cancelTimer();
-                    await Get.toNamed(RouteHelper.getChatRoute(
-                      notificationBody: NotificationBodyModel(orderId: order.id, restaurantId: order.restaurant!.vendorId),
-                      user: User(id: order.restaurant!.vendorId, fName: order.restaurant!.name, lName: '', imageFullUrl: order.restaurant!.logoFullUrl, phone: order.restaurant!.phone),
-                    ));
-                    orderController.callTrackOrderApi(orderModel: order, orderId: order.id.toString());
-                  },
-                  child: Image.asset(Images.chatImageOrderDetails, height: 25, width: 25, fit: BoxFit.cover),
-                ) : const SizedBox(),
-
-                SizedBox(width: order.restaurant!.phone != null ? Dimensions.paddingSizeDefault : 0),
-
-                order.restaurant!.phone != null ? InkWell(
-                  onTap: () async {
-                    if(await canLaunchUrlString('tel:${order.restaurant!.phone}')) {
-                      launchUrlString('tel:${order.restaurant!.phone}', mode: LaunchMode.externalApplication);
-                    }else {
-                      showCustomSnackBar('${'can_not_launch'.tr} ${order.restaurant!.phone}');
-                    }
-                  },
-                  child: Image.asset(Images.callImageOrderDetails, height: 25, width: 25, fit: BoxFit.cover),
-                ) : const SizedBox(),
-
-                SizedBox(width: (!subscription && Get.find<SplashController>().configModel!.refundStatus! && delivered && orderController.orderDetails![0].itemCampaignId == null && !isGuestLoggedIn)
-                    ? Dimensions.paddingSizeDefault : 0),
-
-                (!subscription && Get.find<SplashController>().configModel!.refundStatus! && delivered && orderController.orderDetails![0].itemCampaignId == null && !isGuestLoggedIn) ? InkWell(
-                  onTap: () => Get.toNamed(RouteHelper.getRefundRequestRoute(order.id.toString())),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Theme.of(context).primaryColor, width: 1),
-                      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall, vertical: Dimensions.paddingSizeSmall),
-                    child: Text('request_for_refund'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor)),
-                  ),
-                ) : const SizedBox(),
-
-              ]) : Center(child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                child: Text(
-                  'no_restaurant_data_found'.tr, maxLines: 1, overflow: TextOverflow.ellipsis,
-                  style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
-                ),
-              )),
-            ]),
+            child: Text('restaurant_details'.tr, style: robotoSemiBold),
           ),
-        ),
-      ]),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge), child: Divider()),
+
+          InkWell(
+            onTap: () => Get.toNamed(RouteHelper.getRestaurantRoute(order.restaurant?.id, slug: order.restaurant?.slug ?? '')),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
+                order.restaurant != null ? Row(children: [
+
+                  ClipOval(child: CustomImageWidget(
+                    image: '${order.restaurant!.logoFullUrl}',
+                    height: 50, width: 50, fit: BoxFit.cover, isRestaurant: true,
+                  )),
+                  const SizedBox(width: Dimensions.paddingSizeSmall),
+
+                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text(
+                      order.restaurant!.name!, maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: robotoMedium,
+                    ),
+                    const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+
+                    Text(
+                      order.restaurant!.address!, maxLines: 1, overflow: TextOverflow.ellipsis,
+                      style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
+                    ),
+
+                  ])),
+
+                  (takeAway && !isDineIn && (pending || accepted || confirmed || processing || order.orderStatus == 'handover'
+                  || pickedUp)) ? TextButton.icon(
+                    onPressed: () async {
+                      String url ='https://www.google.com/maps/dir/?api=1&destination=${order.restaurant!.latitude}'
+                          ',${order.restaurant!.longitude}&mode=d';
+                      if (await canLaunchUrlString(url)) {
+                        await launchUrlString(url, mode: LaunchMode.externalApplication);
+                      }else {
+                        showCustomSnackBar('unable_to_launch_google_map'.tr);
+                      }
+                    },
+                    icon: const Icon(Icons.directions), label: Text('direction'.tr),
+                  ) : const SizedBox(),
+
+                  isDineIn ? InkWell(
+                    onTap: ()=> Get.toNamed(RouteHelper.getMapRoute(
+                      AddressModel(
+                        id: order.restaurant!.id, address: order.restaurant!.address, latitude: order.restaurant!.latitude,
+                        longitude: order.restaurant!.longitude, contactPersonNumber: '', contactPersonName: '', addressType: '',
+                      ), 'order',
+                      restaurantName: order.restaurant!.name, restaurant: order.restaurant, isDineOrder: isDineIn,
+                    )),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Image.asset(Images.restaurantIconMarker, height: 25, width: 25, fit: BoxFit.cover),
+                    ),
+                  ) : const SizedBox(),
+
+                  (showChatPermission && !delivered && order.orderStatus != 'failed' && !cancelled && order.orderStatus != 'refunded' && !isGuestLoggedIn) ? InkWell(
+                    onTap: () async {
+                      orderController.cancelTimer();
+                      await Get.toNamed(RouteHelper.getChatRoute(
+                        notificationBody: NotificationBodyModel(orderId: order.id, restaurantId: order.restaurant!.vendorId),
+                        user: User(id: order.restaurant!.vendorId, fName: order.restaurant!.name, lName: '', imageFullUrl: order.restaurant!.logoFullUrl, phone: order.restaurant!.phone),
+                      ));
+                      orderController.callTrackOrderApi(orderModel: order, orderId: order.id.toString());
+                    },
+                    child: Image.asset(Images.chatImageOrderDetails, height: 25, width: 25, fit: BoxFit.cover),
+                  ) : const SizedBox(),
+
+                  SizedBox(width: order.restaurant!.phone != null ? Dimensions.paddingSizeDefault : 0),
+
+                  order.restaurant!.phone != null ? InkWell(
+                    onTap: () async {
+                      if(await canLaunchUrlString('tel:${order.restaurant!.phone}')) {
+                        launchUrlString('tel:${order.restaurant!.phone}', mode: LaunchMode.externalApplication);
+                      }else {
+                        showCustomSnackBar('${'can_not_launch'.tr} ${order.restaurant!.phone}');
+                      }
+                    },
+                    child: Image.asset(Images.callImageOrderDetails, height: 25, width: 25, fit: BoxFit.cover),
+                  ) : const SizedBox(),
+
+                  SizedBox(width: (!subscription && Get.find<SplashController>().configModel!.refundStatus! && delivered && orderController.orderDetails![0].itemCampaignId == null && !isGuestLoggedIn)
+                      ? Dimensions.paddingSizeDefault : 0),
+
+                  (!subscription && Get.find<SplashController>().configModel!.refundStatus! && delivered && orderController.orderDetails![0].itemCampaignId == null && !isGuestLoggedIn) ? InkWell(
+                    onTap: () => Get.toNamed(RouteHelper.getRefundRequestRoute(order.id.toString())),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Theme.of(context).primaryColor, width: 1),
+                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall, vertical: Dimensions.paddingSizeSmall),
+                      child: Text('request_for_refund'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor)),
+                    ),
+                  ) : const SizedBox(),
+
+                ]) : Center(child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
+                  child: Text(
+                    'no_restaurant_data_found'.tr, maxLines: 1, overflow: TextOverflow.ellipsis,
+                    style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
+                  ),
+                )),
+              ]),
+            ),
+          ),
+        ]),
+      ),
       const SizedBox(height: Dimensions.paddingSizeSmall),
 
-      order.deliveryMan != null ? Column(children: [
-
-        isDesktop ? Padding(
-          padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-          child: Text('delivery_man_details'.tr, style: robotoMedium),
-        ) : const SizedBox(),
-
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-          !isDesktop ? Padding(
+      order.deliveryMan != null ? CustomCard(
+        isBorder: false,
+        borderRadius: 0,
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
-            child: Text('delivery_man_details'.tr, style: robotoMedium),
-          ) : const SizedBox(),
-
-          Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              borderRadius: BorderRadius.circular(isDesktop ? Dimensions.radiusDefault : 0),
-              boxShadow: [BoxShadow(color: isDesktop ? Colors.black.withValues(alpha: 0.05) : Theme.of(context).primaryColor.withValues(alpha: 0.05), blurRadius: 10)],
-            ),
+            child: Text('delivery_man_details'.tr, style: robotoSemiBold),
+          ),
+          Padding(padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge), child: Divider()),
+        
+          Padding(
             padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
+        
               Row(children: [
                 ClipOval(child: CustomImageWidget(
                   image: '${order.deliveryMan!.imageFullUrl}',
@@ -1063,7 +1269,7 @@ class OrderInfoSection extends StatelessWidget {
                     ratingCount: order.deliveryMan!.ratingCount,
                   ),
                 ])),
-
+        
                 !isGuestLoggedIn ? InkWell(
                   onTap: () async {
                     orderController.cancelTimer();
@@ -1076,7 +1282,7 @@ class OrderInfoSection extends StatelessWidget {
                   child: Image.asset(Images.chatImageOrderDetails, height: 25, width: 25, fit: BoxFit.cover),
                 ) : const SizedBox(),
                 const SizedBox(width: Dimensions.paddingSizeDefault),
-
+        
                 InkWell(
                   onTap: () async {
                     if(await canLaunchUrlString('tel:${order.deliveryMan!.phone}')) {
@@ -1084,13 +1290,13 @@ class OrderInfoSection extends StatelessWidget {
                     }else {
                       showCustomSnackBar('${'can_not_launch'.tr} ${order.deliveryMan!.phone}');
                     }
-
+        
                   },
                   child: Image.asset(Images.callImageOrderDetails, height: 25, width: 25, fit: BoxFit.cover),
                 ),
-
+        
               ]),
-
+        
               order.deliveryMan!.restaurantId != null ? Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
@@ -1103,33 +1309,30 @@ class OrderInfoSection extends StatelessWidget {
                     style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
                 ),
               ) : const SizedBox(),
-
+        
             ]),
           ),
         ]),
-      ]) : const SizedBox(),
+      ) : const SizedBox(),
       SizedBox(height: order.deliveryMan != null ? Dimensions.paddingSizeLarge : 0),
 
-      isDesktop ? Padding(
-        padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-        child: Text('payment_method'.tr, style: robotoMedium),
-      ) : const SizedBox(),
+      CustomCard(
+        isBorder: false,
+        borderRadius: 0,
+        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-      Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('payment_method'.tr, style: robotoSemiBold),
 
-        !isDesktop ? Padding(
-          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
-          child: Text('payment_method'.tr, style: robotoMedium),
-        ) : const SizedBox(),
-
-        Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardColor,
-            borderRadius: BorderRadius.circular(isDesktop ? Dimensions.radiusDefault : 0),
-            boxShadow: [BoxShadow(color: isDesktop ? Colors.black.withValues(alpha: 0.05) : Theme.of(context).primaryColor.withValues(alpha: 0.05), blurRadius: 10)],
+              Text(order.paymentStatus!.tr, style: robotoRegular.copyWith(color: order.paymentStatus == 'paid' ? Colors.green : Colors.red)),
+            ],
           ),
-          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeSmall),
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Divider(),
+
+          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             !isDesktop ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
 
               order.paymentMethod == 'offline_payment' || (order.paymentMethod == 'partial_payment' && orderController.trackModel!.offlinePayment != null) ? Text(
@@ -1146,7 +1349,6 @@ class OrderInfoSection extends StatelessWidget {
                 order.paymentMethod == 'cash_on_delivery' ? Images.cash : order.paymentMethod == 'wallet' ? Images.wallet
                 : order.paymentMethod == 'partial_payment' ? Images.partialWallet : Images.digitalPayment,
                 width: 24, height: 24,
-                color: Theme.of(context).textTheme.bodyMedium!.color,
               ),
               const SizedBox(width: Dimensions.paddingSizeSmall),
 
@@ -1160,8 +1362,8 @@ class OrderInfoSection extends StatelessWidget {
 
             ]),
           ]),
-        ),
-      ]),
+        ]),
+      ),
     ]);
   }
 }
@@ -1178,7 +1380,6 @@ Widget offlineView(BuildContext context, OrderController orderController, Expans
         controller: controller,
         leading: Image.asset(
           Images.cash, width: 20, height: 20,
-          color: Theme.of(context).textTheme.bodyMedium!.color,
         ),
         title: Text(
           'offline_payment'.tr,

@@ -132,7 +132,7 @@ class AuthService implements AuthServiceInterface{
 
   @override
   Future<void> socialLogout() async {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignIn googleSignIn = GoogleSignIn.instance;
     googleSignIn.disconnect();
     await FacebookAuth.instance.logOut();
   }

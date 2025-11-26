@@ -135,12 +135,12 @@ class WebProfileWidget extends StatelessWidget {
             ),
             const SizedBox( width: Dimensions.paddingSizeOverLarge),
 
-            Get.find<SplashController>().configModel!.customerWalletStatus == 1 ? Expanded(child: ProfileCardWidget(
+            Get.find<SplashController>().configModel!.customerWalletStatus! ? Expanded(child: ProfileCardWidget(
               image: Images.walletProfile,
               data: PriceConverter.convertPrice(profileController.userInfoModel!.walletBalance),
               title: 'wallet_balance'.tr,
             )) : const SizedBox(),
-            SizedBox(width: Get.find<SplashController>().configModel!.customerWalletStatus == 1 ? Dimensions.paddingSizeOverLarge : 0),
+            SizedBox(width: Get.find<SplashController>().configModel!.customerWalletStatus! ? Dimensions.paddingSizeOverLarge : 0),
 
             isLoggedIn ? Expanded(
               child: ProfileCardWidget(
@@ -149,14 +149,14 @@ class WebProfileWidget extends StatelessWidget {
                 title: 'total_order'.tr,
               ),
             ) : const SizedBox(),
-            SizedBox(width: Get.find<SplashController>().configModel!.customerWalletStatus == 1 ? Dimensions.paddingSizeOverLarge : 0),
+            SizedBox(width: Get.find<SplashController>().configModel!.customerWalletStatus! ? Dimensions.paddingSizeOverLarge : 0),
 
-            Get.find<SplashController>().configModel!.loyaltyPointStatus == 1 ? Expanded(child: ProfileCardWidget(
+            Get.find<SplashController>().configModel!.loyaltyPointStatus! ? Expanded(child: ProfileCardWidget(
               image: Images.loyaltyIcon,
               data: profileController.userInfoModel!.loyaltyPoint != null ? profileController.userInfoModel!.loyaltyPoint.toString() : '0',
               title: 'loyalty_points'.tr,
             )) : const SizedBox(),
-            SizedBox(width: Get.find<SplashController>().configModel!.loyaltyPointStatus == 1 ? Dimensions.paddingSizeLarge : 0),
+            SizedBox(width: Get.find<SplashController>().configModel!.loyaltyPointStatus! ? Dimensions.paddingSizeLarge : 0),
           ]),
           const SizedBox(height: Dimensions.paddingSizeOverLarge),
 

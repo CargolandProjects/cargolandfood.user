@@ -54,8 +54,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     bool isDesktop = ResponsiveHelper.isDesktop(context);
     bool isLoggedIn = Get.find<AuthController>().isLoggedIn();
-    final bool showWalletCard = Get.find<SplashController>().configModel!.customerWalletStatus == 1
-        || Get.find<SplashController>().configModel!.loyaltyPointStatus == 1;
+    final bool showWalletCard = Get.find<SplashController>().configModel!.customerWalletStatus!
+        || Get.find<SplashController>().configModel!.loyaltyPointStatus!;
 
     return Scaffold(
       appBar: CustomAppBarWidget(title: 'profile'.tr),
@@ -166,13 +166,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                             (showWalletCard && isLoggedIn) ? Row(children: [
 
-                              Get.find<SplashController>().configModel!.loyaltyPointStatus == 1 ? Expanded(child: ProfileCardWidget(
+                              Get.find<SplashController>().configModel!.loyaltyPointStatus! ? Expanded(child: ProfileCardWidget(
                                 image: Images.loyaltyIcon,
                                 data: profileController.userInfoModel?.loyaltyPoint != null ? profileController.userInfoModel!.loyaltyPoint.toString() : '0',
                                 title: 'loyalty_points'.tr,
                               )) : const SizedBox(),
 
-                              SizedBox(width: Get.find<SplashController>().configModel!.loyaltyPointStatus == 1 ? Dimensions.paddingSizeSmall : 0),
+                              SizedBox(width: Get.find<SplashController>().configModel!.loyaltyPointStatus! ? Dimensions.paddingSizeSmall : 0),
 
                               isLoggedIn ?  Expanded(child: ProfileCardWidget(
                                 image: Images.shoppingBagIcon,
@@ -180,9 +180,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 title: 'total_order'.tr,
                               )) : const SizedBox(),
 
-                              SizedBox(width: Get.find<SplashController>().configModel!.customerWalletStatus == 1 ? Dimensions.paddingSizeSmall : 0),
+                              SizedBox(width: Get.find<SplashController>().configModel!.customerWalletStatus! ? Dimensions.paddingSizeSmall : 0),
 
-                              Get.find<SplashController>().configModel!.customerWalletStatus == 1 ? Expanded(child: ProfileCardWidget(
+                              Get.find<SplashController>().configModel!.customerWalletStatus! ? Expanded(child: ProfileCardWidget(
                                 image: Images.walletProfile,
                                 data: PriceConverter.convertPrice(profileController.userInfoModel?.walletBalance != null ? profileController.userInfoModel!.walletBalance : 0),
                                 title: 'wallet_balance'.tr,
@@ -196,7 +196,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 icon: Icons.notifications, title: 'notification'.tr,
                                 isButtonActive: authController.notification, onTap: () {
                                 Get.bottomSheet(const NotificationStatusChangeBottomSheet());
-                                // authController.setNotificationActive(!authController.notification);
                               },
                               );
                             }) : const SizedBox(),

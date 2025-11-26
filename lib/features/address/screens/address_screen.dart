@@ -1,6 +1,5 @@
 import 'package:stackfood_multivendor/common/widgets/not_logged_in_screen.dart';
 import 'package:stackfood_multivendor/features/address/controllers/address_controller.dart';
-import 'package:stackfood_multivendor/features/address/widgets/address_confirmation_dialogue_widget.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
@@ -8,7 +7,6 @@ import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_app_bar_widget.dart';
-import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/footer_view_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/menu_drawer_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/no_data_screen_widget.dart';
@@ -44,6 +42,7 @@ class _AddressScreenState extends State<AddressScreen> {
   Widget build(BuildContext context) {
 
     bool isLoggedIn = Get.find<AuthController>().isLoggedIn();
+    bool isDeskTop = ResponsiveHelper.isDesktop(context);
 
     return GetBuilder<AddressController>(builder: (addressController) {
       return Scaffold (
@@ -52,12 +51,15 @@ class _AddressScreenState extends State<AddressScreen> {
 
         endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
 
-        floatingActionButton:  ResponsiveHelper.isDesktop(context) || !isLoggedIn ? null : (addressController.addressList?.isEmpty ?? true) ? null : FloatingActionButton(
-          backgroundColor: Theme.of(context).primaryColor,
-          onPressed: () => Get.toNamed(RouteHelper.getAddAddressRoute(false, 0)),
-          child: Icon(Icons.add, color: Theme.of(context).cardColor),
+        floatingActionButton: isDeskTop || !isLoggedIn ? null : (addressController.addressList?.isEmpty ?? true) ? null : Padding(
+          padding: const EdgeInsets.only(bottom: 40),
+          child: FloatingActionButton(
+            backgroundColor: Theme.of(context).primaryColor,
+            onPressed: () => Get.toNamed(RouteHelper.getAddAddressRoute(false, 0)),
+            child: Icon(Icons.add, color: Theme.of(context).cardColor),
+          ),
         ),
-        floatingActionButtonLocation: ResponsiveHelper.isDesktop(context) ? FloatingActionButtonLocation.centerFloat : null,
+        floatingActionButtonLocation: isDeskTop ? FloatingActionButtonLocation.centerFloat : null,
 
         body: GetBuilder<AddressController>(builder: (addressController) {
           return isLoggedIn ? RefreshIndicator(
@@ -85,23 +87,23 @@ class _AddressScreenState extends State<AddressScreen> {
                       width: Dimensions.webMaxWidth,
                       child: Column(children: [
 
-                        ResponsiveHelper.isDesktop(context) ? const SizedBox(height: Dimensions.paddingSizeLarge) : const SizedBox(),
+                        isDeskTop ? const SizedBox(height: Dimensions.paddingSizeLarge) : const SizedBox(),
 
                         addressController.addressList != null ? addressController.addressList!.isNotEmpty ? Padding(
-                          padding: ResponsiveHelper.isMobile(context) ? const EdgeInsets.all(Dimensions.paddingSizeSmall) : EdgeInsets.zero,
+                          padding: ResponsiveHelper.isMobile(context) ? const EdgeInsets.all(Dimensions.paddingSizeDefault) : EdgeInsets.zero,
                           child: GridView.builder(
                             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisSpacing: Dimensions.paddingSizeLarge,
-                              mainAxisSpacing: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeSmall : 0.01,
-                              childAspectRatio: ResponsiveHelper.isDesktop(context) ? 4 : 5,
+                              mainAxisSpacing: isDeskTop ? Dimensions.paddingSizeSmall : 0.01,
+                              childAspectRatio: isDeskTop ? 4 : 5,
                               crossAxisCount: ResponsiveHelper.isMobile(context) ? 1 : ResponsiveHelper.isTab(context) ? 2 : 3,
                             ),
                             physics: const NeverScrollableScrollPhysics(),
                             padding: EdgeInsets.all(ResponsiveHelper.isTab(context) ? Dimensions.paddingSizeSmall : 0),
                             shrinkWrap: true,
-                            itemCount: ResponsiveHelper.isDesktop(context) ? (addressController.addressList!.length + 1)  : addressController.addressList!.length,
+                            itemCount: isDeskTop ? (addressController.addressList!.length + 1)  : addressController.addressList!.length,
                             itemBuilder: (context, index) {
-                              return (ResponsiveHelper.isDesktop(context) && (index == addressController.addressList!.length)) ? Padding(
+                              return (isDeskTop && (index == addressController.addressList!.length)) ? Padding(
                                 padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
                                 child: InkWell(
                                   onTap: () => Get.toNamed(RouteHelper.getAddAddressRoute(false, 0)),
@@ -124,29 +126,11 @@ class _AddressScreenState extends State<AddressScreen> {
                                 ),
                               ) : AddressCardWidget(
                                 address: addressController.addressList![index], fromAddress: true,
+                                index: index,
                                 onTap: () {
                                   Get.toNamed(RouteHelper.getMapRoute(
                                     addressController.addressList![index], 'address',
                                   ));
-                                },
-                                onEditPressed: () {
-                                  Get.toNamed(RouteHelper.getEditAddressRoute(addressController.addressList![index]));
-                                },
-                                onRemovePressed: () {
-                                  if(Get.isSnackbarOpen) {
-                                    Get.back();
-                                  }
-                                Get.dialog(AddressConfirmDialogueWidget(
-                                  icon: Images.locationConfirm,
-                                  title: 'are_you_sure'.tr,
-                                  description: 'you_want_to_delete_this_location'.tr,
-                                  onYesPressed: () {
-                                    addressController.deleteAddress(addressController.addressList![index].id, index).then((response) {
-                                      Get.back();
-                                      showCustomSnackBar(response.message, isError: !response.isSuccess);
-                                    });
-                                  },
-                                ));
                                 },
                               );
                             },

@@ -12,7 +12,7 @@ abstract class LocationServiceInterface{
   Future<String> getAddressFromGeocode(LatLng latLng);
   Future<List<PredictionModel>> searchLocation(String text);
   void checkLocationPermission(Function onTap);
-  void handleRoute( bool fromSignUp, String? route, bool canRoute);
+  void handleRoute( bool fromSignUp, String? route, bool canRoute, {int? restaurantId, bool isDesktop = false});
   void handleMapAnimation(GoogleMapController? mapController, Position myPosition);
   Future<void> updateZone();
 }

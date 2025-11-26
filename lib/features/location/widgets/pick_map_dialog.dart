@@ -1,3 +1,5 @@
+import 'package:stackfood_multivendor/features/location/widgets/animated_map_icon_extended.dart';
+import 'package:stackfood_multivendor/features/location/widgets/animated_map_icon_minimized.dart';
 import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
@@ -22,9 +24,10 @@ class PickMapDialog extends StatefulWidget {
   final String? route;
   final GoogleMapController? googleMapController;
   final Function(AddressModel address)? onPicked;
+  final int? restaurantId;
   const PickMapDialog({super.key,
     required this.fromSignUp, required this.fromAddAddress, required this.canRoute,
-    required this.route, this.googleMapController, this.onPicked,
+    required this.route, this.googleMapController, this.onPicked, this.restaurantId,
   });
 
   @override
@@ -56,7 +59,6 @@ class _PickMapDialogState extends State<PickMapDialog> {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
-      // insetPadding: const EdgeInsets.all(30),
       clipBehavior: Clip.antiAliasWithSaveLayer,
       child: Container(
         height: ResponsiveHelper.isDesktop(context) ? 500 : null,
@@ -116,18 +118,25 @@ class _PickMapDialogState extends State<PickMapDialog> {
                               _cameraPosition = cameraPosition;
                             },
                             onCameraMoveStarted: () {
+                              locationController.updateCameraMovingStatus(true);
                               locationController.disableButton();
                             },
                             onCameraIdle: () {
+                              locationController.updateCameraMovingStatus(false);
                               Get.find<LocationController>().updatePosition(_cameraPosition, false);
                             },
                           ),
                         ),
 
-                        Center(child: !locationController.loading ? Padding(
+                        Center(child: Padding(
+                          padding: const EdgeInsets.only(bottom: Dimensions.pickMapIconSize * 0.65),
+                          child: locationController.isCameraMoving ? const AnimatedMapIconExtended() : const AnimatedMapIconMinimised(),
+                        )),
+
+                        /*Center(child: !locationController.loading ? Padding(
                           padding: const EdgeInsets.only(bottom: 30.0),
                           child: Image.asset(Images.newPickMarker, height: 50, width: 50),
-                        ) : const CircularProgressIndicator()),
+                        ) : const CircularProgressIndicator()),*/
 
                         Positioned(
                           bottom: 25, right: Dimensions.paddingSizeSmall,
@@ -297,13 +306,13 @@ class _PickMapDialogState extends State<PickMapDialog> {
             if(response.isSuccess) {
               Get.find<ProfileController>().setForceFullyUserEmpty();
               locationController.saveAddressAndNavigate(
-                address, widget.fromSignUp, widget.route, widget.canRoute, ResponsiveHelper.isDesktop(Get.context),
+                address, widget.fromSignUp, widget.route, widget.canRoute, ResponsiveHelper.isDesktop(Get.context), restaurantId: widget.restaurantId,
               );
             }
           });
         } else{
           locationController.saveAddressAndNavigate(
-            address, widget.fromSignUp, widget.route, widget.canRoute, ResponsiveHelper.isDesktop(context),
+            address, widget.fromSignUp, widget.route, widget.canRoute, ResponsiveHelper.isDesktop(context), restaurantId: widget.restaurantId,
           );
         }
       }

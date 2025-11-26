@@ -37,7 +37,6 @@ class Images {
   static const String digitalPayment = 'assets/image/digital_payment.png';
   static const String route = 'assets/image/route.png';
   static const String update = 'assets/image/update.png';
-  //static const String deliveryLocation = 'assets/image/delivery_location.png';
   static const String forgot = 'assets/image/forgot.png';
   static const String pickMarker = 'assets/image/pick_marker.png';
   static const String newPickMarker = 'assets/image/new_picker_marker.png';
@@ -97,8 +96,10 @@ class Images {
   static const String messengerIcon = 'assets/image/messenger_icon.png';
   static const String whatsappIcon = 'assets/image/whatsapp_icon.png';
   static const String profileIcon = 'assets/image/profile_icon.png';
+  static const String editProfileIcon = 'assets/image/edit_profile_icon.png';
   static const String addressIcon = 'assets/image/address_icon.png';
   static const String languageIcon = 'assets/image/language_icon.png';
+  static const String settingsIcon = 'assets/image/settings_icon.png';
   static const String couponIcon = 'assets/image/coupon_icon.png';
   static const String pointIcon = 'assets/image/point_icon.png';
   static const String referIcon = 'assets/image/refer_icon.png';
@@ -180,8 +181,6 @@ class Images {
   static const String facebookIcon = 'assets/image/facebook_icon.png';
   static const String note = 'assets/image/note.png';
   static const String couponIcon1 = 'assets/image/coupon_icon1.png';
-  //static const String nearbyRestaurant = 'assets/image/nearby_restaurant.png';
-  //static const String nearbyLocation = 'assets/image/nearby_location.png';
   static const String enjoyOff = 'assets/image/enjoy_off.png';
   static const String referBg = 'assets/image/refer_bg.png';
   static const String cuisineBgPng = 'assets/image/cuisine_bg.png';
@@ -226,6 +225,11 @@ class Images {
   static const String dineInUser = 'assets/image/dine_in_user.png';
   static const String dineInMap = 'assets/image/dine_in_map.png';
   static const String uploadIcon = 'assets/image/upload_icon.png';
+  static const String helpAndSupportBg = 'assets/image/help_and_support_bg.png';
+  static const String changePasswordBg = 'assets/image/change_pass_bg.png';
+  static const String trackLocationIcon = 'assets/image/track_location_icon.png';
+  static const String orderIcon = 'assets/image/order_icon.png';
+  static const String pictureIcon = 'assets/image/picture_icon.png';
 
   static const String onboarding_1 = 'assets/image/onboard_1.svg';
   static const String onboarding_2 = 'assets/image/onboard_2.svg';
@@ -276,4 +280,7 @@ class Images {
   static const String pendingDineIn = 'assets/image/pending_dine_in.gif';
   static const String servedDineIn = 'assets/image/served_dine_in.gif';
   static const String successAnimationDineIn = 'assets/image/success_animation.gif';
+
+  static const String mapIconExtended = 'assets/json/map-picker-1.json';
+  static const String mapIconMinimised = 'assets/json/map-picker-2.json';
 }

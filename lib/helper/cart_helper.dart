@@ -99,8 +99,9 @@ class CartHelper {
     return cartList;
   }
 
-  static String setupVariationText({required CartModel cart}) {
+  static (String, int) setupVariationText({required CartModel cart}) {
     String variationText = '';
+    int count = 0;
 
     if(cart.variations!.isNotEmpty) {
       for(int index=0; index<cart.variations!.length; index++) {
@@ -110,6 +111,7 @@ class CartHelper {
           for(int i=0; i<cart.variations![index].length; i++) {
             if(cart.variations![index][i]!) {
               variationText = '$variationText${variationText.endsWith('(') ? '' : ', '}${cart.product!.variations![index].variationValues![i].level}';
+              count ++;
             }
           }
           variationText = '$variationText)';
@@ -117,7 +119,7 @@ class CartHelper {
       }
     }
 
-    return variationText;
+    return (variationText, count);
   }
 
   static String? setupAddonsText({required CartModel cart}) {

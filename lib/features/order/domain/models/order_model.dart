@@ -88,6 +88,7 @@ class OrderModel {
   double? referrerBonusAmount;
   OrderReference? orderReference;
   double? bringChangeAmount;
+  int? itemCampaignId;
 
   OrderModel({
     this.id,
@@ -144,6 +145,7 @@ class OrderModel {
     this.referrerBonusAmount,
     this.orderReference,
     this.bringChangeAmount,
+    this.itemCampaignId,
   });
 
   OrderModel.fromJson(Map<String, dynamic> json) {
@@ -210,14 +212,12 @@ class OrderModel {
         }
       });
     }
-
     offlinePayment = json['offline_payment'] != null ? OfflinePayment.fromJson(json['offline_payment']) : null;
     extraPackagingAmount = json['extra_packaging_amount']?.toDouble();
     referrerBonusAmount = json['ref_bonus_amount']?.toDouble();
-    orderReference = json['order_reference'] != null
-        ? OrderReference.fromJson(json['order_reference'])
-        : null;
+    orderReference = json['order_reference'] != null ? OrderReference.fromJson(json['order_reference']) : null;
     bringChangeAmount = json['bring_change_amount']?.toDouble();
+    itemCampaignId = json['item_campaign_id'];
   }
 
   Map<String, dynamic> toJson() {
@@ -264,7 +264,7 @@ class OrderModel {
     if (deliveryAddress != null) {
       data['delivery_address'] = deliveryAddress!.toJson();
     }
-    if (deliveryAddress != null) {
+    if (refund != null) {
       data['refund'] = refund!.toJson();
     }
     data['subscription_id'] = subscriptionId;
@@ -289,6 +289,7 @@ class OrderModel {
       data['order_reference'] = orderReference!.toJson();
     }
     data['bring_change_amount'] = bringChangeAmount;
+    data['item_campaign_id'] = itemCampaignId;
     return data;
   }
 }

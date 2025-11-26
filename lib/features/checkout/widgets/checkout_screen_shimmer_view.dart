@@ -299,53 +299,57 @@ class CheckoutShimmerView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
 
-              ClipRRect(
-                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                child: Shimmer(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).shadowColor,
-                      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                    ),
-
-                    child: Row(children: [
-                      RadioGroup(groupValue: 0, onChanged: (value) {}, child: Radio(value: 0, activeColor: Theme.of(context).cardColor)),
-
-                      Container(
-                        height: 20, width: 100,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                        ),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                  child: Shimmer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).shadowColor,
+                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
                       ),
-                      const SizedBox(width: Dimensions.paddingSizeDefault),
-                    ]),
+
+                      child: Row(children: [
+                        RadioGroup(groupValue: 0, onChanged: (value) {}, child: Radio(value: 0, activeColor: Theme.of(context).cardColor)),
+
+                        Container(
+                          height: 20, width: 80,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                          ),
+                        ),
+                        const SizedBox(width: Dimensions.paddingSizeDefault),
+                      ]),
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: Dimensions.paddingSizeDefault),
 
-              ClipRRect(
-                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                child: Shimmer(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).shadowColor,
-                      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                    ),
-
-                    child: Row(children: [
-                      RadioGroup(groupValue: 0, onChanged: (value) {}, child: Radio(value: 0, activeColor: Theme.of(context).cardColor)),
-
-                      Container(
-                        height: 20, width: 100,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).cardColor,
-                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                        ),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                  child: Shimmer(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).shadowColor,
+                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
                       ),
-                      const SizedBox(width: Dimensions.paddingSizeDefault),
-                    ]),
+
+                      child: Row(children: [
+                        RadioGroup(groupValue: 0, onChanged: (value) {}, child: Radio(value: 0, activeColor: Theme.of(context).cardColor)),
+
+                        Container(
+                          height: 20, width: 80,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor,
+                            borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                          ),
+                        ),
+                        const SizedBox(width: Dimensions.paddingSizeDefault),
+                      ]),
+                    ),
                   ),
                 ),
               ),

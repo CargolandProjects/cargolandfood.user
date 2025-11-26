@@ -27,7 +27,7 @@ class _CuisineScreenState extends State<CuisineScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBarWidget(title: 'cuisines'.tr),
+      appBar: CustomAppBarWidget(title: 'cuisine'.tr),
       backgroundColor: Theme.of(context).colorScheme.surface,
       endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
       body: SingleChildScrollView(
@@ -35,7 +35,7 @@ class _CuisineScreenState extends State<CuisineScreen> {
         child: Column(children: [
 
           SizedBox(height: ResponsiveHelper.isDesktop(context) ? 0: Dimensions.paddingSizeLarge),
-          WebScreenTitleWidget(title: 'cuisines'.tr),
+          WebScreenTitleWidget(title: 'cuisine'.tr),
 
           Center(child: FooterViewWidget(
             child: SizedBox(

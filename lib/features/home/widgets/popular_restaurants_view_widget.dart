@@ -81,7 +81,7 @@ class PopularRestaurantsViewWidget extends StatelessWidget {
                             borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                           ),
                           child: CustomInkWellWidget(
-                            onTap: () => Get.toNamed(RouteHelper.getRestaurantRoute(restaurantList[index].id),
+                            onTap: () => Get.toNamed(RouteHelper.getRestaurantRoute(restaurantList[index].id, slug: restaurantList[index].slug ?? ''),
                               arguments: RestaurantScreen(restaurant: restaurantList[index]),
                             ),
                             radius: Dimensions.radiusDefault,

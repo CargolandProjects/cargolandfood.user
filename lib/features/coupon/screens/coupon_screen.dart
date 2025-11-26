@@ -84,7 +84,7 @@ class _CouponScreenState extends State<CouponScreen> {
 
                       Padding(
                         padding: const EdgeInsets.only(left: Dimensions.paddingSizeLarge, right: Dimensions.paddingSizeLarge, top: Dimensions.paddingSizeDefault),
-                        child: Text('available_coupon'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
+                        child: Text('available_promo'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
                       ),
 
                       GridView.builder(

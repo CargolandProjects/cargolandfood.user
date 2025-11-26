@@ -78,7 +78,7 @@ class _WebDineInWidgetState extends State<WebDineInWidget> {
                         child: CustomInkWellWidget(
                           onTap: () {
                             Get.toNamed(
-                              RouteHelper.getRestaurantRoute(dineInController.dineInModel!.restaurants![index].id, fromDinIn: true),
+                              RouteHelper.getRestaurantRoute(dineInController.dineInModel!.restaurants![index].id, slug: dineInController.dineInModel!.restaurants![index].slug ?? '', fromDinIn: true),
                               arguments: RestaurantScreen(restaurant: dineInController.dineInModel!.restaurants![index], fromDineIn: true),
                             );
                           },

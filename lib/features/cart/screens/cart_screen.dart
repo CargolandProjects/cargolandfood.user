@@ -1,5 +1,6 @@
 import 'package:expandable_bottom_sheet/expandable_bottom_sheet.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:shimmer_animation/shimmer_animation.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_image_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_ink_well_widget.dart';
@@ -107,7 +108,9 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     bool isDesktop = ResponsiveHelper.isDesktop(context);
+
     return Scaffold(
       appBar: CustomAppBarWidget(title: 'my_cart'.tr, isBackButtonExist: (isDesktop || !widget.fromNav)),
       endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
@@ -121,6 +124,11 @@ class _CartScreenState extends State<CartScreen> {
           }
 
           bool suggestionEmpty = (restaurantController.suggestedItems != null && restaurantController.suggestedItems!.isEmpty);
+
+          double distance = Get.find<RestaurantController>().getRestaurantDistance(
+            LatLng(double.parse(restaurantController.restaurant?.latitude ?? '0'), double.parse(restaurantController.restaurant?.longitude ?? '0')),
+          );
+
           return (cartController.isLoading && widget.fromReorder) ? const Center(
             child: SizedBox(height: 30, width: 30, child: CircularProgressIndicator()),
           ) : cartController.cartList.isNotEmpty ? Column(
@@ -175,12 +183,12 @@ class _CartScreenState extends State<CartScreen> {
                                       child: Column(children: [
 
                                         restaurantController.restaurant != null ? Container(
-                                          margin: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
+                                          margin: isDesktop ? null : const EdgeInsets.only(top: Dimensions.paddingSizeDefault, left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeDefault),
                                           padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
                                           decoration: BoxDecoration(
                                             color: Theme.of(context).cardColor,
                                             boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
-                                            borderRadius: BorderRadius.circular(isDesktop ? Dimensions.radiusDefault : 0),
+                                            borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                                           ),
                                           child: Row(children: [
 
@@ -199,11 +207,24 @@ class _CartScreenState extends State<CartScreen> {
                                             const SizedBox(width: Dimensions.paddingSizeDefault),
 
                                             Expanded(
-                                              child: Text(
-                                                restaurantController.restaurant?.name ?? '',
-                                                style: robotoMedium,
-                                                maxLines: 1, overflow: TextOverflow.ellipsis,
-                                              ),
+                                              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                                                Text(
+                                                  restaurantController.restaurant?.name ?? '',
+                                                  style: robotoMedium,
+                                                  maxLines: 1, overflow: TextOverflow.ellipsis,
+                                                ),
+                                                const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+
+                                                Row(children: [
+                                                  Icon(Icons.access_time, color: Theme.of(context).disabledColor, size: 16),
+                                                  const SizedBox(width: 3),
+
+                                                  Text(restaurantController.restaurant!.deliveryTime!, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
+                                                  const SizedBox(width: 3),
+
+                                                  Text('(${distance.toStringAsFixed(2)} ${'km'.tr})', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
+                                                ]),
+                                              ]),
                                             ),
                                             const SizedBox(width: Dimensions.paddingSizeDefault),
 
@@ -212,17 +233,17 @@ class _CartScreenState extends State<CartScreen> {
                                               const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
                                               Text(restaurantController.restaurant!.avgRating!.toStringAsFixed(1), style: robotoMedium),
-                                              /*const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                                              const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
                                               Text('(${restaurantController.restaurant!.ratingCount! > 25 ? '25+' : restaurantController.restaurant!.ratingCount})',
-                                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),*/
+                                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
                                             ]),
 
                                           ]),
                                         ) : Shimmer(child: Container(
-                                          margin: const EdgeInsets.only(top: Dimensions.paddingSizeDefault),
+                                          margin: const EdgeInsets.only(top: Dimensions.paddingSizeDefault, left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeDefault),
                                           height: 60, width: double.infinity,
-                                          decoration: BoxDecoration(color: Theme.of(context).shadowColor),
+                                          decoration: BoxDecoration(color: Theme.of(context).shadowColor, borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
                                         )),
                                         SizedBox(height: isDesktop ? Dimensions.paddingSizeSmall : 0),
 
@@ -363,7 +384,7 @@ class _CartScreenState extends State<CartScreen> {
                                                     onPressed: (){
                                                       if(isRestaurantOpen) {
                                                         Get.toNamed(
-                                                          RouteHelper.getRestaurantRoute(cartController.cartList[0].product!.restaurantId),
+                                                          RouteHelper.getRestaurantRoute(cartController.cartList[0].product!.restaurantId, slug: cartController.cartList[0].product!.restaurantName ?? ''),
                                                           arguments: RestaurantScreen(restaurant: Restaurant(id: cartController.cartList[0].product!.restaurantId)),
                                                         );
                                                       } else {

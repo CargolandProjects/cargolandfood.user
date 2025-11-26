@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:stackfood_multivendor/api/api_checker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -44,12 +43,14 @@ class ApiClient extends GetxService {
     Map<String, String> header = {};
     header.addAll({
       'Content-Type': 'application/json; charset=UTF-8',
-      AppConstants.zoneId: zoneIDs != null ? jsonEncode(zoneIDs) : '',
       AppConstants.localizationKey: languageCode ?? AppConstants.languages[0].languageCode!,
-      AppConstants.latitude: latitude != null ? jsonEncode(latitude) : '',
-      AppConstants.longitude: longitude != null ? jsonEncode(longitude) : '',
+      AppConstants.latitude: latitude != null ? jsonEncode(latitude) : '0',
+      AppConstants.longitude: longitude != null ? jsonEncode(longitude) : '0',
       'Authorization': 'Bearer $token'
     });
+    if(zoneIDs != null) {
+      header.addAll({AppConstants.zoneId: jsonEncode(zoneIDs)});
+    }
     if(setHeader) {
       _mainHeaders = header;
     }
@@ -61,7 +62,7 @@ class ApiClient extends GetxService {
   Future<Response> getData(String uri, {Map<String, dynamic>? query, Map<String, String>? headers, bool handleError = true, bool showToaster = false}) async {
     try {
       if(kDebugMode) {
-        debugPrint('====> API Call: $uri\nHeader: $_mainHeaders');
+        debugPrint('====> API Call: $uri\nHeader: ${headers ?? _mainHeaders}');
       }
       http.Response response = await http.get(
         Uri.parse(appBaseUrl+uri),
@@ -80,7 +81,7 @@ class ApiClient extends GetxService {
     try {
       if(kDebugMode) {
         debugPrint('====> API Call: $uri\nHeader: $_mainHeaders');
-        log('====> API Body: $body');
+        debugPrint('====> API Body: $body');
       }
       http.Response response = await http.post(
         Uri.parse(appBaseUrl+uri),

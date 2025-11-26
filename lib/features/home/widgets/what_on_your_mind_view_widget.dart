@@ -104,7 +104,7 @@ class WhatOnYourMindViewWidget extends StatelessWidget {
                       SizedBox(height: ResponsiveHelper.isMobile(context) ? Dimensions.paddingSizeDefault : Dimensions.paddingSizeLarge),
 
                       Expanded(child: Text(
-                        categoryController.categoryList![index].name!,
+                        categoryController.categoryList![index].name!.trim(),
                         style: robotoMedium.copyWith(
                           fontSize: Dimensions.fontSizeSmall,
                         ),

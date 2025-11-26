@@ -139,7 +139,7 @@ class _NewUserSetupScreenState extends State<NewUserSetupScreen> {
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraLarge),
 
-                (Get.find<SplashController>().configModel!.refEarningStatus == 1 ) ? CustomTextFieldWidget(
+                (Get.find<SplashController>().configModel!.refEarningStatus!) ? CustomTextFieldWidget(
                   hintText: 'refer_code'.tr,
                   labelText: 'refer_code'.tr,
                   showLabelText: true,

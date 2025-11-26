@@ -1,6 +1,8 @@
+import 'package:stackfood_multivendor/common/widgets/custom_bottom_sheet_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/web_screen_title_widget.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/favourite/controllers/favourite_controller.dart';
+import 'package:stackfood_multivendor/features/favourite/widgets/clear_all_bottom_sheet.dart';
 import 'package:stackfood_multivendor/features/favourite/widgets/fav_item_view_widget.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -37,11 +39,22 @@ class FavouriteScreenState extends State<FavouriteScreen> with SingleTickerProvi
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBarWidget(title: 'favourite'.tr, isBackButtonExist: false),
+      appBar: CustomAppBarWidget(
+        title: 'wishlist'.tr,
+        isBackButtonExist: false,
+        actions: [
+          TextButton(
+            onPressed: (){
+              showCustomBottomSheet(child: ClearAllBottomSheet());
+            },
+            child: Text('clear_all'.tr, style: robotoMedium.copyWith(color: Theme.of(context).colorScheme.error)),
+          ),
+        ],
+      ),
       endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
       body: Get.find<AuthController>().isLoggedIn() ? SafeArea(child: Column(children: [
 
-        WebScreenTitleWidget(title: 'favourite'.tr),
+        WebScreenTitleWidget(title: 'wishlist'.tr),
 
         Container(
           width: Dimensions.webMaxWidth,

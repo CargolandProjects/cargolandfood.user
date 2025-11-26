@@ -21,4 +21,9 @@ class FavouriteService implements FavouriteServiceInterface {
     return await favouriteRepositoryInterface.getList();
   }
 
+  @override
+  Future<Response> clearAll() async {
+    return await favouriteRepositoryInterface.clearAll();
+  }
+
 }

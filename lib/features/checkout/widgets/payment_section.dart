@@ -64,9 +64,7 @@ class PaymentSection extends StatelessWidget {
 
         Container(
           child: checkoutController.paymentMethodIndex == 0 && !checkoutController.isPartialPay ? Row(children: [
-            Image.asset(Images.cash , width: 20, height: 20,
-              color: Theme.of(context).textTheme.bodyMedium!.color,
-            ),
+            Image.asset(Images.cash , width: 20, height: 20),
             const SizedBox(width: Dimensions.paddingSizeSmall),
 
             Expanded(child: Row(
@@ -124,7 +122,6 @@ class PaymentSection extends StatelessWidget {
                 : checkoutController.paymentMethodIndex == 1 ? Images.wallet
                 : Images.digitalPayment,
               width: 20, height: 20,
-              color: Theme.of(context).textTheme.bodyMedium!.color,
             ) : Icon(Icons.wallet_outlined, size: 18, color: Theme.of(context).disabledColor),
             const SizedBox(width: Dimensions.paddingSizeSmall),
 

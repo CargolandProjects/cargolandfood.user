@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
 
-class CartProductWidget extends StatelessWidget {
+class CartProductWidget extends StatefulWidget {
   final CartModel cart;
   final int cartIndex;
   final List<AddOns> addOns;
@@ -28,12 +28,22 @@ class CartProductWidget extends StatelessWidget {
   const CartProductWidget({super.key, required this.cart, required this.cartIndex, required this.isAvailable, required this.addOns, required this.isRestaurantOpen});
 
   @override
-  Widget build(BuildContext context) {
-    String addOnText = CartHelper.setupAddonsText(cart: cart) ?? '';
-    String variationText = CartHelper.setupVariationText(cart: cart);
+  State<CartProductWidget> createState() => _CartProductWidgetState();
+}
 
-    double? discount = cart.product!.discount;
-    String? discountType = cart.product!.discountType;
+class _CartProductWidgetState extends State<CartProductWidget> {
+  bool showAddonsVariations = false;
+
+  @override
+  Widget build(BuildContext context) {
+    String addOnText = CartHelper.setupAddonsText(cart: widget.cart) ?? '';
+    String variationText = CartHelper.setupVariationText(cart: widget.cart).$1;
+
+    double? discount = widget.cart.product!.discount;
+    String? discountType = widget.cart.product!.discountType;
+
+    int addonCount = widget.cart.addOnIds?.length ?? 0;
+    int variationCount = CartHelper.setupVariationText(cart: widget.cart).$2;
 
     return Stack(
       children: [
@@ -49,7 +59,7 @@ class CartProductWidget extends StatelessWidget {
                   extentRatio: 0.2,
                   children: [
                     SlidableAction(
-                      onPressed: (context) => cartController.removeFromCart(cartIndex),
+                      onPressed: (context) => cartController.removeFromCart(widget.cartIndex),
                       backgroundColor: Theme.of(context).colorScheme.error,
                       borderRadius: BorderRadius.horizontal(right: Radius.circular(Get.find<LocalizationController>().isLtr ? Dimensions.radiusDefault : 0), left: Radius.circular(Get.find<LocalizationController>().isLtr ? 0 : Dimensions.radiusDefault)),
                       foregroundColor: Colors.white,
@@ -69,10 +79,10 @@ class CartProductWidget extends StatelessWidget {
                         context: context,
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
-                        builder: (con) => ProductBottomSheetWidget(product: cart.product, cartIndex: cartIndex, cart: cart),
+                        builder: (con) => ProductBottomSheetWidget(product: widget.cart.product, cartIndex: widget.cartIndex, cart: widget.cart),
                       ).then((value) => Get.find<CartController>().getCartDataOnline(),
                       ) : showDialog(context: context, builder: (con) => Dialog(
-                        child: ProductBottomSheetWidget(product: cart.product, cartIndex: cartIndex, cart: cart),
+                        child: ProductBottomSheetWidget(product: widget.cart.product, cartIndex: widget.cartIndex, cart: widget.cart),
                       )).then((value) => Get.find<CartController>().getCartDataOnline());
                     },
                     radius: Dimensions.radiusDefault,
@@ -83,16 +93,16 @@ class CartProductWidget extends StatelessWidget {
                         children: [
 
                           Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            cart.product!.imageFullUrl != null ? Stack(
+                            widget.cart.product!.imageFullUrl != null ? Stack(
                               children: [
                                 ClipRRect(
                                   borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                                   child: CustomImageWidget(
-                                    image: '${cart.product!.imageFullUrl}',
+                                    image: '${widget.cart.product!.imageFullUrl}',
                                     height: 60, width: 60, fit: BoxFit.cover, isFood: true,
                                   ),
                                 ),
-                                isAvailable ? const SizedBox() : Positioned(
+                                widget.isAvailable ? const SizedBox() : Positioned(
                                   top: 0, left: 0, bottom: 0, right: 0,
                                   child: Container(
                                     alignment: Alignment.center,
@@ -104,28 +114,28 @@ class CartProductWidget extends StatelessWidget {
                                 ),
                               ],
                             ) : const SizedBox(),
-                            SizedBox(width: cart.product!.imageFullUrl != null ? Dimensions.paddingSizeSmall : 0),
+                            SizedBox(width: widget.cart.product!.imageFullUrl != null ? Dimensions.paddingSizeSmall : 0),
 
                             Expanded(
                               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.center, children: [
                                 Row(children: [
                                   Flexible(
                                     child: Text(
-                                      cart.product!.name!,
+                                      widget.cart.product!.name!,
                                       style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall),
-                                      maxLines: 2, overflow: TextOverflow.ellipsis,
+                                      maxLines: 1, overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
                                   CustomAssetImageWidget(
-                                    cart.product!.veg == 0 ? Images.nonVegImage : Images.vegImage,
+                                    widget.cart.product!.veg == 0 ? Images.nonVegImage : Images.vegImage,
                                     height: 11, width: 11,
                                   ),
 
-                                  SizedBox(width: cart.product!.isRestaurantHalalActive! && cart.product!.isHalalFood! ? Dimensions.paddingSizeExtraSmall : 0),
+                                  SizedBox(width: widget.cart.product!.isRestaurantHalalActive! && widget.cart.product!.isHalalFood! ? Dimensions.paddingSizeExtraSmall : 0),
 
-                                  cart.product!.isRestaurantHalalActive! && cart.product!.isHalalFood! ? const CustomAssetImageWidget(
+                                  widget.cart.product!.isRestaurantHalalActive! && widget.cart.product!.isHalalFood! ? const CustomAssetImageWidget(
                                    Images.halalIcon, height: 13, width: 13) : const SizedBox(),
 
                                 ]),
@@ -134,18 +144,84 @@ class CartProductWidget extends StatelessWidget {
                                 Wrap(
                                   children: [
                                     Text(
-                                      PriceConverter.convertPrice(cart.product!.price, discount: discount, discountType: discountType),
+                                      PriceConverter.convertPrice(widget.cart.product!.price, discount: discount, discountType: discountType),
                                       style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall), textDirection: TextDirection.ltr,
                                     ),
                                     SizedBox(width: discount! > 0 ? Dimensions.paddingSizeExtraSmall : 0),
 
                                     discount > 0 ? Text(
-                                      PriceConverter.convertPrice(cart.product!.price), textDirection: TextDirection.ltr,
+                                      PriceConverter.convertPrice(widget.cart.product!.price), textDirection: TextDirection.ltr,
                                       style: robotoMedium.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall, decoration: TextDecoration.lineThrough),
                                     ) : const SizedBox(),
                                   ],
                                 ),
 
+                                addOnText.isNotEmpty || variationText.isNotEmpty ? InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      showAddonsVariations = !showAddonsVariations;
+                                    });
+                                  },
+                                  child: Row(spacing: Dimensions.paddingSizeExtraSmall, children: [
+                                    Text('${variationCount > 0 ? '$variationCount ${'variations'.tr}' : ''}'
+                                        '${addonCount > 0 ? ', $addonCount ${'addons'.tr}' : ''}',
+                                      style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).disabledColor),
+                                    ),
+
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: Colors.grey.shade200,
+                                      ),
+                                      child: Icon(
+                                        showAddonsVariations ? Icons.keyboard_arrow_up_outlined : Icons.keyboard_arrow_down_outlined,
+                                        size: 20, color: showAddonsVariations ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
+                                      ),
+                                    ),
+                                  ]),
+                                ) : const SizedBox(),
+
+                              ]),
+                            ),
+
+                            GetBuilder<CartController>(builder: (cartController) {
+                              return Padding(
+                                padding: EdgeInsets.only(top: widget.cart.product!.imageFullUrl == null ? Dimensions.paddingSizeSmall-2 : Dimensions.paddingSizeDefault+2),
+                                child: Row(children: [
+
+                                  QuantityButton(
+                                    onTap: cartController.isLoading ? () {} : () {
+                                      if (widget.cart.quantity! > 1) {
+                                        cartController.setQuantity(false, widget.cart);
+                                      }else {
+                                        cartController.removeFromCart(widget.cartIndex);
+                                      }
+                                    },
+                                    isIncrement: false,
+                                    showRemoveIcon: widget.cart.quantity! == 1,
+                                  ),
+
+                                   AnimatedFlipCounter(
+                                    duration: const Duration(milliseconds: 500),
+                                    value: widget.cart.quantity!.toDouble(),
+                                    textStyle: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraLarge),
+                                  ),
+
+                                  QuantityButton(
+                                    onTap: cartController.isLoading ? (){} : () => cartController.setQuantity(true, widget.cart),
+                                    isIncrement: true,
+                                    color: cartController.isLoading ? Theme.of(context).disabledColor : null,
+                                  ),
+                                ]),
+                              );
+                            }),
+
+                          ]),
+
+                          if(showAddonsVariations)
+                            Padding(
+                              padding: EdgeInsets.only(left: ResponsiveHelper.isDesktop(context) ? 100 : 70),
+                              child: Column(children: [
                                 addOnText.isNotEmpty ? Padding(
                                   padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall),
                                   child: Row(children: [
@@ -167,43 +243,8 @@ class CartProductWidget extends StatelessWidget {
                                     )),
                                   ]),
                                 ) : const SizedBox(),
-
                               ]),
                             ),
-
-                            GetBuilder<CartController>(builder: (cartController) {
-                              return Padding(
-                                padding: EdgeInsets.only(top: cart.product!.imageFullUrl == null ? Dimensions.paddingSizeSmall-2 : Dimensions.paddingSizeDefault+2),
-                                child: Row(children: [
-
-                                  QuantityButton(
-                                    onTap: cartController.isLoading ? () {} : () {
-                                      if (cart.quantity! > 1) {
-                                        cartController.setQuantity(false, cart);
-                                      }else {
-                                        cartController.removeFromCart(cartIndex);
-                                      }
-                                    },
-                                    isIncrement: false,
-                                    showRemoveIcon: cart.quantity! == 1,
-                                  ),
-
-                                   AnimatedFlipCounter(
-                                    duration: const Duration(milliseconds: 500),
-                                    value: cart.quantity!.toDouble(),
-                                    textStyle: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraLarge),
-                                  ),
-
-                                  QuantityButton(
-                                    onTap: cartController.isLoading ? (){} : () => cartController.setQuantity(true, cart),
-                                    isIncrement: true,
-                                    color: cartController.isLoading ? Theme.of(context).disabledColor : null,
-                                  ),
-                                ]),
-                              );
-                            }),
-
-                          ]),
 
 
                           ResponsiveHelper.isDesktop(context) ? const Padding(
@@ -221,7 +262,7 @@ class CartProductWidget extends StatelessWidget {
           ),
         ),
 
-        isRestaurantOpen ? const SizedBox() : Positioned(
+        widget.isRestaurantOpen ? const SizedBox() : Positioned(
           left: 0, right: 0, bottom: 0, top: 0,
           child: Container(
             decoration: BoxDecoration(

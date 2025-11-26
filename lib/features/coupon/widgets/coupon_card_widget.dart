@@ -57,7 +57,7 @@ class CouponCardWidget extends StatelessWidget {
                 Image.asset(
                   couponList![index].discountType == 'percent' ? Images.percentCouponOffer : couponList![index].couponType
                       == 'free_delivery' ? Images.freeDelivery : Images.money,
-                  height: 25, width: 25, //color: unavailable ? Theme.of(context).disabledColor.withValues(alpha: 0.05) : null,
+                  height: 25, width: 25,
                 ),
                 const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
@@ -76,7 +76,7 @@ class CouponCardWidget extends StatelessWidget {
                   maxLines: 2, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,
                 )) : Flexible(child: Text(
                   couponList![index].couponType == 'default' ?
-                  '${couponList![index].restaurant!.name}' : '',
+                  '${couponList![index].restaurant!.name}' : couponList![index].couponType == 'restaurant_wise' ? '${couponList![index].restaurant!.name}' : '',
                   style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).disabledColor),
                   maxLines: 1, overflow: TextOverflow.ellipsis,
                 )),

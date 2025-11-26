@@ -47,8 +47,8 @@ class CheckoutRepository implements CheckoutRepositoryInterface {
   }
 
   @override
-  Future<bool> saveOfflineInfo(String data) async {
-    Response response = await apiClient.postData(AppConstants.offlinePaymentSaveInfoUri, jsonDecode(data));
+  Future<bool> saveOfflineInfo(String data, String? guestId) async {
+    Response response = await apiClient.postData('${AppConstants.offlinePaymentSaveInfoUri}/${guestId != null ? '?guest_id=$guestId' : ''}', jsonDecode(data));
     return (response.statusCode == 200);
   }
 
@@ -74,14 +74,14 @@ class CheckoutRepository implements CheckoutRepositoryInterface {
   }
 
   @override
-  Future<bool> updateOfflineInfo(String data) async {
-    Response response = await apiClient.postData(AppConstants.offlinePaymentUpdateInfoUri, jsonDecode(data));
+  Future<bool> updateOfflineInfo(String data, String? guestId) async {
+    Response response = await apiClient.postData('${AppConstants.offlinePaymentUpdateInfoUri}${guestId != null ? '?guest_id=$guestId' : ''}', jsonDecode(data));
     return (response.statusCode == 200);
   }
 
   @override
-  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data}) async {
-    Response response = await apiClient.postData(AppConstants.checkRestaurantValidation, data, handleError: false);
+  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data, String? guestId}) async {
+    Response response = await apiClient.postData('${AppConstants.checkRestaurantValidation}${guestId != null ? '?guest_id=$guestId' : ''}', data, handleError: false);
     return (response.statusCode == 200);
   }
 

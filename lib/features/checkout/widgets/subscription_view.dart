@@ -41,9 +41,9 @@ class SubscriptionView extends StatelessWidget {
 
             Container(
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                  color: Theme.of(context).cardColor,
-                  border: Border.all(color: Theme.of(context).primaryColor, width: 0.3)
+                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                color: Theme.of(context).cardColor,
+                border: Border.all(color: Theme.of(context).primaryColor, width: 0.3),
               ),
               child: CustomDropdown<int>(
                 onChange: (int? value, int index) {
@@ -124,57 +124,56 @@ class SubscriptionView extends StatelessWidget {
       SizedBox(height: checkoutController.subscriptionType != 'daily' ? Dimensions.paddingSizeSmall : 0),
 
       checkoutController.subscriptionType != 'daily' ? SizedBox(child: GridView.builder(
-          key: UniqueKey(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisSpacing: Dimensions.paddingSizeSmall,
-            mainAxisSpacing: Dimensions.paddingSizeSmall,
-            childAspectRatio: ResponsiveHelper.isDesktop(context) ? 2 : 1.5,
-            crossAxisCount: ResponsiveHelper.isDesktop(context) ? 7 : 5,
-          ),
-          physics: const NeverScrollableScrollPhysics(),
-          shrinkWrap: true,
-          itemCount: checkoutController.subscriptionType == 'weekly' ? 7
-              : checkoutController.subscriptionType == 'monthly' ? 31 : 0,
-          itemBuilder: (context, index) {
-            bool isSelected = checkoutController.selectedDays[index] != null;
+        key: UniqueKey(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisSpacing: Dimensions.paddingSizeSmall,
+          mainAxisSpacing: Dimensions.paddingSizeSmall,
+          childAspectRatio: ResponsiveHelper.isDesktop(context) ? 2 : 1.5,
+          crossAxisCount: ResponsiveHelper.isDesktop(context) ? 7 : 5,
+        ),
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemCount: checkoutController.subscriptionType == 'weekly' ? 7 : checkoutController.subscriptionType == 'monthly' ? 31 : 0,
+        itemBuilder: (context, index) {
+          bool isSelected = checkoutController.selectedDays[index] != null;
 
-            return InkWell(
-              onTap: () async {
-                if(checkoutController.selectedDays[index] != null) {
-                  checkoutController.addDay(index, null);
-                }else {
-                  TimeOfDay? time = await showTimePicker(context: context, initialTime: const TimeOfDay(hour: 0, minute: 0));
-                  if(time != null) {
-                    checkoutController.addDay(index, time);
-                  }
+          return InkWell(
+            onTap: () async {
+              if(checkoutController.selectedDays[index] != null) {
+                checkoutController.addDay(index, null);
+              }else {
+                TimeOfDay? time = await showTimePicker(context: context, initialTime: const TimeOfDay(hour: 0, minute: 0));
+                if(time != null) {
+                  checkoutController.addDay(index, time);
                 }
-              },
-              child: Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.symmetric(horizontal: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeExtraSmall : 1),
-                decoration: BoxDecoration(
-                  color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.surface,
-                  borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                ),
-                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-                  Text(
-                    checkoutController.subscriptionType == 'monthly' ? '${'day'.tr} : ${index + 1}'
-                        : checkoutController.subscriptionType == 'weekly' ? weekDays[index].tr : '',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: robotoRegular.copyWith(color: isSelected ? Colors.white : Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
-                  ),
-                  SizedBox(height: isSelected ? 2 : 0),
-                  isSelected ? Text(
-                    DateConverter.dateToTimeOnly(checkoutController.selectedDays[index]!),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: robotoRegular.copyWith(color: isSelected ? Colors.white : Theme.of(context).hintColor, fontSize: Dimensions.fontSizeExtraSmall),
-                  ) : const SizedBox(),
-                ]),
+              }
+            },
+            child: Container(
+              alignment: Alignment.center,
+              padding: EdgeInsets.symmetric(horizontal: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeExtraSmall : 1),
+              decoration: BoxDecoration(
+                color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
               ),
-            );
-          }),
+              child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Text(
+                  checkoutController.subscriptionType == 'monthly' ? '${'day'.tr} : ${index + 1}'
+                      : checkoutController.subscriptionType == 'weekly' ? weekDays[index].tr : '',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: robotoRegular.copyWith(color: isSelected ? Colors.white : Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall),
+                ),
+                SizedBox(height: isSelected ? 2 : 0),
+                isSelected ? Text(
+                  DateConverter.dateToTimeOnly(checkoutController.selectedDays[index]!),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: robotoRegular.copyWith(color: isSelected ? Colors.white : Theme.of(context).hintColor, fontSize: Dimensions.fontSizeExtraSmall),
+                ) : const SizedBox(),
+              ]),
+            ),
+          );
+        }),
       ) : const SizedBox(),
     ]);
   }

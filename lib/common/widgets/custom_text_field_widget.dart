@@ -49,6 +49,7 @@ class CustomTextFieldWidget extends StatefulWidget {
   final String? suffixImage;
   final Function()? suffixOnPressed;
   final Function()? onTap;
+  final int? maxLength;
 
   const CustomTextFieldWidget({
     super.key,
@@ -91,6 +92,7 @@ class CustomTextFieldWidget extends StatefulWidget {
     this.suffixOnPressed,
     this.suffixImage,
     this.onTap,
+    this.maxLength,
   });
 
   @override
@@ -171,6 +173,10 @@ class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
                 borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                 borderSide: BorderSide(style: widget.showBorder ? BorderStyle.solid : BorderStyle.none, color: Theme.of(context).colorScheme.error),
               ),
+              disabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                borderSide: BorderSide(style: widget.showBorder ? BorderStyle.solid : BorderStyle.none, width: 0.3, color: Theme.of(context).disabledColor),
+              ),
               isDense: true,
               hintText: widget.hintText.isEmpty ? widget.titleText : widget.hintText,
               fillColor: !widget.isEnabled ? Theme.of(context).disabledColor.withValues(alpha: 0.1) : Theme.of(context).cardColor,
@@ -243,6 +249,7 @@ class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
                 : widget.onSubmit != null ? widget.onSubmit!(text) : null,
             onChanged: widget.onChanged as void Function(String)?,
             onTap: widget.onTap,
+            maxLength: widget.maxLength,
           ),
         ),
 

@@ -56,7 +56,7 @@ class BannerViewWidget extends StatelessWidget {
                     }else if(homeController.bannerDataList![index] is Restaurant) {
                       Restaurant restaurant = homeController.bannerDataList![index];
                       Get.toNamed(
-                        RouteHelper.getRestaurantRoute(restaurant.id),
+                        RouteHelper.getRestaurantRoute(restaurant.id, slug: restaurant.slug ?? ''),
                         arguments: RestaurantScreen(restaurant: restaurant),
                       );
                     }else if(homeController.bannerDataList![index] is BasicCampaignModel) {
@@ -67,11 +67,11 @@ class BannerViewWidget extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
-                      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                      borderRadius: BorderRadius.circular(Dimensions.radiusMedium),
                       boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 2, offset: const Offset(0, 1))],
                     ),
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                      borderRadius: BorderRadius.circular(Dimensions.radiusMedium),
                       child: GetBuilder<SplashController>(builder: (splashController) {
                         return CustomImageWidget(
                           image: '${homeController.bannerImageList![index]}',
@@ -94,9 +94,9 @@ class BannerViewWidget extends StatelessWidget {
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 3),
                   child: index == homeController.currentIndex ? Container(
-                    decoration: BoxDecoration(color: Theme.of(context).primaryColor, borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
-                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
-                    child: Text('${(index) + 1}/$totalBanner', style: robotoRegular.copyWith(color: Colors.white, fontSize: 12)),
+                    decoration: BoxDecoration(color: Theme.of(context).primaryColor.withValues(alpha: 0.6), borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),
+                    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                    child: Text('${(index) + 1}/$totalBanner', style: robotoMedium.copyWith(color: Colors.white, fontSize: 12)),
                   ) : Container(
                     height: 4.18, width: 5.57,
                     decoration: BoxDecoration(color: Theme.of(context).primaryColor.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(Dimensions.radiusDefault)),

@@ -127,9 +127,11 @@ class Product {
     }
     if (json['variations'] != null) {
       variations = [];
-      json['variations'].forEach((v) {
-        variations!.add(Variation.fromJson(v));
-      });
+      if(json['variations'] != null && json['variations'].length > 0 && json['variations'][0] != '[') {
+        json['variations'].forEach((v) {
+          variations!.add(Variation.fromJson(v));
+        });
+      }
     }
     if (json['add_ons'] != null) {
       addOns = [];

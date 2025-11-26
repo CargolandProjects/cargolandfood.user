@@ -1,13 +1,19 @@
+import 'package:stackfood_multivendor/common/enums/order_status.dart';
+import 'package:stackfood_multivendor/common/enums/order_type.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_ink_well_widget.dart';
 import 'package:stackfood_multivendor/features/order/controllers/order_controller.dart';
+import 'package:stackfood_multivendor/features/order/domain/models/order_details_model.dart';
 import 'package:stackfood_multivendor/features/order/screens/order_details_screen.dart';
 import 'package:stackfood_multivendor/features/order/widgets/order_shimmer_widget.dart';
 import 'package:stackfood_multivendor/features/order/domain/models/order_model.dart';
+import 'package:stackfood_multivendor/features/review/domain/models/rate_review_model.dart';
+import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
+import 'package:stackfood_multivendor/helper/color_coverter.dart';
 import 'package:stackfood_multivendor/helper/date_converter.dart';
+import 'package:stackfood_multivendor/helper/price_converter.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
-import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_image_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/footer_view_widget.dart';
@@ -22,10 +28,11 @@ class OrderViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    
     final ScrollController scrollController = ScrollController();
-
+    bool isDeskTop = ResponsiveHelper.isDesktop(context);
+    
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
       body: GetBuilder<OrderController>(builder: (orderController) {
         List<OrderModel>? orderList;
         bool paginate = false;
@@ -47,8 +54,7 @@ class OrderViewWidget extends StatelessWidget {
                 Get.find<OrderController>().getRunningOrders(offset+1, limit: 10);
               } else if(isSubscription){
                 Get.find<OrderController>().getRunningSubscriptionOrders(offset+1);
-              }
-              else {
+              } else {
                 Get.find<OrderController>().getHistoryOrders(offset+1);
               }
             }
@@ -59,6 +65,8 @@ class OrderViewWidget extends StatelessWidget {
           onRefresh: () async {
             if(isRunning) {
               await orderController.getRunningOrders(1);
+            }else if(isSubscription){
+              await orderController.getRunningSubscriptionOrders(1);
             }else {
               await orderController.getHistoryOrders(1);
             }
@@ -69,160 +77,245 @@ class OrderViewWidget extends StatelessWidget {
             child: Center(child: FooterViewWidget(
               child: SizedBox(
                 width: Dimensions.webMaxWidth,
-                child: Column(
-                  children: [
-                    GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisSpacing: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeLarge,
-                        mainAxisSpacing: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeSmall : 0,
-                        crossAxisCount: ResponsiveHelper.isMobile(context) ? 1 : 2,
-                        mainAxisExtent: ResponsiveHelper.isDesktop(context) ? 130 : 115,
-                      ),
-                      padding: ResponsiveHelper.isDesktop(context) ? const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge) : const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                      itemCount: orderList.length,
-                      physics: const NeverScrollableScrollPhysics(),
-                      shrinkWrap: true,
-                      itemBuilder: (context, index) {
+                child: Column(children: [
+                  GridView.builder(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisSpacing: isDeskTop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeLarge,
+                      mainAxisSpacing: isDeskTop ? Dimensions.paddingSizeSmall : 0,
+                      crossAxisCount: isDeskTop ? 2 : 1,
+                      mainAxisExtent: isDeskTop ? 195 : 175
+                    ),
+                    padding: isDeskTop ? const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeLarge) : const EdgeInsets.all(Dimensions.paddingSizeSmall),
+                    itemCount: orderList.length,
+                    physics: const NeverScrollableScrollPhysics(),
+                    shrinkWrap: true,
+                    itemBuilder: (context, index) {
 
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                              boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
-                            ),
-                            child: CustomInkWellWidget(
-                              onTap: () {
-                                Get.toNamed(
-                                  RouteHelper.getOrderDetailsRoute(orderList![index].id),
-                                  arguments: OrderDetailsScreen(orderId: orderList[index].id, orderModel: orderList[index]),
-                                );
-                              },
-                              radius: Dimensions.radiusDefault,
-                              child: Padding(
+                      String dineInOrderStatus = '';
+                      String? orderStatus = orderList![index].orderStatus;
+                      bool isDineIn = orderList[index].orderType == OrderType.dine_in.name;
+                      bool isDelivery = orderList[index].orderType == OrderType.delivery.name;
+                      bool delivered = orderList[index].orderStatus == OrderStatus.delivered.name;
+                      bool cancelled = orderList[index].orderStatus == OrderStatus.canceled.name;
+                      bool failed = orderList[index].orderStatus == OrderStatus.failed.name;
+                      bool refundRequestCanceled = orderList[index].orderStatus == OrderStatus.refund_request_canceled.name;
+
+                      if(isDineIn) {
+                        dineInOrderStatus = orderStatus == OrderStatus.processing.name ? 'cooking'.tr
+                          : orderStatus == OrderStatus.handover.name ? 'ready_to_serve'.tr
+                          : orderStatus == OrderStatus.pending.name ? 'pending'.tr
+                          : orderStatus == OrderStatus.canceled.name ? 'canceled'.tr
+                          : orderStatus == OrderStatus.confirmed.name ? 'confirmed'.tr
+                          : 'served'.tr;
+                      }
+
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                            boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
+                            border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.3)),
+                          ),
+                          child: CustomInkWellWidget(
+                            onTap: () {
+                              Get.toNamed(
+                                RouteHelper.getOrderDetailsRoute(orderList![index].id),
+                                arguments: OrderDetailsScreen(orderId: orderList[index].id, orderModel: orderList[index]),
+                              );
+                            },
+                            radius: Dimensions.radiusDefault,
+                            child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+
+                              Padding(
                                 padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                                child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+                                child: Column(
+                                  children: [
+                                    Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-                                  Row(children: [
-
-                                    Container(
-                                      padding: const EdgeInsets.all(1),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                      ),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                        child: CustomImageWidget(
-                                          image: '${orderList![index].restaurant != null ? orderList[index].restaurant!.logoFullUrl : ''}',
-                                          height: 80, width: 80, fit: BoxFit.cover, isRestaurant: true,
+                                      Container(
+                                        padding: const EdgeInsets.all(1),
+                                        decoration: BoxDecoration(
+                                          color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
                                         ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                                    Expanded(
-                                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-
-                                        Text('${'order'.tr} # ${orderList[index].id}', style: robotoBold),
-                                        const SizedBox(height: Dimensions.paddingSizeExtraSmall),
-
-                                        Text(
-                                          DateConverter.dateTimeStringToDateTimeToLines(orderList[index].createdAt!),
-                                          style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
-                                        ),
-
-                                      ]),
-                                    ),
-                                    const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                                  Row(crossAxisAlignment: CrossAxisAlignment.end, mainAxisAlignment: MainAxisAlignment.center, children: [
-
-                                      isRunning || isSubscription ? Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-
-                                        Builder(
-                                          builder: (context) {
-                                            String? status = orderList![index].orderStatus;
-                                            bool isDineIn = orderList[index].orderType == 'dine_in';
-                                            if(isDineIn) {
-                                              status = orderList[index].orderStatus == 'processing' ? 'cooking'.tr
-                                                  : orderList[index].orderStatus == 'handover' ? 'ready_to_serve'.tr
-                                                  : orderList[index].orderStatus == 'pending' ? 'pending'.tr
-                                                  : orderList[index].orderStatus == 'canceled' ? 'canceled'.tr
-                                                  : orderList[index].orderStatus == 'confirmed' ? 'confirmed'.tr
-                                                  : 'served'.tr;
-                                            }
-                                            return Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
-                                              margin: EdgeInsets.only(bottom: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeOverLarge : Dimensions.paddingSizeDefault),
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                                color: orderList[index].orderStatus == 'pending' || orderList[index].orderStatus == 'processing' ? Colors.blue.withValues(alpha: 0.15) : orderList[index].orderStatus == 'accepted'
-                                                    || orderList[index].orderStatus == 'confirmed' || orderList[index].orderStatus == 'handover' ? Colors.green.withValues(alpha: 0.15) : Theme.of(context).primaryColor.withValues(alpha: 0.15),
-                                              ),
-                                              child: Text(isDineIn ? status??'' : orderList[index].orderStatus!.tr, style: robotoMedium.copyWith(
-                                                fontSize: Dimensions.fontSizeExtraSmall, color: orderList[index].orderStatus == 'pending' || orderList[index].orderStatus == 'processing' ? Colors.blue : orderList[index].orderStatus == 'accepted'
-                                                  || orderList[index].orderStatus == 'confirmed' || orderList[index].orderStatus == 'handover' ? Colors.green : Theme.of(context).primaryColor,
-                                              )),
-                                            );
-                                          }
-                                        ),
-
-                                        orderList[index].orderType == 'delivery' ? InkWell(
-                                          onTap: () => Get.toNamed(RouteHelper.getOrderTrackingRoute(orderList![index].id, null)),
-                                          child: Container(
-                                            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: 7),
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                              color: Theme.of(context).primaryColor,
-                                              border: Border.all(width: 1, color: Theme.of(context).primaryColor),
-                                            ),
-                                            child: Row(children: [
-                                              Text('track_order'.tr, style: robotoMedium.copyWith(
-                                                fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).cardColor,
-                                              )),
-                                              const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-                                              Image.asset(Images.tracking, height: 20, width: 20, color: Theme.of(context).cardColor),
-                                            ]),
+                                        child: ClipRRect(
+                                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                          child: CustomImageWidget(
+                                            image: orderList[index].restaurant?.logoFullUrl ?? '',
+                                            height: 40, width: 40, fit: BoxFit.cover, isRestaurant: true,
                                           ),
-                                        ) : const SizedBox(),
-                                      ]) : Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                                        ),
+                                      ),
+                                      const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
-                                          margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeOverLarge),
-                                          decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                            color: orderList[index].orderStatus == 'delivered' ? Colors.green.withValues(alpha: 0.15) : Colors.red.withValues(alpha: 0.15),
+                                      Expanded(
+                                        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
+                                          Text('${'order'.tr} # ${orderList[index].id}', style: robotoBold),
+                                          const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+
+                                          Text(
+                                            DateConverter.dateTimeStringToDateTimeToLines(orderList[index].createdAt!),
+                                            style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall),
                                           ),
-                                          child: Text(orderList[index].orderStatus!.tr, style: robotoMedium.copyWith(
-                                            fontSize: Dimensions.fontSizeExtraSmall, color: orderList[index].orderStatus == 'delivered' ? Colors.green : Colors.red,
-                                          )),
-                                        ),
 
-                                        Text(
-                                          '${orderList[index].detailsCount} ${orderList[index].detailsCount! > 1 ? 'items'.tr : 'item'.tr}',
-                                          style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
-                                        ),
+                                        ]),
+                                      ),
 
-                                      ]),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
+                                        margin: EdgeInsets.only(bottom: isDeskTop ? Dimensions.paddingSizeOverLarge : Dimensions.paddingSizeDefault),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                          color: ColorConverter.getStatusColor(orderStatus!).withValues(alpha: 0.15),
+                                        ),
+                                        child: Text(
+                                          isDineIn ? dineInOrderStatus : orderStatus.tr,
+                                          style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: ColorConverter.getStatusColor(orderStatus)),
+                                        ),
+                                      ),
+
                                     ]),
+                                    SizedBox(height: Dimensions.paddingSizeDefault),
+
+                                    Row(children: [
+
+                                      Expanded(
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(Dimensions.radiusExtraLarge),
+                                                color: Theme.of(context).disabledColor.withValues(alpha: 0.15),
+                                              ),
+                                              child: Text(
+                                                '${orderList[index].detailsCount} ${orderList[index].detailsCount! > 1 ? 'items'.tr : 'item'.tr}',
+                                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      SizedBox(width: Dimensions.paddingSizeLarge),
+
+                                      Expanded(
+                                        child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+
+                                          Icon(Icons.storefront_rounded, size: 20, color: Theme.of(context).disabledColor.withValues(alpha: 0.6)),
+                                          SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                                          Flexible(
+                                            child: Text(
+                                              orderList[index].restaurant?.name ?? '',
+                                              style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
+                                              overflow: TextOverflow.ellipsis, maxLines: 1,
+                                            ),
+                                          ),
+
+                                        ]),
+                                      ),
+
+                                    ]),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(height: Dimensions.paddingSizeExtraSmall),
+
+                              Container(
+                                padding: EdgeInsets.all(Dimensions.paddingSizeSmall),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).disabledColor.withValues(alpha: 0.07),
+                                  borderRadius: BorderRadius.only(bottomLeft: Radius.circular(Dimensions.radiusDefault), bottomRight: Radius.circular(Dimensions.radiusDefault)),
+                                ),
+                                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+
+                                  Text(
+                                    PriceConverter.convertPrice(orderList[index].orderAmount),
+                                    style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge),
+                                  ),
+
+                                  (isRunning || isSubscription) ? isDelivery ? InkWell(
+                                    onTap: () => Get.toNamed(RouteHelper.getOrderTrackingRoute(orderList![index].id, null)),
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: 7),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(Dimensions.radiusMedium),
+                                        color: Theme.of(context).primaryColor,
+                                        border: Border.all(width: 1, color: Theme.of(context).primaryColor),
+                                      ),
+                                      child: Text('track_order'.tr, style: robotoMedium.copyWith(
+                                        fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).cardColor,
+                                      )),
+                                    ),
+                                  ) : const SizedBox() : Row(children: [
+
+                                    (!isSubscription && delivered && orderList[index].itemCampaignId == null) ? InkWell(
+                                      onTap: () async {
+                                        await Get.find<OrderController>().getOrderDetails(orderList![index].id.toString());
+
+                                        List<OrderDetailsModel> orderDetailsList = [];
+                                        List<int?> orderDetailsIdList = [];
+                                        for (var orderDetail in orderController.orderDetails!) {
+                                          if(!orderDetailsIdList.contains(orderDetail.foodDetails!.id)) {
+                                            orderDetailsList.add(orderDetail);
+                                            orderDetailsIdList.add(orderDetail.foodDetails!.id);
+                                          }
+                                        }
+                                        orderController.cancelTimer();
+                                        RateReviewModel rateReviewModel = RateReviewModel(orderDetailsList: orderDetailsList, deliveryMan: orderList[index].deliveryMan);
+                                        await Get.toNamed(RouteHelper.getReviewRoute(rateReviewModel));
+                                        orderController.callTrackOrderApi(orderModel: orderList[index], orderId: orderList[index].id.toString(), contactNumber: orderList[index].deliveryAddress?.contactPersonNumber);
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: 7),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(Dimensions.radiusMedium),
+                                          color: Theme.of(context).disabledColor.withValues(alpha: 0.2),
+                                        ),
+                                        child: Text('give_review'.tr, style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall)),
+                                      ),
+                                    ) : SizedBox(),
+                                    SizedBox(width: (!isSubscription && delivered && orderList[index].itemCampaignId == null) ? Dimensions.paddingSizeSmall : 0),
+
+                                    !isSubscription && Get.find<SplashController>().configModel!.repeatOrderOption! && (delivered || cancelled || failed || refundRequestCanceled)
+                                        ? orderList[index].itemCampaignId == null ? InkWell(
+                                      onTap: () async {
+                                        await Get.find<OrderController>().getOrderDetails(orderList![index].id.toString());
+                                        orderController.reOrder(orderController.orderDetails!, orderList[index].restaurant!.zoneId);
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: 7),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(Dimensions.radiusMedium),
+                                          color: Theme.of(context).primaryColor,
+                                          border: Border.all(width: 1, color: Theme.of(context).primaryColor),
+                                        ),
+                                        child: Text('buy_again'.tr, style: robotoMedium.copyWith(
+                                          fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).cardColor,
+                                        )),
+                                      ),
+                                    ) : SizedBox() : SizedBox(),
 
                                   ]),
 
                                 ]),
                               ),
-                            ),
+
+                            ]),
                           ),
-                        );
-                      },
-                    ),
-                    paginate ? const Center(child: Padding(
-                      padding: EdgeInsets.all(Dimensions.paddingSizeSmall),
-                      child: CircularProgressIndicator(),
-                    )) : const SizedBox(),
-                  ],
-                ),
+                        ),
+                      );
+                    },
+                  ),
+
+                  paginate ? const Center(child: Padding(
+                    padding: EdgeInsets.all(Dimensions.paddingSizeSmall),
+                    child: CircularProgressIndicator(),
+                  )) : const SizedBox(),
+                ]),
               ),
             )),
           ),

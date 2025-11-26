@@ -52,7 +52,7 @@ class NewOnStackFoodViewWidget extends StatelessWidget {
                           child: InkWell(
                             onTap: () {
                               Get.toNamed(
-                                RouteHelper.getRestaurantRoute(restController.latestRestaurantList![index].id),
+                                RouteHelper.getRestaurantRoute(restController.latestRestaurantList![index].id, slug: restController.latestRestaurantList![index].slug ?? ''),
                                 arguments: RestaurantScreen(restaurant: restController.latestRestaurantList![index]),
                               );
                             },

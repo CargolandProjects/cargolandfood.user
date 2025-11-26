@@ -14,7 +14,9 @@ import 'package:pointer_interceptor/pointer_interceptor.dart';
 class SubscriptionPauseDialog extends StatefulWidget {
   final int? subscriptionID;
   final bool isPause;
-  const SubscriptionPauseDialog({super.key, required this.subscriptionID, required this.isPause});
+  final String? orderId;
+  final String? contactNumber;
+  const SubscriptionPauseDialog({super.key, required this.subscriptionID, required this.isPause, this.orderId, this.contactNumber});
 
   @override
   State<SubscriptionPauseDialog> createState() => _SubscriptionPauseDialogState();
@@ -110,11 +112,11 @@ class _SubscriptionPauseDialogState extends State<SubscriptionPauseDialog> {
                     },
                   ) : CustomTextFieldWidget(
                     hintText: 'write_cancellation_reason'.tr,
+                    showLabelText: false,
                     controller: _noteController,
                     maxLines: 3,
                     inputType: TextInputType.multiline,
                     inputAction: TextInputAction.newline,
-                   // fillColor: Theme.of(context).disabledColor.withValues(alpha: 0.1),
                   ),
                   const SizedBox(height: Dimensions.paddingSizeLarge),
 
@@ -144,6 +146,7 @@ class _SubscriptionPauseDialogState extends State<SubscriptionPauseDialog> {
                             orderController.updateSubscriptionStatus(
                               widget.subscriptionID, _range?.start, _range?.end,
                               widget.isPause ? 'paused' : 'canceled', _noteController.text.trim(), _reasons[orderController.cancellationIndex!].reason,
+                              widget.orderId, widget.contactNumber,
                             );
                           }
                         },

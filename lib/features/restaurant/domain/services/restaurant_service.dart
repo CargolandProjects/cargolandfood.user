@@ -23,7 +23,7 @@ class RestaurantService implements RestaurantServiceInterface {
     double distance = 0;
     distance = Geolocator.distanceBetween(
         restaurantLatLng.latitude, restaurantLatLng.longitude,
-        double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!), double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!)
+        double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'), double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0')
     ) / 1000;
 
     return distance;
@@ -40,11 +40,7 @@ class RestaurantService implements RestaurantServiceInterface {
         replace = '${routes[0]}/$restaurantId?restaurant_zone_id=$restaurantZoneId';
       }
     } else {
-      if (slug.isNotEmpty) {
-        replace = '${routes[0]}?slug=$slug';
-      } else {
-        replace = '${routes[0]}?slug=$restaurantId';
-      }
+      replace = '${routes[0]}?id=$restaurantId';
     }
     return replace;
   }

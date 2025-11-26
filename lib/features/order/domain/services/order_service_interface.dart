@@ -30,7 +30,7 @@ abstract class OrderServiceInterface {
   Future<List<String?>?> getRefundReasons();
   Map<String, String> prepareReasonData(String note, String? orderId, String reason);
   Future<ResponseModel> submitRefundRequest(Map<String, String> body, XFile? data, String? guestId);
-  Future<ResponseModel> cancelOrder(String orderID, String? reason);
+  Future<ResponseModel> cancelOrder(String orderID, String? reason, String? comment);
   OrderModel? findOrder(List<OrderModel>? runningOrderList, int? orderID);
   Future<PaginatedDeliveryLogModel?> getSubscriptionDeliveryLog(int? subscriptionID, int offset);
   Future<PaginatedPauseLogModel?> getSubscriptionPauseLog(int? subscriptionID, int offset);

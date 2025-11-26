@@ -100,9 +100,8 @@ class LabelPaint extends CustomPainter {
     path_1.close();
 
     Paint paint1Fill = Paint()..style=PaintingStyle.fill;
-    paint1Fill.color = Theme.of(Get.context!).primaryColor;
+    paint1Fill.color = Color(0xffE72E00);
     canvas.drawPath(path_1,paint1Fill);
-
   }
 
   @override

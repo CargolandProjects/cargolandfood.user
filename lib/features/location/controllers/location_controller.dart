@@ -62,6 +62,14 @@ class LocationController extends GetxController implements GetxService {
   bool _updateAddressData = true;
   bool _changeAddress = true;
 
+  bool _isCameraMoving = false;
+  bool get isCameraMoving => _isCameraMoving;
+
+  void updateCameraMovingStatus(bool status){
+    _isCameraMoving = status;
+    update();
+  }
+
   Future<AddressModel> getCurrentLocation(bool fromAddress, {GoogleMapController? mapController, LatLng? defaultLatLng, bool notify = true, bool showSnackBar = false}) async {
     _loading = true;
     if(notify) {
@@ -163,11 +171,11 @@ class LocationController extends GetxController implements GetxService {
     }
   }
 
-  void saveAddressAndNavigate(AddressModel address, bool fromSignUp, String? route, bool canRoute, bool isDesktop) {
-    _prepareZoneData(address, fromSignUp, route, canRoute, isDesktop);
+  void saveAddressAndNavigate(AddressModel address, bool fromSignUp, String? route, bool canRoute, bool isDesktop, {int? restaurantId}) {
+    _prepareZoneData(address, fromSignUp, route, canRoute, isDesktop, restaurantId: restaurantId);
   }
 
-  void _prepareZoneData(AddressModel address, bool fromSignUp, String? route, bool canRoute, bool isDesktop) {
+  void _prepareZoneData(AddressModel address, bool fromSignUp, String? route, bool canRoute, bool isDesktop, {int? restaurantId}) {
     getZone(address.latitude, address.longitude, false).then((response) async {
       if (response.isSuccess) {
         Get.find<CartController>().getCartDataOnline();
@@ -176,7 +184,7 @@ class LocationController extends GetxController implements GetxService {
         address.zoneIds!.addAll(response.zoneIds);
         address.zoneData = [];
         address.zoneData!.addAll(response.zoneData);
-        autoNavigate(address, fromSignUp, route, canRoute, isDesktop);
+        autoNavigate(address, fromSignUp, route, canRoute, isDesktop, restaurantId: restaurantId);
       } else {
         Get.back();
         showCustomSnackBar(response.message);
@@ -187,7 +195,7 @@ class LocationController extends GetxController implements GetxService {
     });
   }
 
-  void autoNavigate(AddressModel? address, bool fromSignUp, String? route, bool canRoute, bool isDesktop) async {
+  void autoNavigate(AddressModel? address, bool fromSignUp, String? route, bool canRoute, bool isDesktop, {int? restaurantId}) async {
     locationServiceInterface.handleTopicSubscription(AddressHelper.getAddressFromSharedPref(), address);
     await AddressHelper.saveAddressInSharedPref(address!);
     if(AuthHelper.isLoggedIn() && !AuthHelper.isGuestLoggedIn() ) {
@@ -199,7 +207,7 @@ class LocationController extends GetxController implements GetxService {
     }
     HomeScreen.loadData(true);
     Get.find<CheckoutController>().clearPrevData();
-    locationServiceInterface.handleRoute(fromSignUp, route, canRoute);
+    locationServiceInterface.handleRoute(fromSignUp, route, canRoute, restaurantId: restaurantId, isDesktop: isDesktop);
   }
 
   Future<Position> setLocation(String placeID, String? address, GoogleMapController? mapController) async {
@@ -229,10 +237,11 @@ class LocationController extends GetxController implements GetxService {
     update();
   }
 
-  void addAddressData() {
+  Future<void> addAddressData() async {
     _position = _pickPosition;
     _address = _pickAddress;
     _updateAddressData = false;
+    await getZone(_position.latitude.toString(), _position.longitude.toString(), false);
     update();
   }
 

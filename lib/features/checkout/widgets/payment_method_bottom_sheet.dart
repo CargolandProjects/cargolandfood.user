@@ -35,18 +35,16 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
   bool notHideCod = true;
   bool notHideWallet = true;
   bool notHideDigital = true;
+  bool notHideOffline = true;
   final JustTheController tooltipController = JustTheController();
   final TextEditingController _amountController = TextEditingController();
-  bool showChangeAmount = true;
 
   @override
   void initState() {
     super.initState();
     CheckoutController checkoutController = Get.find<CheckoutController>();
-    checkoutController.setPaymentMethod(0, willUpdate: false);
 
     if(checkoutController.exchangeAmount > 0) {
-      showChangeAmount = true;
       _amountController.text = checkoutController.exchangeAmount.toString();
     }
 
@@ -64,17 +62,25 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
         if(Get.find<SplashController>().configModel!.partialPaymentMethod! == 'cod'){
           notHideCod = true;
           notHideDigital = false;
+          notHideOffline = false;
         } else if(Get.find<SplashController>().configModel!.partialPaymentMethod! == 'digital_payment'){
           notHideCod = false;
           notHideDigital = true;
+          notHideOffline = false;
+        } else if(Get.find<SplashController>().configModel!.partialPaymentMethod! == 'offline_payment'){
+          notHideCod = false;
+          notHideDigital = false;
+          notHideOffline = true;
         } else if(Get.find<SplashController>().configModel!.partialPaymentMethod! == 'both'){
           notHideCod = true;
           notHideDigital = true;
+          notHideOffline = true;
         }
       } else {
         notHideWallet = false;
         notHideCod = true;
         notHideDigital = true;
+        notHideOffline = true;
       }
     }
   }
@@ -143,7 +149,7 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
                         },
                       ) : const SizedBox(),
 
-                      changeAmountView(checkoutController),
+                      checkoutController.subscriptionOrder || !notHideCod ? SizedBox() : changeAmountView(checkoutController),
 
                       widget.isDigitalPaymentActive && notHideDigital && !checkoutController.subscriptionOrder ? Container(
                         padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
@@ -154,7 +160,7 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('pay_via_online'.tr, style: robotoSemiMedium.copyWith(color: disablePayments ? Theme.of(context).disabledColor : Theme.of(context).textTheme.bodyLarge!.color)),
+                            Text('pay_via_online'.tr, style: robotoSemiBold.copyWith(color: disablePayments ? Theme.of(context).disabledColor : Theme.of(context).textTheme.bodyLarge!.color)),
                             const SizedBox(height: Dimensions.paddingSizeSmall),
 
                             ListView.builder(
@@ -192,11 +198,13 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
                       ) : const SizedBox(),
                       const SizedBox(height: Dimensions.paddingSizeDefault),
 
-                      widget.isOfflinePaymentActive && !checkoutController.subscriptionOrder ? OfflinePaymentButton(
+                      widget.isOfflinePaymentActive && notHideOffline && !checkoutController.subscriptionOrder ? OfflinePaymentButton(
                         isSelected: checkoutController.paymentMethodIndex == 3,
                         offlineMethodList: checkoutController.offlineMethodList,
                         isOfflinePaymentActive: widget.isOfflinePaymentActive,
-                        onTap: disablePayments ? null : () => checkoutController.setPaymentMethod(3),
+                        onTap: disablePayments ? null : () {
+                          checkoutController.setPaymentMethod(3);
+                        },
                         checkoutController: checkoutController, tooltipController: tooltipController,
                         disablePayment: disablePayments,
                       ) : const SizedBox(),
@@ -250,7 +258,7 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
               child: Text(
                 title,
                 style: isDigitalPayment ? robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: disablePayments ? Theme.of(context).disabledColor : Theme.of(context).textTheme.bodyLarge!.color) :
-                robotoSemiMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: disablePayments ? Theme.of(context).disabledColor : Theme.of(context).textTheme.bodyLarge!.color),
+                robotoSemiBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: disablePayments ? Theme.of(context).disabledColor : Theme.of(context).textTheme.bodyLarge!.color),
               ),
             ),
 
@@ -269,7 +277,7 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
   Widget changeAmountView(CheckoutController checkoutController) {
     return Column(
       children: [
-        showChangeAmount ? Container(
+        checkoutController.showChangeAmount ? Container(
           decoration: BoxDecoration(
             color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
@@ -279,9 +287,9 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
           margin: EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: Dimensions.paddingSizeExtraSmall, children: [
 
-            Text('${'change_amount'.tr}(${Get.find<SplashController>().configModel?.currencySymbol})', style: robotoBold),
+            Text('${'change_amount'.tr} (${Get.find<SplashController>().configModel?.currencySymbol})', style: robotoBold),
 
-            Text('specify_the_amount_of_change_the_deliveryman_needs_to_bring_when_delivering_the_order'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
+            Text('add_cash_amount_for_charge'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
             const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
             CustomTextFieldWidget(
@@ -301,16 +309,13 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
 
         CustomInkWellWidget(
           onTap: (){
-            setState(() {
-              showChangeAmount = !showChangeAmount;
-            });
+            checkoutController.setShowChangeAmount(!checkoutController.showChangeAmount);
           },
           radius: Dimensions.radiusSmall,
           padding: EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-          child: Text(showChangeAmount ? 'see_less'.tr : 'see_more'.tr , style: robotoBold.copyWith(color: Colors.blue)),
+          child: Text(checkoutController.showChangeAmount ? 'see_less'.tr : 'see_more'.tr , style: robotoBold.copyWith(color: Colors.blue)),
         ),
         const SizedBox(height: Dimensions.paddingSizeSmall),
-
       ],
     );
   }
@@ -327,7 +332,7 @@ class _PaymentMethodBottomSheetState extends State<PaymentMethodBottomSheet> {
     bool isWalletSelected = checkoutController.paymentMethodIndex == 1 || checkoutController.isPartialPay;
 
     return Get.find<SplashController>().configModel!.partialPaymentStatus! && !checkoutController.subscriptionOrder
-      && Get.find<SplashController>().configModel!.customerWalletStatus == 1
+      && Get.find<SplashController>().configModel!.customerWalletStatus!
       && Get.find<ProfileController>().userInfoModel != null && (checkoutController.distance != -1)
       && Get.find<ProfileController>().userInfoModel!.walletBalance! > 0 ? Column(children: [
       Container(

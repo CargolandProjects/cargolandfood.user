@@ -18,6 +18,7 @@ class SearchResultWidgetState extends State<SearchResultWidget> with TickerProvi
   TabController? _tabController;
 
   ScrollController scrollController = ScrollController();
+  bool isFirstTimeSearch = true;
 
   @override
   void initState() {
@@ -32,9 +33,21 @@ class SearchResultWidgetState extends State<SearchResultWidget> with TickerProvi
           && searchController.totalSize != null && searchController.pageOffset != null) {
         int totalPage = (searchController.totalSize! / 10).ceil();
         if(searchController.pageOffset! < totalPage){
-          searchController.searchData1(searchController.searchText, searchController.pageOffset!+1);
+          searchController.searchData(searchController.searchText, searchController.pageOffset!+1);
           searchController.pageOffset = searchController.pageOffset!+1;
         }
+      }
+    });
+  }
+
+  Future<void> checkEmpty() {
+    return Future.delayed(const Duration(milliseconds: 600), () {
+      search.SearchController searchController = Get.find<search.SearchController>();
+      if(searchController.searchProductList != null && searchController.searchProductList!.isEmpty && isFirstTimeSearch) {
+        searchController.setRestaurant(true, willUpdate: false);
+        searchController.searchData(widget.searchText, 1, willUpdate: false);
+        _tabController!.animateTo(1);
+        isFirstTimeSearch = false;
       }
     });
   }
@@ -57,6 +70,9 @@ class SearchResultWidgetState extends State<SearchResultWidget> with TickerProvi
             length = searchController.totalSize??0;
           }
         }
+
+        checkEmpty();
+
         return isNull ? const SizedBox() : Center(child: SizedBox(width: Dimensions.webMaxWidth, child: Padding(
           padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
           child: Row(children: [
@@ -71,9 +87,12 @@ class SearchResultWidgetState extends State<SearchResultWidget> with TickerProvi
             ),
             const SizedBox(width: Dimensions.paddingSizeExtraSmall),
 
-            Text(
-              '"${widget.searchText}"',
-              style: robotoBold.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color, fontSize: Dimensions.fontSizeSmall),
+            Flexible(
+              child: Text(
+                widget.searchText,
+                style: robotoBold.copyWith(color: Theme.of(context).textTheme.bodyLarge!.color, fontSize: Dimensions.fontSizeSmall),
+                maxLines: 1, overflow: TextOverflow.ellipsis,
+              ),
             ),
           ]),
         )));
@@ -97,7 +116,7 @@ class SearchResultWidgetState extends State<SearchResultWidget> with TickerProvi
               labelStyle: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
               onTap: (int index) {
                 Get.find<search.SearchController>().setRestaurant(index == 1);
-                Get.find<search.SearchController>().searchData1(widget.searchText, 1);
+                Get.find<search.SearchController>().searchData(widget.searchText, 1);
               },
 
               tabs: [
@@ -116,24 +135,7 @@ class SearchResultWidgetState extends State<SearchResultWidget> with TickerProvi
           ItemViewWidget(isRestaurant: false, scrollController: scrollController),
           ItemViewWidget(isRestaurant: true, scrollController: scrollController),
         ],
-      ),),
-
-      // Expanded(child: NotificationListener(
-      //   onNotification: (dynamic scrollNotification) {
-      //     if (scrollNotification is ScrollEndNotification) {
-      //       Get.find<search.SearchController>().setRestaurant(_tabController!.index == 1);
-      //       Get.find<search.SearchController>().searchData1(widget.searchText, 1);
-      //     }
-      //     return false;
-      //   },
-      //   child: TabBarView(
-      //     controller: _tabController,
-      //     children: [
-      //       ItemViewWidget(isRestaurant: false, scrollController: scrollController),
-      //       ItemViewWidget(isRestaurant: true, scrollController: scrollController),
-      //     ],
-      //   ),
-      // )),
+      )),
 
     ]);
   }

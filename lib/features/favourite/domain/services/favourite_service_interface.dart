@@ -5,4 +5,5 @@ abstract class FavouriteServiceInterface {
   Future<Response> addFavouriteList(int? id, bool isRestaurant);
   Future<Response> removeFavouriteList(int? id, bool isRestaurant);
   Future<Response> getFavouriteList();
+  Future<Response> clearAll();
 }

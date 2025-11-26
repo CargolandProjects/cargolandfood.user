@@ -61,7 +61,7 @@ class _CategoryScreenState extends State<CategoryScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text('categories'.tr, style: robotoSemiMedium),
+                        Text('categories'.tr, style: robotoSemiBold),
 
                         SizedBox(
                           height: 35, width: 250,

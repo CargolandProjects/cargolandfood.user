@@ -19,7 +19,7 @@ abstract class OrderRepositoryInterface extends RepositoryInterface {
   Future<List<Product>?> getFoodsFromFoodIds(List<int?> ids);
   Future<List<String?>?> getRefundReasons();
   Future<ResponseModel> submitRefundRequest(Map<String, String> body, XFile? data, String? guestId);
-  Future<ResponseModel> cancelOrder(String orderID, String? reason);
+  Future<ResponseModel> cancelOrder(String orderID, String? reason, String? comment);
   Future<PaginatedDeliveryLogModel?> getSubscriptionDeliveryLog(int? subscriptionID, int offset);
   Future<PaginatedPauseLogModel?> getSubscriptionPauseLog(int? subscriptionID, int offset);
   Future<ResponseModel> updateSubscriptionStatus(int? subscriptionID, String? startDate, String? endDate, String status, String note, String? reason);

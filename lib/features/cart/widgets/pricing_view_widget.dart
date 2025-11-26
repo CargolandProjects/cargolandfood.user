@@ -30,99 +30,97 @@ class PricingViewWidget extends StatelessWidget {
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
       ),
-      child: GetBuilder<RestaurantController>(
-          builder: (restaurantController) {
-            return Column(children: [
+      child: GetBuilder<RestaurantController>(builder: (restaurantController) {
+        return Column(children: [
 
-              isDesktop ? Align(
-                alignment: Alignment.topLeft,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
-                  child: Text('order_summary'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
+          isDesktop ? Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
+              child: Text('order_summary'.tr, style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
+            ),
+          ) : const SizedBox(),
+
+          const SizedBox(height: Dimensions.paddingSizeSmall),
+
+          !isDesktop && !fromDineIn ? ExtraPackagingWidget(cartController: cartController) : const SizedBox(),
+
+          !isDesktop && !fromDineIn ? CutleryViewWidget(restaurantController: restaurantController, cartController: cartController) : const SizedBox(),
+
+          !isDesktop ? NotAvailableProductViewWidget(cartController: cartController) : const SizedBox(),
+
+          !isDesktop ? const DeliveryInstructionView() : const SizedBox(),
+
+          isDesktop ? const SizedBox() : const SizedBox(height: Dimensions.paddingSizeLarge),
+
+          isDesktop ? Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
+            child: Column(children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text('item_price'.tr, style: robotoRegular),
+                PriceConverter.convertAnimationPrice(cartController.itemPrice, textStyle: robotoRegular),
+              ]),
+              SizedBox(height: Dimensions.paddingSizeSmall),
+
+              cartController.variationPrice > 0 ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('variations'.tr, style: robotoRegular),
+                  Text('(+) ${PriceConverter.convertPrice(cartController.variationPrice)}', style: robotoRegular, textDirection: TextDirection.ltr),
+                ],
+              ) : const SizedBox(),
+              SizedBox(height: cartController.addOns > 0 ? Dimensions.paddingSizeSmall : 0),
+
+              cartController.itemDiscountPrice > 0 ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Text('discount'.tr, style: robotoRegular),
+                restaurantController.restaurant != null ? Row(children: [
+                  Text('(-)', style: robotoRegular),
+                  PriceConverter.convertAnimationPrice(cartController.itemDiscountPrice, textStyle: robotoRegular),
+                ]) : Text('calculating'.tr, style: robotoRegular),
+              ]) : const SizedBox(),
+              SizedBox(height: cartController.addOns > 0 ? Dimensions.paddingSizeSmall : 0),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('addons'.tr, style: robotoRegular),
+                  Row(children: [
+                    Text('(+)', style: robotoRegular),
+                    PriceConverter.convertAnimationPrice(cartController.addOns, textStyle: robotoRegular),
+                  ]),
+                ],
+              ),
+
+              isDesktop ? const Divider() : const SizedBox(),
+
+              isDesktop ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('subtotal'.tr, style: robotoMedium.copyWith(color: Theme.of(context).primaryColor)),
+                    PriceConverter.convertAnimationPrice(cartController.subTotal, textStyle: robotoRegular.copyWith(color: Theme.of(context).primaryColor)),
+                  ],
                 ),
               ) : const SizedBox(),
 
-              const SizedBox(height: Dimensions.paddingSizeSmall),
+            ]),
+          ) : const SizedBox(),
 
-              !isDesktop && !fromDineIn ? ExtraPackagingWidget(cartController: cartController) : const SizedBox(),
+          isDesktop && !fromDineIn ? ExtraPackagingWidget(cartController: cartController) : const SizedBox(),
 
-              !isDesktop && !fromDineIn ? CutleryViewWidget(restaurantController: restaurantController, cartController: cartController) : const SizedBox(),
+          isDesktop && !fromDineIn ? CutleryViewWidget(restaurantController: restaurantController, cartController: cartController) : const SizedBox(),
 
-              !isDesktop ? NotAvailableProductViewWidget(cartController: cartController) : const SizedBox(),
+          isDesktop ? NotAvailableProductViewWidget(cartController: cartController) : const SizedBox(),
 
-              !isDesktop ? const DeliveryInstructionView() : const SizedBox(),
+          isDesktop ? const DeliveryInstructionView() : const SizedBox(),
 
-              isDesktop ? const SizedBox() : const SizedBox(height: Dimensions.paddingSizeLarge),
+          SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : 0),
 
-              isDesktop ? Padding(
-                padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
-                child: Column(children: [
-                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Text('item_price'.tr, style: robotoRegular),
-                    PriceConverter.convertAnimationPrice(cartController.itemPrice, textStyle: robotoRegular),
-                  ]),
-                  SizedBox(height: Dimensions.paddingSizeSmall),
+          isDesktop ? CheckoutButtonWidget(cartController: cartController, availableList: cartController.availableList, isRestaurantOpen: isRestaurantOpen, fromDineIn: fromDineIn) : const SizedBox.shrink(),
 
-                  cartController.variationPrice > 0 ? Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('variations'.tr, style: robotoRegular),
-                      Text('(+) ${PriceConverter.convertPrice(cartController.variationPrice)}', style: robotoRegular, textDirection: TextDirection.ltr),
-                    ],
-                  ) : const SizedBox(),
-                  SizedBox(height: cartController.addOns > 0 ? Dimensions.paddingSizeSmall : 0),
-
-                  cartController.itemDiscountPrice > 0 ? Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    Text('discount'.tr, style: robotoRegular),
-                    restaurantController.restaurant != null ? Row(children: [
-                      Text('(-)', style: robotoRegular),
-                      PriceConverter.convertAnimationPrice(cartController.itemDiscountPrice, textStyle: robotoRegular),
-                    ]) : Text('calculating'.tr, style: robotoRegular),
-                  ]) : const SizedBox(),
-                  SizedBox(height: cartController.addOns > 0 ? Dimensions.paddingSizeSmall : 0),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('addons'.tr, style: robotoRegular),
-                      Row(children: [
-                        Text('(+)', style: robotoRegular),
-                        PriceConverter.convertAnimationPrice(cartController.addOns, textStyle: robotoRegular),
-                      ]),
-                    ],
-                  ),
-
-                  isDesktop ? const Divider() : const SizedBox(),
-
-                  isDesktop ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('subtotal'.tr, style: robotoMedium.copyWith(color: Theme.of(context).primaryColor)),
-                        PriceConverter.convertAnimationPrice(cartController.subTotal, textStyle: robotoRegular.copyWith(color: Theme.of(context).primaryColor)),
-                      ],
-                    ),
-                  ) : const SizedBox(),
-
-                ]),
-              ) : const SizedBox(),
-
-              isDesktop && !fromDineIn ? ExtraPackagingWidget(cartController: cartController) : const SizedBox(),
-
-              isDesktop && !fromDineIn ? CutleryViewWidget(restaurantController: restaurantController, cartController: cartController) : const SizedBox(),
-
-              isDesktop ? NotAvailableProductViewWidget(cartController: cartController) : const SizedBox(),
-
-              isDesktop ? const DeliveryInstructionView() : const SizedBox(),
-
-              SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : 0),
-
-              isDesktop ? CheckoutButtonWidget(cartController: cartController, availableList: cartController.availableList, isRestaurantOpen: isRestaurantOpen, fromDineIn: fromDineIn) : const SizedBox.shrink(),
-
-            ]);
-          }
-      ),
+        ]);
+      }),
     );
   }
 }

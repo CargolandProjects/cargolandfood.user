@@ -1,3 +1,5 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:stackfood_multivendor/common/models/response_model.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_ink_well_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
@@ -28,7 +30,7 @@ class SocialLoginWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+    final GoogleSignIn googleSignIn = GoogleSignIn.instance;
 
     bool canAppleLogin = Get.find<SplashController>().configModel!.appleLogin!.isNotEmpty && Get.find<SplashController>().configModel!.appleLogin![0].status!
         && !GetPlatform.isAndroid && !GetPlatform.isWeb;
@@ -227,22 +229,69 @@ class SocialLoginWidget extends StatelessWidget {
   }
 
   void _googleLogin(GoogleSignIn googleSignIn) async {
-    googleSignIn.signOut();
-    GoogleSignInAccount googleAccount = (await googleSignIn.signIn())!;
-    GoogleSignInAuthentication auth = await googleAccount.authentication;
+    if(kIsWeb) {
+      await _googleWebSignIn();
 
-    SocialLogInBodyModel googleBodyModel = SocialLogInBodyModel(
-      email: googleAccount.email, token: auth.accessToken, uniqueId: googleAccount.id,
-      medium: 'google', accessToken: 1, loginType: CentralizeLoginType.social.name,
-    );
+    }else{
+      try{
+        if(googleSignIn.supportsAuthenticate()) {
+          await googleSignIn.initialize(serverClientId: AppConstants.googleServerClientId).then((_) async {
 
-    Get.find<AuthController>().loginWithSocialMedia(googleBodyModel).then((response) {
-      if (response.isSuccess) {
-        _processSocialSuccessSetup(response, googleBodyModel, null, null);
-      } else {
-        showCustomSnackBar(response.message);
+            googleSignIn.signOut();
+            GoogleSignInAccount googleAccount = await googleSignIn.authenticate();
+            const List<String> scopes = <String>['email'];
+            GoogleSignInClientAuthorization? auth = await googleAccount.authorizationClient.authorizationForScopes(scopes);
+
+            SocialLogInBodyModel googleBodyModel = SocialLogInBodyModel(
+              email: googleAccount.email, token: auth?.accessToken, uniqueId: googleAccount.id,
+              medium: 'google', accessToken: 1, loginType: CentralizeLoginType.social.name,
+            );
+
+            Get.find<AuthController>().loginWithSocialMedia(googleBodyModel).then((response) {
+              if (response.isSuccess) {
+                _processSocialSuccessSetup(response, googleBodyModel, null, null);
+              } else {
+                showCustomSnackBar(response.message);
+              }
+            });
+
+          });
+        }else {
+          debugPrint("Google Sign-In not supported on this device.");
+        }
+      }catch(e){
+        debugPrint('Error in google sign in: $e');
       }
-    });
+    }
+  }
+
+  Future<void> _googleWebSignIn() async {
+    final FirebaseAuth auth = FirebaseAuth.instance;
+
+    try {
+      GoogleAuthProvider googleProvider = GoogleAuthProvider();
+      UserCredential userCredential = await auth.signInWithPopup(googleProvider);
+
+      SocialLogInBodyModel googleBodyModel =  SocialLogInBodyModel(
+        uniqueId: userCredential.credential?.accessToken,
+        token: userCredential.credential?.accessToken,
+        accessToken: 1,
+        medium: 'google',
+        email: userCredential.user?.email,
+        loginType: CentralizeLoginType.social.name,
+      );
+
+      Get.find<AuthController>().loginWithSocialMedia(googleBodyModel).then((response) {
+        if (response.isSuccess) {
+          _processSocialSuccessSetup(response, googleBodyModel, null, null);
+        } else {
+          showCustomSnackBar(response.message);
+        }
+      });
+
+    } catch (e) {
+      showCustomSnackBar(e.toString());
+    }
   }
 
   void _facebookLogin() async {
@@ -251,7 +300,7 @@ class SocialLoginWidget extends StatelessWidget {
       Map userData = await FacebookAuth.instance.getUserData();
 
       SocialLogInBodyModel facebookBodyModel = SocialLogInBodyModel(
-        email: userData['email'], token: result.accessToken!.token, uniqueId: result.accessToken!.userId,
+        email: userData['email'], token: result.accessToken!.tokenString, uniqueId: userData['id'],
         medium: 'facebook', loginType: CentralizeLoginType.social.name,
       );
 

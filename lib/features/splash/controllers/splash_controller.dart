@@ -50,52 +50,6 @@ class SplashController extends GetxController implements GetxService {
 
   DateTime get currentTime => DateTime.now();
 
-  // Future<bool> getConfigData({bool handleMaintenanceMode = false, DataSourceEnum source = DataSourceEnum.local}) async {
-  //   bool isSuccess = false;
-  //
-  //   // Fetch from local cache
-  //   isSuccess = await _fetchAndSetConfigData(source: DataSourceEnum.local, handleMaintenanceMode: handleMaintenanceMode);
-  //
-  //   // Fetch from API in the background
-  //   _fetchAndSetConfigData(source: DataSourceEnum.client, handleMaintenanceMode: handleMaintenanceMode);
-  //
-  //   return isSuccess;
-  // }
-  //
-  // Future<bool> _fetchAndSetConfigData({required DataSourceEnum source, bool? handleMaintenanceMode}) async {
-  //   Response response = await splashServiceInterface.getConfigData(source: source);
-  //   bool isSuccess = false;
-  //
-  //   if(response.statusCode == 200) {
-  //     ConfigModel? fetchedConfig = splashServiceInterface.prepareConfigData(response);
-  //     if(fetchedConfig != null) {
-  //       _configModel = fetchedConfig;
-  //       _handleMaintenanceMode(handleMaintenanceMode: handleMaintenanceMode);
-  //       isSuccess = true;
-  //       update();
-  //     }
-  //   } else {
-  //     if(response.statusText == ApiClient.noInternetMessage) {
-  //       _hasConnection = false;
-  //     }
-  //   }
-  //
-  //   return isSuccess;
-  // }
-  //
-  // void _handleMaintenanceMode({bool? handleMaintenanceMode}) {
-  //   if(!GetPlatform.isWeb){
-  //     bool isMaintenanceMode = _configModel?.maintenanceMode ?? false;
-  //     bool isInMaintenance = MaintenanceHelper.isMaintenanceEnable();
-  //
-  //     if (isInMaintenance) {
-  //       Get.offNamed(RouteHelper.getUpdateRoute(false));
-  //     } else if ((Get.currentRoute.contains(RouteHelper.update) && !isMaintenanceMode) || !isInMaintenance) {
-  //       Get.offNamed(RouteHelper.getInitialRoute());
-  //     }
-  //   }
-  // }
-
   Future<void> getConfigData({bool handleMaintenanceMode = false, DataSourceEnum source = DataSourceEnum.local, NotificationBodyModel? notificationBody, bool fromMainFunction = false, bool fromDemoReset = false}) async {
     _hasConnection = true;
     _savedCookiesData = getCookiesData();
@@ -205,6 +159,10 @@ class SplashController extends GetxController implements GetxService {
   }
 
   Future<void> navigateToLocationScreen(String page, {bool offNamed = false, bool offAll = false}) async {
+    int? restaurantId;
+    if(Get.currentRoute.startsWith(RouteHelper.restaurant)) {
+      restaurantId = Get.parameters['id'] != 'null' && Get.parameters['id'] != null ? int.parse(Get.parameters['id']!) : null;
+    }
     bool fromSignup = page == RouteHelper.signUp;
     bool fromHome = page == 'home';
     if(!fromHome && AddressHelper.getAddressFromSharedPref() != null) {
@@ -218,11 +176,11 @@ class SplashController extends GetxController implements GetxService {
       Get.back();
       if(Get.find<AddressController>().addressList != null && Get.find<AddressController>().addressList!.isEmpty) {
         if(ResponsiveHelper.isDesktop(Get.context)) {
-          showGeneralDialog(context: Get.context!, pageBuilder: (_,__,___) {
+          showGeneralDialog(context: Get.context!, pageBuilder: (_,_,_) {
             return SizedBox(
               height: 300, width: 300,
               child: PickMapDialog(
-                fromSignUp: (page == RouteHelper.signUp), canRoute: false, fromAddAddress: false, route: null,
+                fromSignUp: (page == RouteHelper.signUp), canRoute: false, fromAddAddress: false, route: page, restaurantId: restaurantId,
                 // canTakeCurrentLocation: !AuthHelper.isLoggedIn(),
               ),
             );
@@ -231,21 +189,34 @@ class SplashController extends GetxController implements GetxService {
           Get.toNamed(RouteHelper.getPickMapRoute(page, false));
         }
       }else {
-        if(offNamed) {
-          Get.offNamed(RouteHelper.getAccessLocationRoute(page));
-        }else if(offAll) {
-          Get.offAllNamed(RouteHelper.getAccessLocationRoute(page));
-        }else {
-          Get.toNamed(RouteHelper.getAccessLocationRoute(page));
+        if(ResponsiveHelper.isDesktop(Get.context)) {
+          Get.back();
+          showGeneralDialog(context: Get.context!, pageBuilder: (_,_,_) {
+            return SizedBox(
+              height: 300, width: 300,
+              child: PickMapDialog(
+                fromSignUp: (page == RouteHelper.signUp), canRoute: false, fromAddAddress: false, route: page, restaurantId: restaurantId,
+                // canTakeCurrentLocation: !AuthHelper.isLoggedIn(),
+              ),
+            );
+          });
+        } else {
+          if(offNamed) {
+            Get.offNamed(RouteHelper.getAccessLocationRoute(page));
+          }else if(offAll) {
+            Get.offAllNamed(RouteHelper.getAccessLocationRoute(page));
+          }else {
+            Get.toNamed(RouteHelper.getAccessLocationRoute(page));
+          }
         }
       }
     }else {
       if(ResponsiveHelper.isDesktop(Get.context)) {
-        showGeneralDialog(context: Get.context!, pageBuilder: (_,__,___) {
+        showGeneralDialog(context: Get.context!, pageBuilder: (_,_,_) {
           return SizedBox(
             height: 300, width: 300,
             child: PickMapDialog(
-              fromSignUp: (page == RouteHelper.signUp), canRoute: false, fromAddAddress: false, route: null,
+              fromSignUp: (page == RouteHelper.signUp), canRoute: false, fromAddAddress: false, route: page, restaurantId: restaurantId,
               // canTakeCurrentLocation: !fromHome,
             ),
           );

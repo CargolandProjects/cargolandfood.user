@@ -59,34 +59,34 @@ class MenuDrawerWidgetState extends State<MenuDrawerWidget> with SingleTickerPro
   void initState() {
     super.initState();
 
-    if(Get.find<SplashController>().configModel!.refundPolicyStatus == 1) {
+    if(Get.find<SplashController>().configModel!.refundPolicyStatus!) {
       _menuList.add(Menu(icon: Images.refund, title: 'refund_policy'.tr, onTap: () {
-        Get.offNamed(RouteHelper.getHtmlRoute('refund-policy'));
+        Get.offNamed(RouteHelper.getRefundPolicyRoute());
       }));
     }
-    if(Get.find<SplashController>().configModel!.cancellationPolicyStatus == 1) {
+    if(Get.find<SplashController>().configModel!.cancellationPolicyStatus!) {
       _menuList.add(Menu(icon: Images.cancellation, title: 'cancellation_policy'.tr, onTap: () {
-        Get.offNamed(RouteHelper.getHtmlRoute('cancellation-policy'));
+        Get.offNamed(RouteHelper.getCancellationPolicyRoute());
       }));
     }
-    if(Get.find<SplashController>().configModel!.shippingPolicyStatus == 1) {
+    if(Get.find<SplashController>().configModel!.shippingPolicyStatus!) {
       _menuList.add(Menu(icon: Images.shippingPolicy, title: 'shipping_policy'.tr, onTap: () {
-        Get.offNamed(RouteHelper.getHtmlRoute('shipping-policy'));
+        Get.offNamed(RouteHelper.getShippingPolicyRoute());
       }));
     }
 
-    if(Get.find<SplashController>().configModel!.customerWalletStatus == 1) {
+    if(Get.find<SplashController>().configModel!.customerWalletStatus!) {
       _menuList.add(Menu(icon: Images.wallet, title: 'wallet'.tr, onTap: () {
         Get.offNamed(RouteHelper.getWalletRoute());
       }));
     }
 
-    if(Get.find<SplashController>().configModel!.loyaltyPointStatus == 1) {
+    if(Get.find<SplashController>().configModel!.loyaltyPointStatus!) {
       _menuList.add(Menu(icon: Images.loyal, title: 'loyalty_points'.tr, onTap: () {
         Get.offNamed(RouteHelper.getLoyaltyRoute());
       }));
     }
-    if(Get.find<SplashController>().configModel!.refEarningStatus == 1) {
+    if(Get.find<SplashController>().configModel!.refEarningStatus!) {
       _menuList.add(Menu(icon: Images.referCode, title: 'refer_and_earn'.tr, onTap: () {
         Get.offNamed(RouteHelper.getReferAndEarnRoute());
       }));

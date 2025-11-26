@@ -22,6 +22,7 @@ import 'package:stackfood_multivendor/features/language/screens/language_screen.
 import 'package:stackfood_multivendor/features/location/screens/access_location_screen.dart';
 import 'package:stackfood_multivendor/features/location/screens/map_screen.dart';
 import 'package:stackfood_multivendor/features/location/screens/pick_map_screen.dart';
+import 'package:stackfood_multivendor/features/menu/screens/settings_screen.dart';
 import 'package:stackfood_multivendor/features/notification/domain/models/notification_body_model.dart';
 import 'package:stackfood_multivendor/features/notification/screens/notification_screen.dart';
 import 'package:stackfood_multivendor/features/onboard/screens/onboarding_screen.dart';
@@ -100,7 +101,7 @@ class RouteHelper {
   static const String orderDetails = '/order-details';
   static const String profile = '/profile';
   static const String updateProfile = '/update-profile';
-  static const String coupon = '/coupon';
+  static const String coupon = '/coupons';
   static const String notification = '/notification';
   static const String map = '/map';
   static const String address = '/address';
@@ -109,10 +110,16 @@ class RouteHelper {
   static const String checkout = '/checkout';
   static const String orderTracking = '/track-order';
   static const String basicCampaign = '/basic-campaign';
-  static const String html = '/html-screen';
+  static const String termsAndCondition = '/terms-and-conditions';
+  static const String privacyPolicy = '/privacy-policy';
+  static const String shippingPolicy = '/shipping-policy';
+  static const String cancellationPolicy = '/cancellation-policy';
+  static const String refundPolicy = '/refund-policy';
+  static const String aboutUs = '/about-us';
   static const String categories = '/categories';
-  static const String categoryProduct = '/category-product';
+  static const String categoryProduct = '/category';
   static const String popularFoods = '/popular-foods';
+  static const String bestReviewedFoods = '/best-reviewed-foods';
   static const String itemCampaign = '/item-campaign';
   static const String support = '/help-and-support';
   static const String rateReview = '/rate-and-review';
@@ -122,8 +129,12 @@ class RouteHelper {
   static const String editAddress = '/edit-address';
   static const String restaurantReview = '/restaurant-review';
   static const String allRestaurants = '/restaurants';
+  static const String popularRestaurants = '/popular-restaurants';
+  static const String recentlyViewedRestaurants = '/recently-viewed-restaurants';
+  static const String orderAgainRestaurants = '/order-again-restaurants';
+  static const String newOnRestaurants = '/new-on-restaurants';
   static const String wallet = '/wallet';
-  static const String loyalty = '/loyalty';
+  static const String loyalty = '/loyalty-point';
   static const String searchRestaurantItem = '/search-Restaurant-item';
   static const String productImages = '/product-images';
   static const String referAndEarn = '/refer-and-earn';
@@ -133,16 +144,17 @@ class RouteHelper {
   static const String restaurantRegistration = '/restaurant-registration';
   static const String deliveryManRegistration = '/delivery-man-registration';
   static const String refund = '/refund';
-  static const String order = '/order';
-  static const String cuisine = '/cuisine';
-  static const String cuisineRestaurant = '/cuisine-restaurant';
+  static const String order = '/orders';
+  static const String cuisine = '/cuisines';
+  static const String cuisineRestaurant = '/cuisine';
   static const String subscriptionSuccess = '/subscription-success';
   static const String subscriptionPayment = '/subscription-payment';
   static const String offlinePaymentScreen = '/offline-payment-screen';
   static const String guestTrackOrderScreen = '/guest-track-order-screen';
-  static const String favourite = '/favourite-screen';
+  static const String favourite = '/favourite';
   static const String newUserSetupScreen = '/new-user-setup-screen';
   static const String dineInRestaurant = '/dine-in-restaurant';
+  static const String settings = '/settings';
 
   static String getInitialRoute({bool fromSplash = false}) => '$initial?from-splash=$fromSplash';
   static String getSplashRoute(NotificationBodyModel? body, DeepLinkBody? linkBody) {
@@ -181,9 +193,24 @@ class RouteHelper {
   static String getForgotPassRoute() => forgotPassword;
   static String getResetPasswordRoute({String? phone, String? email, required String token, required String page}) => '$resetPassword?phone=$phone&token=$token&page=$page&email=$email';
   static String getSearchRoute() => search;
-  static String getRestaurantRoute(int? id, {bool fromDinIn = false}) {
-    return '$restaurant?id=$id&from_dine_in=$fromDinIn';
+
+  static String getRestaurantRoute(int? id, {String? slug, bool fromDinIn = false}) {
+    String urlSlug = slug ?? 'restaurant-$id';
+
+    // Clean the slug
+    urlSlug = urlSlug
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9\s-]'), '') // Remove special characters
+        .replaceAll(RegExp(r'\s+'), '-')          // Replace spaces with hyphens
+        .replaceAll(RegExp(r'-+'), '-')           // Replace multiple hyphens with single
+        .trim();
+
+    return '$restaurant/$urlSlug?id=$id&from_dine_in=$fromDinIn';
   }
+
+/*  static String getRestaurantRoute(int? id, {String? slug, bool fromDinIn = false}) {
+    return '$restaurant?id=$id&from_dine_in=$fromDinIn';
+  }*/
   static String getOrderDetailsRoute(int? orderID, {bool? fromOffline, String? contactNumber, bool fromGuestTrack = false, bool fromNotification = false, bool? fromDineIn}) {
     return '$orderDetails?id=$orderID&from_offline=$fromOffline&contact=$contactNumber&from_guest_track=$fromGuestTrack&from_notification=$fromNotification&from_dine_in=$fromDineIn';
   }
@@ -213,14 +240,42 @@ class RouteHelper {
     String data = base64Encode(utf8.encode(jsonEncode(basicCampaignModel.toJson())));
     return '$basicCampaign?data=$data';
   }
-  static String getHtmlRoute(String page) => '$html?page=$page';
+  static String getTermsAndConditionRoute() => termsAndCondition;
+  static String getPrivacyPolicyRoute() => privacyPolicy;
+  static String getShippingPolicyRoute() => shippingPolicy;
+  static String getCancellationPolicyRoute() => cancellationPolicy;
+  static String getRefundPolicyRoute() => refundPolicy;
+  static String getAboutUsRoute() => aboutUs;
   static String getCategoryRoute() => categories;
+
   static String getCategoryProductRoute(int? id, String name) {
     List<int> encoded = utf8.encode(name);
     String data = base64Encode(encoded);
-    return '$categoryProduct?id=$id&name=$data';
+
+    // Create URL-friendly slug from name
+    String slug = name.toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9\s-]'), '') // Remove special characters
+        .replaceAll(RegExp(r'\s+'), '-')          // Replace spaces with hyphens
+        .replaceAll(RegExp(r'-+'), '-')           // Replace multiple hyphens with single
+        .trim();
+
+    return '$categoryProduct/$slug?id=$id&name=$data';
   }
-  static String getPopularFoodRoute(bool isPopular, {bool fromIsRestaurantFood = false, int? restaurantId}) => '$popularFoods?page=${isPopular ? 'popular' : 'reviewed'}&fromIsRestaurantFood=$fromIsRestaurantFood&restaurant_id=$restaurantId';
+
+/*  static String getCategoryProductRoute(int? id, String name) {
+    List<int> encoded = utf8.encode(name);
+    String data = base64Encode(encoded);
+    return '$categoryProduct?id=$id&name=$data';
+  }*/
+
+  static String getPopularFoodRoute(bool isPopular, {bool fromIsRestaurantFood = false, int? restaurantId}) {
+    // Use different base routes based on isPopular
+    String baseRoute = isPopular ? popularFoods : bestReviewedFoods;
+
+    return '$baseRoute?page=${isPopular ? 'popular' : 'reviewed'}&fromIsRestaurantFood=$fromIsRestaurantFood&restaurant_id=$restaurantId';
+  }
+
+  //static String getPopularFoodRoute(bool isPopular, {bool fromIsRestaurantFood = false, int? restaurantId}) => '$popularFoods?page=${isPopular ? 'popular' : 'reviewed'}&fromIsRestaurantFood=$fromIsRestaurantFood&restaurant_id=$restaurantId';
   static String getItemCampaignRoute() => itemCampaign;
   static String getSupportRoute() => support;
   static String getReviewRoute(RateReviewModel rateReviewModel) {
@@ -241,7 +296,30 @@ class RouteHelper {
     String data = base64Url.encode(utf8.encode(jsonEncode(restaurant.toJson())));
     return '$restaurantReview?id=$restaurantID&restaurantName=$restaurantName&restaurant=$data';
   }
-  static String getAllRestaurantRoute(String page) => '$allRestaurants?page=$page';
+
+  static String getAllRestaurantRoute(String page) {
+    String baseRoute;
+    switch (page) {
+      case 'popular':
+        baseRoute = popularRestaurants;
+        break;
+      case 'recently_viewed':
+        baseRoute = recentlyViewedRestaurants;
+        break;
+      case 'order_again':
+        baseRoute = orderAgainRestaurants;
+        break;
+      case 'latest':
+        baseRoute = newOnRestaurants;
+        break;
+      default:
+        baseRoute = allRestaurants;
+    }
+
+    return '$baseRoute?page=$page';
+  }
+
+  //static String getAllRestaurantRoute(String page) => '$allRestaurants?page=$page';
   static String getWalletRoute({String? fundStatus, bool? fromMenuPage, bool fromNotification = false}) => '$wallet?payment_status=$fundStatus&from_menu_page=$fromMenuPage&from_notification=$fromNotification';
   static String getLoyaltyRoute() => loyalty;
   static String getSearchRestaurantProductRoute(int? productID) => '$searchRestaurantItem?id=$productID';
@@ -268,7 +346,20 @@ class RouteHelper {
   static String getRefundRequestRoute(String orderID) => '$refund?id=$orderID';
   static String getOrderRoute() => order;
   static String getCuisineRoute() => cuisine;
-  static String getCuisineRestaurantRoute(int? cuisineId, String? name) => '$cuisineRestaurant?id=$cuisineId&name=$name';
+
+  static String getCuisineRestaurantRoute(int? cuisineId, String? name) {
+    // Create URL-friendly slug from name
+    String slug = (name ?? '')
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9\s-]'), '') // Remove special characters
+        .replaceAll(RegExp(r'\s+'), '-')          // Replace spaces with hyphens
+        .replaceAll(RegExp(r'-+'), '-')           // Replace multiple hyphens with single
+        .trim();
+
+    return '$cuisineRestaurant/$slug?id=$cuisineId&name=$name';
+  }
+
+  //static String getCuisineRestaurantRoute(int? cuisineId, String? name) => '$cuisineRestaurant?id=$cuisineId&name=$name';
   static String getSubscriptionSuccessRoute({String? status, required bool fromSubscription, int? restaurantId, int? packageId}) => '$subscriptionSuccess?flag=$status&from_subscription=$fromSubscription&restaurant_id=$restaurantId&package_id=$packageId';
   static String getSubscriptionPaymentRoute({required int? restaurantId, required int? packageId}) => '$subscriptionPayment?restaurant-id=$restaurantId&package-id=$packageId';
   static String getOfflinePaymentScreen({
@@ -286,6 +377,7 @@ class RouteHelper {
     return '$newUserSetupScreen?name=$name&login_type=$loginType&phone=$phone&email=$email';
   }
   static String getDineInRestaurantScreen() => dineInRestaurant;
+  static String getSettingsRoute() => settings;
 
   static List<GetPage> routes = [
     GetPage(name: initial, page: () => getRoute(DashboardScreen(pageIndex: 0, fromSplash: (Get.parameters['from-splash'] == 'true')))),
@@ -349,15 +441,12 @@ class RouteHelper {
           : Get.parameters['page'] == 'cart' ? 2 : Get.parameters['page'] == 'order' ? 3 : Get.parameters['page'] == 'menu' ? 4 : 0,
     ))),
     GetPage(name: forgotPassword, page: () => ForgetPassScreen()),
-    /*GetPage(name: resetPassword, page: () => NewPassScreen(
-      resetToken: Get.parameters['token'], number: Get.parameters['phone'], fromPasswordChange: Get.parameters['page'] == 'password-change',
-    )),*/
     GetPage(name: resetPassword, page: () => NewPassScreen(
       resetToken: Get.parameters['token'], number: Get.parameters['phone'], fromPasswordChange: Get.parameters['page'] == 'password-change',
       email: Get.parameters['email'],
     )),
     GetPage(name: search, page: () => getRoute(const SearchScreen())),
-    GetPage(name: restaurant, page: () {
+    GetPage(name: '$restaurant/:slug', page: () {
       return getRoute(Get.arguments ?? RestaurantScreen(
         restaurant: Restaurant(id: Get.parameters['id'] != 'null' && Get.parameters['id'] != null ? int.parse(Get.parameters['id']!) : null),
         slug: Get.parameters['slug'] ?? '', fromDineIn: Get.parameters['from_dine_in'] == 'true',
@@ -396,7 +485,7 @@ class RouteHelper {
       return getRoute(OrderSuccessfulScreen(
         orderID: Get.parameters['id'],
         status: Get.parameters['status'] != null ? (Get.parameters['status']!.contains('success') ? 1 : 0) : (Get.parameters['flag'] == 'success' ? 1 : 0),
-        totalAmount: null,
+        totalAmount: Get.parameters['amount'] != null ? double.parse(Get.parameters['amount']!) : 0.0,
         contactPersonNumber: Get.parameters['contact_number'] != null && Get.parameters['contact_number'] != 'null'
             ? Get.parameters['contact_number']
             : Get.find<AuthController>().isGuestLoggedIn() ? Get.find<AuthController>().getGuestNumber() : null,
@@ -437,19 +526,68 @@ class RouteHelper {
       BasicCampaignModel data = BasicCampaignModel.fromJson(jsonDecode(utf8.decode(base64Decode(Get.parameters['data']!.replaceAll(' ', '+')))));
       return getRoute(CampaignScreen(campaign: data));
     }),
-    GetPage(name: html, page: () => HtmlViewerScreen(
-      htmlType: Get.parameters['page'] == 'terms-and-condition' ? HtmlType.termsAndCondition
-          : Get.parameters['page'] == 'privacy-policy' ? HtmlType.privacyPolicy
-          : Get.parameters['page'] == 'shipping-policy' ? HtmlType.shippingPolicy
-          : Get.parameters['page'] == 'cancellation-policy' ? HtmlType.cancellation
-          : Get.parameters['page'] == 'refund-policy' ? HtmlType.refund : HtmlType.aboutUs,
-    )),
+    GetPage(
+      name: termsAndCondition,
+      page: () => const HtmlViewerScreen(htmlType: HtmlType.termsAndCondition),
+    ),
+    GetPage(
+      name: privacyPolicy,
+      page: () => const HtmlViewerScreen(htmlType: HtmlType.privacyPolicy),
+    ),
+    GetPage(
+      name: shippingPolicy,
+      page: () => const HtmlViewerScreen(htmlType: HtmlType.shippingPolicy),
+    ),
+    GetPage(
+      name: cancellationPolicy,
+      page: () => const HtmlViewerScreen(htmlType: HtmlType.cancellation),
+    ),
+    GetPage(
+      name: refundPolicy,
+      page: () => const HtmlViewerScreen(htmlType: HtmlType.refund),
+    ),
+    GetPage(
+      name: aboutUs,
+      page: () => const HtmlViewerScreen(htmlType: HtmlType.aboutUs),
+    ),
     GetPage(name: categories, page: () => getRoute(const CategoryScreen())),
-    GetPage(name: categoryProduct, page: () {
+
+    GetPage(name: '$categoryProduct/:slug', page: () {
+      List<int> decode = base64Decode(Get.parameters['name']!.replaceAll(' ', '+'));
+      String data = utf8.decode(decode);
+
+      return getRoute(CategoryProductScreen(categoryID: Get.parameters['id'], categoryName: data));
+    }),
+
+    /*GetPage(name: categoryProduct, page: () {
       List<int> decode = base64Decode(Get.parameters['name']!.replaceAll(' ', '+'));
       String data = utf8.decode(decode);
       return getRoute(CategoryProductScreen(categoryID: Get.parameters['id'], categoryName: data));
+    }),*/
+
+
+    // Popular Foods Route
+    GetPage(name: popularFoods, page: () {
+      return getRoute(PopularFoodScreen(
+        isPopular: true,
+        fromIsRestaurantFood: Get.parameters['fromIsRestaurantFood'] == 'true',
+        restaurantId: (Get.parameters['restaurant_id'] != null && Get.parameters['restaurant_id'] != 'null')
+            ? int.parse(Get.parameters['restaurant_id']!)
+            : null,
+      ));
     }),
+
+// Best Reviewed Foods Route
+    GetPage(name: bestReviewedFoods, page: () {
+      return getRoute(PopularFoodScreen(
+        isPopular: false,
+        fromIsRestaurantFood: Get.parameters['fromIsRestaurantFood'] == 'true',
+        restaurantId: (Get.parameters['restaurant_id'] != null && Get.parameters['restaurant_id'] != 'null')
+            ? int.parse(Get.parameters['restaurant_id']!)
+            : null,
+      ));
+    }),
+
     GetPage(name: popularFoods, page: () {
       return getRoute(PopularFoodScreen(
         isPopular: Get.parameters['page'] == 'popular', fromIsRestaurantFood: Get.parameters['fromIsRestaurantFood'] == 'true',
@@ -475,13 +613,52 @@ class RouteHelper {
       return getRoute(RateReviewScreen(rateReviewModel: data));
     }),
     GetPage(name: restaurantReview, page: () => getRoute(ReviewScreen(restaurantID: Get.parameters['id'], restaurantName: Get.parameters['restaurantName'], restaurant: Restaurant.fromJson(jsonDecode(utf8.decode(base64Url.decode(Get.parameters['restaurant']!.replaceAll(' ', '+')))))))),
-    GetPage(name: allRestaurants, page: () => getRoute(
-        AllRestaurantScreen(
-          isPopular: Get.parameters['page'] == 'popular',
-          isRecentlyViewed: Get.parameters['page'] == 'recently_viewed',
-          isOrderAgain: Get.parameters['page'] == 'order_again',
-        ),
+
+    // Popular Restaurants
+    GetPage(name: popularRestaurants, page: () => getRoute(
+      const AllRestaurantScreen(
+        isPopular: true,
+        isRecentlyViewed: false,
+        isOrderAgain: false,
+      ),
     )),
+
+   // Recently Viewed Restaurants
+    GetPage(name: recentlyViewedRestaurants, page: () => getRoute(
+      const AllRestaurantScreen(
+        isPopular: false,
+        isRecentlyViewed: true,
+        isOrderAgain: false,
+      ),
+    )),
+
+   // Order Again Restaurants
+    GetPage(name: orderAgainRestaurants, page: () => getRoute(
+      const AllRestaurantScreen(
+        isPopular: false,
+        isRecentlyViewed: false,
+        isOrderAgain: true,
+      ),
+    )),
+
+    // New On Restaurants
+    GetPage(name: newOnRestaurants, page: () => getRoute(
+      const AllRestaurantScreen(
+        isPopular: false,
+        isRecentlyViewed: false,
+        isOrderAgain: false,
+      ),
+    )),
+
+   // All Restaurants (default)
+    GetPage(name: allRestaurants, page: () => getRoute(
+      AllRestaurantScreen(
+        isPopular: Get.parameters['page'] == 'popular',
+        isRecentlyViewed: Get.parameters['page'] == 'recently_viewed',
+        isOrderAgain: Get.parameters['page'] == 'order_again',
+      ),
+    )),
+
     GetPage(name: wallet, page: () {
       return getRoute(WalletScreen(fundStatus: Get.parameters['flag'] ?? Get.parameters['payment_status'], fromMenuPage: Get.parameters['from_menu_page'] == 'true', fromNotification: Get.parameters['from_notification'] == 'true'));
     }),
@@ -513,7 +690,13 @@ class RouteHelper {
     GetPage(name: refund, page: () => RefundRequestScreen(orderId: Get.parameters['id'])),
     GetPage(name: order, page: () => getRoute(const OrderScreen())),
     GetPage(name: cuisine, page: () => getRoute(const CuisineScreen())),
-    GetPage(name: cuisineRestaurant, page: () => getRoute(CuisineRestaurantScreen(cuisineId: int.parse(Get.parameters['id']!), name: Get.parameters['name']))),
+
+    GetPage(
+      name: '$cuisineRestaurant/:slug',
+      page: () => getRoute(CuisineRestaurantScreen(cuisineId: int.parse(Get.parameters['id']!), name: Get.parameters['name'])),
+    ),
+
+    //GetPage(name: cuisineRestaurant, page: () => getRoute(CuisineRestaurantScreen(cuisineId: int.parse(Get.parameters['id']!), name: Get.parameters['name']))),
     GetPage(name: subscriptionSuccess, page: () => getRoute(SubscriptionSuccessOrFailedScreen(
       success: Get.parameters['flag'] == 'success',
       fromSubscription: Get.parameters['from_subscription'] == 'true',
@@ -545,6 +728,7 @@ class RouteHelper {
       email: Get.parameters['email'] != '' && Get.parameters['email'] != 'null' ? Get.parameters['email']!.replaceAll(' ', '+') : null,
     )),
     GetPage(name: dineInRestaurant, page: () => getRoute(const DineInRestaurantScreen())),
+    GetPage(name: settings, page: () => const SettingsScreen()),
   ];
 
   static Widget getRoute(Widget navigateTo, {bool byPuss = false}) {
@@ -556,7 +740,7 @@ class RouteHelper {
     }
     return AppConstants.appVersion < minimumVersion! ? const UpdateScreen(isUpdate: true)
       : MaintenanceHelper.isMaintenanceEnable() ? const UpdateScreen(isUpdate: false)
-      : (AddressHelper.getAddressFromSharedPref() == null && !byPuss)
+      : (AddressHelper.getAddressFromSharedPref() == null && !byPuss && !GetPlatform.isWeb)
       ? AccessLocationScreen(fromSignUp: false, fromHome: false, route: Get.currentRoute) : navigateTo;
   }
 }

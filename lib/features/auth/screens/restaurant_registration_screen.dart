@@ -153,9 +153,11 @@ class _RestaurantRegistrationScreenState extends State<RestaurantRegistrationScr
         child: Scaffold(
           endDrawer: const MenuDrawerWidget(), endDrawerEnableOpenDragGesture: false,
           appBar: CustomAppBarWidget(title: 'restaurant_registration'.tr, onBackPressed: () async {
-            if(restaurantRegController.storeStatus != 0.1 && firstTime){
+            if(restaurantRegController.storeStatus == 0.6 && firstTime){
               restaurantRegController.storeStatusChange(0.1);
               firstTime = false;
+            }else if(restaurantRegController.storeStatus == 0.9){
+              restaurantRegController.storeStatusChange(0.6);
             }else{
               await _showBackPressedDialogue('your_registration_not_setup_yet'.tr);
             }
@@ -261,7 +263,13 @@ class _RestaurantRegistrationScreenState extends State<RestaurantRegistrationScr
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text('restaurant_logo'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault)),
+                                            Row(
+                                              children: [
+                                                Text('restaurant_logo'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault)),
+
+                                                Text('*'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Colors.red)),
+                                              ],
+                                            ),
                                             const SizedBox(height: Dimensions.paddingSizeDefault),
 
                                             Align(alignment: Alignment.center, child: Stack(children: [
@@ -270,11 +278,11 @@ class _RestaurantRegistrationScreenState extends State<RestaurantRegistrationScr
                                                 child: ClipRRect(
                                                   borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
                                                   child: restaurantRegController.pickedLogo != null ? GetPlatform.isWeb ? Image.network(
-                                                    restaurantRegController.pickedLogo!.path, width: 150, height: 120, fit: BoxFit.cover,
+                                                    restaurantRegController.pickedLogo!.path, width: 150, height: 135, fit: BoxFit.cover,
                                                   ) : Image.file(
-                                                    File(restaurantRegController.pickedLogo!.path), width: 150, height: 120, fit: BoxFit.cover,
+                                                    File(restaurantRegController.pickedLogo!.path), width: 150, height: 135, fit: BoxFit.cover,
                                                   ) : SizedBox(
-                                                    width: 150, height: 120,
+                                                    width: 150, height: 135,
                                                     child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
 
                                                       Icon(CupertinoIcons.photo_camera_solid, size: 38, color: Theme.of(context).disabledColor.withValues(alpha: 0.6)),
@@ -283,6 +291,13 @@ class _RestaurantRegistrationScreenState extends State<RestaurantRegistrationScr
                                                       Text(
                                                         'upload_store_logo'.tr,
                                                         style: robotoRegular.copyWith(color: Theme.of(context).hintColor, fontSize: Dimensions.fontSizeSmall), textAlign: TextAlign.center,
+                                                      ),
+                                                      const SizedBox(height: Dimensions.paddingSizeExtraSmall),
+
+                                                      Text(
+                                                        'upload_jpg_png_gif_maximum_2_mb'.tr,
+                                                        style: robotoRegular.copyWith(color: Theme.of(context).disabledColor.withValues(alpha: 0.6), fontSize: Dimensions.fontSizeSmall - 2),
+                                                        textAlign: TextAlign.center,
                                                       ),
                                                       const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
@@ -334,7 +349,13 @@ class _RestaurantRegistrationScreenState extends State<RestaurantRegistrationScr
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text('restaurant_cover'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault)),
+                                            Row(
+                                              children: [
+                                                Text('restaurant_cover'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault)),
+
+                                                Text('*'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Colors.red)),
+                                              ],
+                                            ),
                                             const SizedBox(height: Dimensions.paddingSizeDefault),
 
                                             Stack(children: [
@@ -343,11 +364,11 @@ class _RestaurantRegistrationScreenState extends State<RestaurantRegistrationScr
                                                 child: ClipRRect(
                                                   borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
                                                   child: restaurantRegController.pickedCover != null ? GetPlatform.isWeb ? Image.network(
-                                                    restaurantRegController.pickedCover!.path, width: context.width, height: 120, fit: BoxFit.cover,
+                                                    restaurantRegController.pickedCover!.path, width: context.width, height: 135, fit: BoxFit.cover,
                                                   ) : Image.file(
-                                                    File(restaurantRegController.pickedCover!.path), width: context.width, height: 120, fit: BoxFit.cover,
+                                                    File(restaurantRegController.pickedCover!.path), width: context.width, height: 135, fit: BoxFit.cover,
                                                   ) : SizedBox(
-                                                    width: context.width, height: 120,
+                                                    width: context.width, height: 135,
                                                     child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
 
                                                       Icon(CupertinoIcons.photo_camera_solid, size: 38, color: Theme.of(context).disabledColor.withValues(alpha: 0.6)),
@@ -373,7 +394,6 @@ class _RestaurantRegistrationScreenState extends State<RestaurantRegistrationScr
                                                   ),
                                                 ),
                                               ),
-
 
                                               Positioned(
                                                 bottom: 0, right: 0, top: 0, left: 0,
@@ -1120,16 +1140,23 @@ class _RestaurantRegistrationScreenState extends State<RestaurantRegistrationScr
                         ClipRRect(
                           borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
                           child: restaurantRegistrationController.pickedLogo != null ? GetPlatform.isWeb ? Image.network(
-                            restaurantRegistrationController.pickedLogo!.path, width: 150, height: 120, fit: BoxFit.cover,
+                            restaurantRegistrationController.pickedLogo!.path, width: 160, height: 120, fit: BoxFit.cover,
                           ) : Image.file(
-                            File(restaurantRegistrationController.pickedLogo!.path), width: 150, height: 120, fit: BoxFit.cover,
+                            File(restaurantRegistrationController.pickedLogo!.path), width: 160, height: 120, fit: BoxFit.cover,
                           ) : SizedBox(
-                            width: 150, height: 120,
+                            width: 160, height: 120,
                             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
                               Icon(CupertinoIcons.camera_fill, color: Theme.of(context).disabledColor.withValues(alpha: 0.8), size: 38),
                               const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
-                              Text('upload_store_logo'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeExtraSmall)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('upload_store_logo'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeExtraSmall)),
+
+                                  Text('*'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Colors.red)),
+                                ],
+                              ),
                               const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                               Text(
@@ -1186,7 +1213,14 @@ class _RestaurantRegistrationScreenState extends State<RestaurantRegistrationScr
                               Icon(CupertinoIcons.camera_fill, color: Theme.of(context).disabledColor.withValues(alpha: 0.8), size: 38),
                               const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
-                              Text('upload_store_cover'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeExtraSmall)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('upload_store_cover'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeExtraSmall)),
+
+                                  Text('*'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault, color: Colors.red)),
+                                ],
+                              ),
                               const SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                               Text(

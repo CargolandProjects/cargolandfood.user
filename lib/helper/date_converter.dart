@@ -30,7 +30,7 @@ class DateConverter {
   }
 
   static String dateTimeStringToDateTimeToLines(String dateTime) {
-    return DateFormat('dd MMM yyyy  \n${_timeFormatter()}').format(DateFormat('yyyy-MM-dd HH:mm:ss').parse(dateTime));
+    return DateFormat('dd MMM yyyy ${_timeFormatter()}').format(DateFormat('yyyy-MM-dd HH:mm:ss').parse(dateTime));
   }
 
   static String dateTimeStringToDateOnly(String dateTime) {
@@ -216,8 +216,6 @@ class DateConverter {
   static String containTAndZToUTCFormat(String time) {
     var newTime = '${time.substring(0,10)} ${time.substring(11,23)}';
     return DateFormat('dd MMM, yyyy').format(DateFormat('yyyy-MM-dd HH:mm:ss').parse(newTime));
-
-    // return DateFormat('${_timeFormatter()} | d-MMM-yyyy ').format(dateTime.toLocal());
   }
 
   static String convertOnlyTodayTime(String createdAt) {
@@ -292,6 +290,21 @@ class DateConverter {
     return '${days != 0 ? '${days}d' : ''} ${hours != 0 ? '${hours}hr' : ''} ${remainingMinutes != 0 ? '${remainingMinutes}min' : ''}'; // Format as "Xd Yh Zm"
   }
 
+  static String convertTodayYesterdayDate(String createdAt) {
+    final DateTime createdDate = DateFormat('yyyy-MM-dd HH:mm:ss').parse(createdAt);
+    final DateTime now = DateTime.now();
+    final DateFormat formatter = DateFormat('dd MMM yyyy');
 
+    if (createdDate.year == now.year && createdDate.month == now.month && createdDate.day == now.day) {
+      return 'Today';
+    }
+
+    final DateTime yesterday = now.subtract(const Duration(days: 1));
+    if (createdDate.year == yesterday.year && createdDate.month == yesterday.month && createdDate.day == yesterday.day) {
+      return 'Yesterday';
+    }
+
+    return formatter.format(createdDate);
+  }
 
 }

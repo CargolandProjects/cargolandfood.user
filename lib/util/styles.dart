@@ -14,7 +14,7 @@ final robotoMedium = TextStyle(
   fontSize: Dimensions.fontSizeDefault,
 );
 
-final robotoSemiMedium = TextStyle(
+final robotoSemiBold = TextStyle(
   fontFamily: AppConstants.fontFamily,
   fontWeight: FontWeight.w600,
   fontSize: Dimensions.fontSizeDefault,

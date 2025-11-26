@@ -46,7 +46,7 @@ class AddressController extends GetxController implements GetxService {
       _addressList?.addAll(addressList);
       _allAddressList.addAll(addressList);
       if (canInsertAddress) {
-        Get.find<CheckoutController>().insertAddresses(Get.context!, null);
+        Get.find<CheckoutController>().insertAddresses(null);
       }
     }
     update();

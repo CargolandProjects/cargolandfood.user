@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
 import 'package:stackfood_multivendor/features/language/controllers/localization_controller.dart';
@@ -23,18 +22,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
-import 'package:url_strategy/url_strategy.dart';
 import 'helper/get_di.dart' as di;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 
 Future<void> main() async {
-  if (ResponsiveHelper.isMobilePhone()) {
-    HttpOverrides.global = MyHttpOverrides();
-  }
-  setPathUrlStrategy();
   WidgetsFlutterBinding.ensureInitialized();
+  if (kIsWeb) {
+    usePathUrlStrategy();
+  }
 
   // // Pass all uncaught "fatal" errors from the framework to Crashlytics
   // FlutterError.onError = (errorDetails) {
@@ -51,11 +50,13 @@ Future<void> main() async {
   if (GetPlatform.isWeb) {
     await Firebase.initializeApp(
         options: const FirebaseOptions(
-      apiKey: 'AIzaSyDO49neTt19NA2iXCiAuVUV99_pQdQluD4',
-      appId: '1:194583925856:web:d9e169bd0b6d2ad2491f05',
-      messagingSenderId: '194583925856',
-      projectId: 'cargoland-project',
-    ));
+            apiKey: "AIzaSyDO49neTt19NA2iXCiAuVUV99_pQdQluD4",
+            authDomain: "cargoland-project.firebaseapp.com",
+            projectId: "cargoland-project",
+            storageBucket: "cargoland-project.firebasestorage.app",
+            messagingSenderId: "194583925856",
+            appId: "1:194583925856:web:d9e169bd0b6d2ad2491f05",
+            measurementId: "G-XHDR7ZJGMX"));
   } else if (GetPlatform.isAndroid) {
     await Firebase.initializeApp(
       options: const FirebaseOptions(
@@ -199,14 +200,5 @@ class _MyAppState extends State<MyApp> {
         });
       });
     });
-  }
-}
-
-class MyHttpOverrides extends HttpOverrides {
-  @override
-  HttpClient createHttpClient(SecurityContext? context) {
-    return super.createHttpClient(context)
-      ..badCertificateCallback =
-          (X509Certificate cert, String host, int port) => true;
   }
 }

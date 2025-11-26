@@ -3,10 +3,8 @@ import 'package:stackfood_multivendor/common/models/response_model.dart';
 import 'package:stackfood_multivendor/features/address/controllers/address_controller.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
 import 'package:stackfood_multivendor/features/address/domain/reposotories/address_repo_interface.dart';
-import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:get/get.dart';
-
-import 'address_service_interface.dart';
+import 'package:stackfood_multivendor/features/address/domain/services/address_service_interface.dart';
 
 class AddressService implements AddressServiceInterface{
   final AddressRepoInterface addressRepoInterface;
@@ -40,7 +38,7 @@ class AddressService implements AddressServiceInterface{
     }
     if (responseModel.isSuccess) {
       Get.find<AddressController>().getAddressList();
-      Get.find<CheckoutController>().setAddressIndex(0);
+      //Get.find<CheckoutController>().setAddressIndex(0);
     }
     return responseModel;
   }

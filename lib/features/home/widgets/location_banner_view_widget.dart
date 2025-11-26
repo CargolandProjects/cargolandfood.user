@@ -20,7 +20,6 @@ class LocationBannerViewWidget extends StatelessWidget {
         padding: EdgeInsets.all(ResponsiveHelper.isMobile(context) ? 0 : Dimensions.paddingSizeLarge),
         height: ResponsiveHelper.isMobile(context) ? 110 : 147,
         decoration: BoxDecoration(
-          //color: Theme.of(context).primaryColor.withValues(alpha: Get.find<ThemeController>().darkTheme ? 0.5 : 0.1),
           gradient: LinearGradient(
             colors: [
               Theme.of(context).primaryColor.withValues(alpha: Get.find<ThemeController>().darkTheme ? 0.5 : 0.07),
@@ -68,6 +67,7 @@ class LocationBannerViewWidget extends StatelessWidget {
                 width: ResponsiveHelper.isMobile(context) ? 90 : 120,
                 height: ResponsiveHelper.isMobile(context) ? 35 : 40,
                 fontSize: Dimensions.fontSizeSmall,
+                isBold: false,
                 radius: Dimensions.radiusDefault,
                 onPressed: ()=> Get.toNamed(RouteHelper.getMapViewRoute()),
               ),

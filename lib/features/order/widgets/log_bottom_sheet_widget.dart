@@ -136,7 +136,7 @@ class _LogBottomSheetWidgetState extends State<LogBottomSheetWidget> {
 
                         ]) : Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
 
-                          Text('${'subscription_id'.tr} #${orderController.pauseLogs!.data![index].subscriptionId}', style: robotoBold),
+                          Text('${'subscription_id'.tr} #${orderController.pauseLogs!.data![index].subscriptionId}', style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall)),
 
                           Text(
                             '${DateConverter.stringDateTimeToDate(orderController.pauseLogs!.data![index].from!)} '

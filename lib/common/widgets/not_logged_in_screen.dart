@@ -48,13 +48,12 @@ class NotLoggedInScreen extends StatelessWidget {
 
               SizedBox(
                 width: 200,
-                child: CustomButtonWidget(buttonText: 'login_to_continue'.tr, /*height: 40,*/ onPressed: () async {
+                child: CustomButtonWidget(buttonText: 'login_to_continue'.tr, onPressed: () async {
 
                   if(!ResponsiveHelper.isDesktop(context)) {
                     await Get.toNamed(RouteHelper.getSignInRoute(Get.currentRoute));
                   }else{
                     Get.dialog(const Center(child: AuthDialogWidget(exitFromApp: false, backFromThis: true))).then((value) => callBack(true));
-                    // Get.dialog(const SignInScreen(exitFromApp: false, backFromThis: true)).then((value) => callBack(true));
                   }
                   if(Get.find<OrderController>().showBottomSheet) {
                     Get.find<OrderController>().showRunningOrders();

@@ -47,17 +47,11 @@ class DeliverymanRegistrationController extends GetxController implements GetxSe
   bool _spatialCheck = false;
   bool get spatialCheck => _spatialCheck;
 
-  final List<String> _identityTypeList = ['select_identity_type', 'passport', 'driving_license', 'nid'];
+  final List<String> _identityTypeList = ['passport', 'driving_license', 'nid'];
   List<String> get identityTypeList => _identityTypeList;
 
-  int _identityTypeIndex = 0;
-  int get identityTypeIndex => _identityTypeIndex;
-
-  int _dmTypeIndex = 0;
-  int get dmTypeIndex => _dmTypeIndex;
-
-  int? _vehicleIndex = 0;
-  int? get vehicleIndex => _vehicleIndex;
+  String? _selectedIdentityType;
+  String? get selectedIdentityType => _selectedIdentityType;
 
   List<VehicleModel>? _vehicles;
   List<VehicleModel>? get vehicles => _vehicles;
@@ -65,11 +59,14 @@ class DeliverymanRegistrationController extends GetxController implements GetxSe
   List<int?>? _vehicleIds;
   List<int?>? get vehicleIds => _vehicleIds;
 
-  int? _selectedZoneIndex = 0;
-  int? get selectedZoneIndex => _selectedZoneIndex;
+  final List<String> _dmTypeList = ['freelancer', 'salary_based'];
+  List<String> get dmTypeList => _dmTypeList;
 
-  final List<String?> _dmTypeList = ['select_dm_type', 'freelancer', 'salary_based'];
-  List<String?> get dmTypeList => _dmTypeList;
+  String? _selectedDmType;
+  String? get selectedDmType => _selectedDmType;
+
+  String? _selectedDmTypeId;
+  String? get selectedDmTypeId => _selectedDmTypeId;
 
   List<int>? _zoneIds;
   List<int>? get zoneIds => _zoneIds;
@@ -91,6 +88,53 @@ class DeliverymanRegistrationController extends GetxController implements GetxSe
 
   bool _acceptTerms = true;
   bool get acceptTerms => _acceptTerms;
+
+  int _selectedTabIndex = 0;
+  int get selectedTabIndex => _selectedTabIndex;
+
+  String? _countryDialCode;
+  String? get countryDialCode => _countryDialCode;
+
+  String? _selectedDeliveryZoneId;
+  String? get selectedDeliveryZoneId => _selectedDeliveryZoneId;
+
+  String? _selectedVehicleId;
+  String? get selectedVehicleId => _selectedVehicleId;
+
+  void setSelectedDmType(String? dmType) {
+    _selectedDmType = dmType;
+    _selectedDmTypeId = _selectedDmType == 'freelancer' ? '1' : '0';
+    update();
+  }
+
+  void setSelectedDeliveryZone({String? zoneId}) {
+    _selectedDeliveryZoneId = zoneId;
+    update();
+  }
+
+  void setSelectedVehicleType({String? vehicleId}) {
+    _selectedVehicleId = vehicleId;
+    update();
+  }
+
+  void setSelectedIdentityType(String? identityType) {
+    _selectedIdentityType = identityType;
+    update();
+  }
+
+  void setCountryDialCode(String? countryDialCode, {bool notify = true}) {
+    _countryDialCode = countryDialCode;
+    if(notify) {
+      update();
+    }
+  }
+
+  void setSelectedTabIndex(int index, {bool notify = true}) {
+    _selectedTabIndex = index;
+    if(notify) {
+      update();
+    }
+  }
 
   void toggleTerms() {
     _acceptTerms = !_acceptTerms;
@@ -155,31 +199,6 @@ class DeliverymanRegistrationController extends GetxController implements GetxSe
     }
   }
 
-  void setIdentityTypeIndex(String? identityType, bool notify) {
-    _identityTypeIndex = deliverymanRegistrationServiceInterface.setIdentityTypeIndex(_identityTypeList, identityType);
-    if(notify) {
-      update();
-    }
-  }
-
-  void initIdentityTypeIndex() {
-    _identityTypeIndex = 0;
-  }
-
-  void setDMTypeIndex(int dmType, bool notify) {
-    _dmTypeIndex = dmType;
-    if(notify) {
-      update();
-    }
-  }
-
-  void setVehicleIndex(int? index, bool notify) {
-    _vehicleIndex = index;
-    if(notify) {
-      update();
-    }
-  }
-
   Future<void> getVehicleList() async {
     _vehicles = await deliverymanRegistrationServiceInterface.getVehicleList();
     _vehicleIds = deliverymanRegistrationServiceInterface.setVehicleIdList(_vehicles);
@@ -187,7 +206,6 @@ class DeliverymanRegistrationController extends GetxController implements GetxSe
   }
 
   Future<List<ZoneModel>?> getZoneList({bool forDeliveryRegistration = false}) async {
-    _selectedZoneIndex = 0;
     _restaurantLocation = null;
     _zoneIds = null;
     _zoneList = await deliverymanRegistrationServiceInterface.getZoneList(forDeliveryRegistration);
@@ -209,12 +227,6 @@ class DeliverymanRegistrationController extends GetxController implements GetxSe
     if(response.isSuccess && response.zoneIds.isNotEmpty) {
       _restaurantLocation = location;
       _zoneIds = response.zoneIds;
-      for(int index=0; index<_zoneList!.length; index++) {
-        if(_zoneIds!.contains(_zoneList![index].id)) {
-          _selectedZoneIndex = 0;
-          break;
-        }
-      }
     }else {
       _restaurantLocation = null;
       _zoneIds = null;
@@ -262,11 +274,6 @@ class DeliverymanRegistrationController extends GetxController implements GetxSe
     update();
   }
 
-  void setZoneIndex(int? index) {
-    _selectedZoneIndex = index;
-    update();
-  }
-
   void removeIdentityImage(int index) {
     _pickedIdentities.removeAt(index);
     update();
@@ -294,15 +301,6 @@ class DeliverymanRegistrationController extends GetxController implements GetxSe
     update();
   }
 
-  void resetDeliveryRegistration(){
-    _identityTypeIndex = 0;
-    _dmTypeIndex = 0;
-    _selectedZoneIndex = 0;
-    _pickedImage = null;
-    _pickedIdentities = [];
-    update();
-  }
-
   Future<void> registerDeliveryMan(Map<String, String> data, List<FilePickerResult> additionalDocuments, List<String> inputTypeList) async {
     _isLoading = true;
     update();
@@ -311,6 +309,32 @@ class DeliverymanRegistrationController extends GetxController implements GetxSe
     await deliverymanRegistrationServiceInterface.registerDeliveryMan(data, multiParts, multiPartsDocuments);
     _isLoading = false;
     update();
+  }
+
+  String camelCaseToSentence(String text) {
+    var result = text.replaceAll('_', " ");
+    var finalResult = result[0].toUpperCase() + result.substring(1);
+    return finalResult;
+  }
+
+  void resetDmRegistrationData(){
+    _selectedTabIndex = 0;
+    _pickedImage = null;
+    _pickedIdentities = [];
+    _selectedIdentityType = null;
+    _selectedDmType = null;
+    _selectedDmTypeId = null;
+    _selectedVehicleId = null;
+    _selectedDeliveryZoneId = null;
+    _pickedImage = null;
+    _pickedIdentities = [];
+    _dmStatus = 0.4;
+    _showPassView = false;
+    _lengthCheck = false;
+    _numberCheck = false;
+    _uppercaseCheck = false;
+    _lowercaseCheck = false;
+    _spatialCheck = false;
   }
 
 }

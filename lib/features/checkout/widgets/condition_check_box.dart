@@ -10,7 +10,9 @@ class CheckoutCondition extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool activeRefund = Get.find<SplashController>().configModel!.refundPolicyStatus == 1;
+
+    bool activeRefund = Get.find<SplashController>().configModel!.refundPolicyStatus!;
+
     return Row(children: [
       Expanded(
         child: RichText(text: TextSpan(children: [
@@ -21,7 +23,7 @@ class CheckoutCondition extends StatelessWidget {
           TextSpan(
             text: 'privacy_policy'.tr, style: robotoMedium.copyWith(color: Theme.of(context).primaryColor),
             recognizer: TapGestureRecognizer()
-              ..onTap = () => Get.toNamed(RouteHelper.getHtmlRoute('privacy-policy')),
+              ..onTap = () => Get.toNamed(RouteHelper.getPrivacyPolicyRoute()),
           ),
           activeRefund ? TextSpan(
             text: ', ',
@@ -33,14 +35,14 @@ class CheckoutCondition extends StatelessWidget {
           TextSpan(
             text: 'terms_conditions'.tr, style: robotoMedium.copyWith(color: Theme.of(context).primaryColor),
             recognizer: TapGestureRecognizer()
-              ..onTap = () => Get.toNamed(RouteHelper.getHtmlRoute('terms-and-condition')),
+              ..onTap = () => Get.toNamed(RouteHelper.getTermsAndConditionRoute()),
           ),
           activeRefund ? TextSpan(text: ' ${'and'.tr} ', style: robotoRegular.copyWith(color: Theme.of(context).textTheme.bodyMedium!.color)) : const TextSpan(),
 
           activeRefund ? TextSpan(
             text: 'refund_policy'.tr, style: robotoMedium.copyWith(color: Theme.of(context).primaryColor),
             recognizer: TapGestureRecognizer()
-              ..onTap = () => Get.toNamed(RouteHelper.getHtmlRoute('refund-policy')),
+              ..onTap = () => Get.toNamed(RouteHelper.getRefundPolicyRoute()),
           ) : const TextSpan(),
         ]), textAlign: TextAlign.start, maxLines: 3),
       ),

@@ -56,7 +56,12 @@ class ZoneSelectionWidget extends StatelessWidget {
               color: Theme.of(context).cardColor,
             ),
             padding: const EdgeInsets.all(5),
-            child: Text('select_zone'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
+            child: Row(
+              children: [
+                Text('select_zone'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor)),
+                Text(' *', style: robotoRegular.copyWith(color: Colors.red)),
+              ],
+            ),
           ),
         ),
       ],

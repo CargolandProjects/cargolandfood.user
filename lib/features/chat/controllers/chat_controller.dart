@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:stackfood_multivendor/util/app_constants.dart';
 import 'package:http/http.dart' as http;
+import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:universal_html/html.dart' as html;
 
 class ChatController extends GetxController implements GetxService {
@@ -71,9 +72,8 @@ class ChatController extends GetxController implements GetxService {
   ConversationsModel? _conversationModel;
   ConversationsModel? get conversationModel => _conversationModel;
 
-
-  final Conversation _adminConversationModel = Conversation(unreadMessageCount: null);
-  Conversation get adminConversationModel => _adminConversationModel;
+  Conversation? _adminConversationModel;
+  Conversation? get adminConversationModel => _adminConversationModel;
 
   ConversationsModel? _searchConversationModel;
   ConversationsModel? get searchConversationModel => _searchConversationModel;
@@ -181,13 +181,13 @@ class ChatController extends GetxController implements GetxService {
           _searchConversationModel!.conversations![index0]!.sender = User(
             id: 0, fName: Get.find<SplashController>().configModel!.businessName, lName: '',
             phone: Get.find<SplashController>().configModel!.phone, email: Get.find<SplashController>().configModel!.email,
-            imageFullUrl: Get.find<SplashController>().configModel!.logoFullUrl,
+            imageFullUrl: Get.find<SplashController>().configModel?.favIconFullUrl,
           );
         }else {
           _searchConversationModel!.conversations![index0]!.receiver = User(
             id: 0, fName: Get.find<SplashController>().configModel!.businessName, lName: '',
             phone: Get.find<SplashController>().configModel!.phone, email: Get.find<SplashController>().configModel!.email,
-            imageFullUrl: Get.find<SplashController>().configModel!.logoFullUrl,
+            imageFullUrl: Get.find<SplashController>().configModel?.favIconFullUrl,
           );
         }
       }
@@ -237,7 +237,7 @@ class ChatController extends GetxController implements GetxService {
             fName: Get.find<ProfileController>().userInfoModel!.fName, lName: Get.find<ProfileController>().userInfoModel!.lName,
           ), receiver: notificationBody!.adminId != null ? User(
             id: 0, fName: Get.find<SplashController>().configModel!.businessName, lName: '',
-            imageFullUrl: Get.find<SplashController>().configModel!.logoFullUrl,
+            imageFullUrl: Get.find<SplashController>().configModel?.favIconFullUrl,
           ) : user);
         }
         _sortMessage(notificationBody!.adminId);
@@ -250,6 +250,13 @@ class ChatController extends GetxController implements GetxService {
     update();
   }
 
+  Future<void> getAdminMessages() async {
+    Response? response = await chatServiceInterface.getMessages(1, 0, UserType.admin, null);
+    if (response.body['messages'] != {} && response.statusCode == 200) {
+      _adminConversationModel = MessageModel.fromJson(response.body).conversation;
+    }
+    update();
+  }
 
   void pickImage(bool isRemove) async {
     _takeImageLoading = true;
@@ -260,22 +267,9 @@ class ChatController extends GetxController implements GetxService {
       _chatRawImage = [];
       // _chatWebImage = [];
     } else {
-      // if(GetPlatform.isWeb) {
-      //   FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.image, allowMultiple: true);
-      //
-      //   if(result != null) {
-      //     objFile = [];
-      //     objWebFile = [];
-      //     _pickedVideoFile = null;
-      //     _pickedWebVideoFile = null;
-      //     _chatImage = [];
-      //     _chatWebImage.add(result);
-      //   }
-      //
-      // } else {
         List<XFile> imageFiles = await ImagePicker().pickMultiImage(imageQuality: 40);
         for(XFile xFile in imageFiles) {
-          if(_chatImage.length >= AppConstants.maxImageSend) {
+          if(_chatImage.length >= Dimensions.maxImageSend) {
             showCustomSnackBar('can_not_add_more_than_3_image'.tr);
             break;
           }else {
@@ -294,23 +288,6 @@ class ChatController extends GetxController implements GetxService {
     _takeImageLoading = false;
     update();
   }
-
-  // Future<XFile?> convertPlatformFileToXFile(PlatformFile platformFile) async {
-  //   if (platformFile.path != null) {
-  //     // **Mobile/Desktop**: Use the file path to create an XFile
-  //     return XFile(platformFile.path!);
-  //   } else if (platformFile.bytes != null) {
-  //     // **Web**: Use the byte data to create an XFile
-  //     return XFile.fromData(
-  //       platformFile.bytes!,
-  //       name: platformFile.name,
-  //       mimeType: platformFile.mimeType,
-  //     );
-  //   } else {
-  //     // Handle cases where neither path nor bytes are available
-  //     return null;
-  //   }
-  // }
 
   void pickFile(bool isRemove, {int? index}) async {
     _takeImageLoading = true;
@@ -353,11 +330,11 @@ class ChatController extends GetxController implements GetxService {
         _pickedWebVideoFile = null;
 
         platformFile?.forEach((element) async {
-          if(_getFileSizeFromPlatformFileToDouble(element) > AppConstants.maxSizeOfASingleFile) {
+          if(_getFileSizeFromPlatformFileToDouble(element) > Dimensions.maxSizeOfASingleFile) {
             _singleFIleCrossMaxLimit = true;
           } else {
-            if(objFile.length < AppConstants.maxLimitOfTotalFileSent){
-              if((await _getMultipleFileSizeFromPlatformFiles(objFile) + _getFileSizeFromPlatformFileToDouble(element)) < AppConstants.maxLimitOfFileSentINConversation){
+            if(objFile.length < Dimensions.maxLimitOfTotalFileSent){
+              if((await _getMultipleFileSizeFromPlatformFiles(objFile) + _getFileSizeFromPlatformFileToDouble(element)) < Dimensions.maxLimitOfFileSentINConversation){
                 objFile.add(element.xFile);
                 double fileSize = await ImageSize.getImageSizeFromXFile(element.xFile);
                 fileSizeList.add(fileSize);
@@ -402,9 +379,9 @@ class ChatController extends GetxController implements GetxService {
         _pickedVideoFile = await ImagePicker().pickVideo(source: ImageSource.gallery);
         if(_pickedVideoFile != null){
           videoSize = await ImageSize.getImageSizeFromXFile(_pickedVideoFile!);
-          if(videoSize > AppConstants.limitOfPickedVideoSizeInMB){
+          if(videoSize > Dimensions.limitOfPickedVideoSizeInMB){
             _pickedVideoFile = null;
-            showCustomSnackBar('${"video_size_greater_than".tr} ${AppConstants.limitOfPickedVideoSizeInMB}mb');
+            showCustomSnackBar('${"video_size_greater_than".tr} ${Dimensions.limitOfPickedVideoSizeInMB}mb');
             update();
           }else{
             _chatImage = [];
@@ -492,8 +469,9 @@ class ChatController extends GetxController implements GetxService {
     if(adminId != null) {
       _messageModel!.conversation!.receiver = User(
         id: 0, fName: Get.find<SplashController>().configModel!.businessName, lName: '',
-        imageFullUrl: Get.find<SplashController>().configModel!.logoFullUrl,
+        imageFullUrl: Get.find<SplashController>().configModel?.favIconFullUrl,
       );
+      getAdminMessages();
     }
   }
 

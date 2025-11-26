@@ -83,7 +83,8 @@ class _GuestTrackOrderInputViewWidgetState extends State<GuestTrackOrderInputVie
                     onCountryChanged: (CountryCode countryCode) {
                       _countryDialCode = countryCode.dialCode;
                     },
-                    countryDialCode: _countryDialCode ?? Get.find<LocalizationController>().locale.countryCode,
+                    countryDialCode: _countryDialCode != null ? CountryCode.fromCountryCode(Get.find<SplashController>().configModel!.country!).code :
+                    Get.find<LocalizationController>().locale.countryCode,
                     labelText: 'phone'.tr,
                     required: true,
                     validator: (value) => ValidateCheck.validateEmptyText(value, "phone_number_field_is_required".tr),

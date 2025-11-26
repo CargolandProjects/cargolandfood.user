@@ -1,11 +1,13 @@
 import 'package:stackfood_multivendor/common/models/product_model.dart';
 import 'package:stackfood_multivendor/common/models/restaurant_model.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_bottom_sheet_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/bottom_section_widget.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/checkout_screen_shimmer_view.dart';
+import 'package:stackfood_multivendor/features/checkout/widgets/guest_login_bottom_sheet.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/order_place_button.dart';
 import 'package:stackfood_multivendor/features/checkout/widgets/top_section_widget.dart';
 import 'package:stackfood_multivendor/features/coupon/controllers/coupon_controller.dart';
@@ -71,8 +73,18 @@ class CheckoutScreenState extends State<CheckoutScreen> {
   final TextEditingController guestContactPersonNameController = TextEditingController();
   final TextEditingController guestContactPersonNumberController = TextEditingController();
   final TextEditingController guestEmailController = TextEditingController();
+  final TextEditingController guestAddressController = TextEditingController();
+  final TextEditingController guestStreetNumberController = TextEditingController();
+  final TextEditingController guestHouseController = TextEditingController();
+  final TextEditingController guestFloorController = TextEditingController();
+
+  final FocusNode guestNameNode = FocusNode();
   final FocusNode guestNumberNode = FocusNode();
   final FocusNode guestEmailNode = FocusNode();
+  final FocusNode guestAddressNode = FocusNode();
+  final FocusNode guestStreetNumberNode = FocusNode();
+  final FocusNode guestHouseNode = FocusNode();
+  final FocusNode guestFloorNode = FocusNode();
 
   final TextEditingController estimateArrivalDateController = TextEditingController();
   final TextEditingController estimateArrivalTimeController = TextEditingController();
@@ -142,7 +154,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
     _isCashOnDeliveryActive = Get.find<SplashController>().configModel!.cashOnDelivery;
     _isDigitalPaymentActive = Get.find<SplashController>().configModel!.digitalPayment;
     _isOfflinePaymentActive = Get.find<SplashController>().configModel!.offlinePaymentStatus!;
-    _isWalletActive = Get.find<SplashController>().configModel!.customerWalletStatus == 1;
+    _isWalletActive = Get.find<SplashController>().configModel!.customerWalletStatus!;
 
     if(_isCashOnDeliveryActive ?? false){
       checkoutController.setPaymentMethod(0, willUpdate: false);
@@ -228,6 +240,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
     bool guestCheckoutPermission = AuthHelper.isGuestLoggedIn() && Get.find<SplashController>().configModel!.guestCheckoutStatus!;
     bool isLoggedIn = AuthHelper.isLoggedIn();
     bool isGuestLogIn = AuthHelper.isGuestLoggedIn();
+    bool isDesktop = ResponsiveHelper.isDesktop(context);
 
     return Scaffold(
       appBar: CustomAppBarWidget(title: 'checkout'.tr),
@@ -338,7 +351,17 @@ class CheckoutScreenState extends State<CheckoutScreen> {
               }
             });
 
-
+            if(isGuestLogIn && checkoutController.isFirstTime){
+              Future.delayed(const Duration(milliseconds: 300), () {
+                if(isDesktop){
+                  Get.dialog(
+                    Dialog(child: GuestLoginBottomSheet(callBack: () => initCall())),
+                  );
+                }else{
+                  showCustomBottomSheet(child: GuestLoginBottomSheet(callBack: () => initCall()));
+                }
+              });
+            }
 
             bool restaurantSubscriptionActive = false;
             int subscriptionQty = checkoutController.subscriptionOrder ? 0 : 1;
@@ -355,7 +378,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
               if (checkoutController.orderType == 'take_away' || checkoutController.orderType == 'dine_in' || checkoutController.restaurant!.freeDelivery!
                   || (configModel?.adminFreeDelivery?.status == true && (configModel?.adminFreeDelivery?.type != null && configModel?.adminFreeDelivery?.type == 'free_delivery_to_all_store'))
                   || (configModel?.adminFreeDelivery?.status == true && (configModel?.adminFreeDelivery?.type != null &&  configModel?.adminFreeDelivery?.type == 'free_delivery_by_specific_criteria') && (configModel!.adminFreeDelivery!.freeDeliveryOver! > 0 && orderAmount >= configModel.adminFreeDelivery!.freeDeliveryOver!))
-                  || (configModel?.adminFreeDelivery?.status == true && (configModel?.adminFreeDelivery?.type != null &&  configModel?.adminFreeDelivery?.type == 'free_delivery_by_specific_criteria') && (configModel!.adminFreeDelivery!.freeDeliveryDistance! > 0 && configModel.adminFreeDelivery!.freeDeliveryDistance! >= checkoutController.distance!))
+                  || (configModel?.adminFreeDelivery?.status == true && (configModel?.adminFreeDelivery?.type != null &&  configModel?.adminFreeDelivery?.type == 'free_delivery_by_specific_criteria') && (configModel!.adminFreeDelivery!.freeDeliveryDistance! > 0 && configModel.adminFreeDelivery!.freeDeliveryDistance! >= (checkoutController.distance ?? 0)))
                   || couponController.freeDelivery) {
                 deliveryCharge = 0;
               }
@@ -402,12 +425,14 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                               price: price, discount: discount, addOns: addOnsPrice, restaurantSubscriptionActive: restaurantSubscriptionActive,
                               showTips: showTips, isCashOnDeliveryActive: _isCashOnDeliveryActive!, isDigitalPaymentActive: _isDigitalPaymentActive!,
                               isWalletActive: _isWalletActive, fromCart: widget.fromCart, total: total, tooltipController3: tooltipController3, tooltipController2: tooltipController2,
-                              guestNameTextEditingController: guestContactPersonNameController, guestNumberTextEditingController: guestContactPersonNumberController,
-                              guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
-                              guestNumberNode: guestNumberNode, isOfflinePaymentActive: _isOfflinePaymentActive, loginTooltipController: loginTooltipController,
+                              isOfflinePaymentActive: _isOfflinePaymentActive, loginTooltipController: loginTooltipController,
                               callBack: () => initCall(), deliveryChargeForView: _deliveryChargeForView, deliveryFeeTooltipController: deliveryFeeTooltipController,
-                              badWeatherCharge: badWeatherChargeForToolTip, extraChargeForToolTip: extraChargeForToolTip,
-                              deliveryOptionScrollController: deliveryOptionScrollController,
+                              badWeatherCharge: badWeatherChargeForToolTip, extraChargeForToolTip: extraChargeForToolTip, deliveryOptionScrollController: deliveryOptionScrollController,
+                              guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
+                              guestEmailController: guestEmailController, guestAddressController: guestAddressController,
+                              guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
+                              guestNameNode: guestNameNode, guestEmailNode: guestEmailNode, guestNumberNode: guestNumberNode, guestAddressNode: guestAddressNode,
+                              guestStreetNumberNode: guestStreetNumberNode, guestHouseNode: guestHouseNode, guestFloorNode: guestFloorNode,
                             )),
                             const SizedBox(width: Dimensions.paddingSizeLarge),
 
@@ -419,12 +444,11 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                 taxIncluded: (checkoutController.taxIncluded == 1), tax: checkoutController.orderTax!, deliveryCharge: deliveryCharge, checkoutController: checkoutController, locationController: locationController,
                                 todayClosed: todayClosed, tomorrowClosed: tomorrowClosed, orderAmount: orderAmount, maxCodOrderAmount: maxCodOrderAmount,
                                 subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList,
-                                price: price, addOns: addOnsPrice, charge: charge,
-                                guestNumberTextEditingController: guestContactPersonNumberController, guestNumberNode: guestNumberNode,
-                                guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
-                                guestNameTextEditingController: guestContactPersonNameController, isOfflinePaymentActive: _isOfflinePaymentActive,
-                                expansionTileController: expansionTileController, serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount,
-                                extraPackagingAmount: extraPackagingCharge, /*extraDiscount: extraDiscount*/
+                                price: price, addOns: addOnsPrice, charge: charge, isOfflinePaymentActive: _isOfflinePaymentActive, expansionTileController: expansionTileController,
+                                serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount, extraPackagingAmount: extraPackagingCharge,
+                                guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
+                                guestEmailController: guestEmailController, guestAddressController: guestAddressController,
+                                guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
                               ),
                             )
                           ]),
@@ -436,12 +460,14 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                             price: price, discount: discount, addOns: addOnsPrice, restaurantSubscriptionActive: restaurantSubscriptionActive,
                             showTips: showTips, isCashOnDeliveryActive: _isCashOnDeliveryActive!, isDigitalPaymentActive: _isDigitalPaymentActive!,
                             isWalletActive: _isWalletActive, fromCart: widget.fromCart, total: total, tooltipController3: tooltipController3, tooltipController2: tooltipController2,
-                            guestNameTextEditingController: guestContactPersonNameController, guestNumberTextEditingController: guestContactPersonNumberController,
-                            guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
-                            guestNumberNode: guestNumberNode, isOfflinePaymentActive: _isOfflinePaymentActive, loginTooltipController: loginTooltipController,
+                            isOfflinePaymentActive: _isOfflinePaymentActive, loginTooltipController: loginTooltipController,
                             callBack: () => initCall(), deliveryChargeForView: _deliveryChargeForView, deliveryFeeTooltipController: deliveryFeeTooltipController,
-                            badWeatherCharge: badWeatherChargeForToolTip, extraChargeForToolTip: extraChargeForToolTip,
-                            deliveryOptionScrollController: deliveryOptionScrollController,
+                            badWeatherCharge: badWeatherChargeForToolTip, extraChargeForToolTip: extraChargeForToolTip, deliveryOptionScrollController: deliveryOptionScrollController,
+                            guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
+                            guestEmailController: guestEmailController, guestAddressController: guestAddressController,
+                            guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
+                            guestNameNode: guestNameNode, guestEmailNode: guestEmailNode, guestNumberNode: guestNumberNode, guestAddressNode: guestAddressNode,
+                            guestStreetNumberNode: guestStreetNumberNode, guestHouseNode: guestHouseNode, guestFloorNode: guestFloorNode,
                           ),
 
                           BottomSectionWidget(
@@ -449,13 +475,12 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                             total: total, subTotal: subTotal, discount: discount, couponController: couponController,
                             taxIncluded: (checkoutController.taxIncluded == 1), tax: checkoutController.orderTax!, deliveryCharge: deliveryCharge, checkoutController: checkoutController, locationController: locationController,
                             todayClosed: todayClosed, tomorrowClosed: tomorrowClosed, orderAmount: orderAmount, maxCodOrderAmount: maxCodOrderAmount,
-                            subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList!,
-                            price: price, addOns: addOnsPrice, charge: charge,
-                            guestNumberTextEditingController: guestContactPersonNumberController, guestNumberNode: guestNumberNode,
-                            guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
-                            guestNameTextEditingController: guestContactPersonNameController, isOfflinePaymentActive: _isOfflinePaymentActive,
-                            expansionTileController: expansionTileController, serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount,
-                            extraPackagingAmount: extraPackagingCharge, /*extraDiscount: extraDiscount*/
+                            subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList,
+                            price: price, addOns: addOnsPrice, charge: charge, isOfflinePaymentActive: _isOfflinePaymentActive, expansionTileController: expansionTileController,
+                            serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount, extraPackagingAmount: extraPackagingCharge,
+                            guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
+                            guestEmailController: guestEmailController, guestAddressController: guestAddressController,
+                            guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
                           ),
                         ]),
                       ),
@@ -497,12 +522,13 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                         todayClosed: todayClosed, tomorrowClosed: tomorrowClosed, orderAmount: orderAmount, deliveryCharge: deliveryCharge,
                         discount: discount, total: total, maxCodOrderAmount: maxCodOrderAmount, subscriptionQty: subscriptionQty,
                         cartList: _cartList!, isCashOnDeliveryActive: _isCashOnDeliveryActive!, isDigitalPaymentActive: _isDigitalPaymentActive!,
-                        isWalletActive: _isWalletActive, fromCart: widget.fromCart, guestNumberTextEditingController: guestContactPersonNumberController,
-                        guestNumberNode: guestNumberNode, guestNameTextEditingController: guestContactPersonNameController,
-                        guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
+                        isWalletActive: _isWalletActive, fromCart: widget.fromCart,
                         isOfflinePaymentActive: _isOfflinePaymentActive, subTotal: subTotal, couponController: couponController,
                         taxPercent: taxPercent!, extraPackagingAmount: extraPackagingCharge,
                         taxIncluded: (checkoutController.taxIncluded == 1), tax: checkoutController.orderTax!,
+                        guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
+                        guestEmailController: guestEmailController, guestAddressController: guestAddressController,
+                        guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
                       ),
                     ],
                   ),
@@ -562,11 +588,6 @@ class CheckoutScreenState extends State<CheckoutScreen> {
       deliveryCharge = 0;
       charge = 0;
     }
-
-/*    if(restaurant.selfDeliverySystem == 0 && Get.find<SplashController>().configModel!.freeDeliveryDistance != null && Get.find<SplashController>().configModel!.freeDeliveryDistance! >= checkoutController.distance!){
-      deliveryCharge = 0;
-      charge = 0;
-    }*/
 
     if(restaurant.selfDeliverySystem == 1 && restaurant.freeDeliveryDistanceStatus! && restaurant.freeDeliveryDistanceValue! >= checkoutController.distance!){
       deliveryCharge = 0;

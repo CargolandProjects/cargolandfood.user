@@ -28,7 +28,7 @@ class SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
+      canPop: Navigator.canPop(context),
       onPopInvokedWithResult: (didPop, result) async {
         if(widget.exitFromApp) {
           if (_canExit) {
@@ -55,8 +55,6 @@ class SignInScreenState extends State<SignInScreen> {
         }else {
           if(Get.find<AuthController>().isOtpViewEnable){
             Get.find<AuthController>().enableOtpView(enable: false);
-          }else{
-            Get.back();
           }
         }
       },

@@ -1,3 +1,4 @@
+import 'package:stackfood_multivendor/common/enums/order_type.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/controllers/checkout_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/place_order_body_model.dart';
@@ -41,25 +42,28 @@ class OrderPlaceButton extends StatelessWidget {
   final bool isOfflinePaymentActive;
   final bool isWalletActive;
   final bool fromCart;
-  final TextEditingController guestNameTextEditingController;
-  final TextEditingController guestNumberTextEditingController;
-  final TextEditingController guestEmailController;
-  final FocusNode guestNumberNode;
-  final FocusNode guestEmailNode;
   final CouponController couponController;
   final double subTotal;
   final bool taxIncluded;
   final double taxPercent;
   final double extraPackagingAmount;
+  final TextEditingController guestNameController;
+  final TextEditingController guestNumberController;
+  final TextEditingController guestEmailController;
+  final TextEditingController guestAddressController;
+  final TextEditingController guestStreetNumberController;
+  final TextEditingController guestHouseController;
+  final TextEditingController guestFloorController;
 
   const OrderPlaceButton({
     super.key, required this.checkoutController, required this.locationController,
     required this.todayClosed, required this.tomorrowClosed, required this.orderAmount, this.deliveryCharge,
     required this.tax, this.discount, required this.total, this.maxCodOrderAmount, required this.subscriptionQty,
     required this.cartList, required this.isCashOnDeliveryActive, required this.isDigitalPaymentActive,
-    required this.isWalletActive, required this.fromCart, required this.guestNameTextEditingController, required this.guestNumberTextEditingController,
-    required this.guestNumberNode, required this.isOfflinePaymentActive, required this.couponController, required this.subTotal,
-    required this.taxIncluded, required this.taxPercent, required this.guestEmailController, required this.guestEmailNode, required this.extraPackagingAmount});
+    required this.isWalletActive, required this.fromCart, required this.guestNameController, required this.guestNumberController,
+    required this.isOfflinePaymentActive, required this.couponController, required this.subTotal,
+    required this.taxIncluded, required this.taxPercent, required this.guestEmailController, required this.extraPackagingAmount,
+    required this.guestAddressController, required this.guestStreetNumberController, required this.guestHouseController, required this.guestFloorController});
 
   @override
   Widget build(BuildContext context) {
@@ -193,20 +197,20 @@ class OrderPlaceButton extends StatelessWidget {
   }
 
   bool _showsWarningMessage(BuildContext context, bool isGuestLogIn, bool datePicked, bool isAvailable) {
-    if(isGuestLogIn && checkoutController.guestAddress == null && checkoutController.orderType != 'take_away'&& checkoutController.orderType != 'dine_in'){
-      showCustomSnackBar('please_setup_your_delivery_address_first'.tr);
-      return true;
-    } else if(checkoutController.orderType == 'dine_in' && checkoutController.selectedDineInDate == null){
+    if(checkoutController.orderType == OrderType.dine_in.name && checkoutController.selectedDineInDate == null) {
       showCustomSnackBar('please_select_your_dine_in_date'.tr);
       return true;
-    } else if(checkoutController.orderType == 'dine_in' && checkoutController.estimateDineInTime == null){
+    } else if(checkoutController.orderType == OrderType.dine_in.name && checkoutController.estimateDineInTime == null){
       showCustomSnackBar('please_select_your_dine_in_time'.tr);
       return true;
-    } else if(((isGuestLogIn && checkoutController.orderType == 'take_away') || checkoutController.orderType == 'dine_in') && guestNameTextEditingController.text.isEmpty){
+    } else if(isGuestLogIn && guestNameController.text.isEmpty){
       showCustomSnackBar('please_enter_contact_person_name'.tr);
       return true;
-    } else if(((isGuestLogIn && checkoutController.orderType == 'take_away') || checkoutController.orderType == 'dine_in') && guestNumberTextEditingController.text.isEmpty){
+    } else if(isGuestLogIn && guestNumberController.text.isEmpty){
       showCustomSnackBar('please_enter_contact_person_number'.tr);
+      return true;
+    }  else if((isGuestLogIn && checkoutController.orderType == OrderType.delivery.name) && guestAddressController.text.isEmpty){
+      showCustomSnackBar('please_setup_your_delivery_address_first'.tr);
       return true;
     } else if(!isCashOnDeliveryActive && !isDigitalPaymentActive && !isWalletActive) {
       showCustomSnackBar('no_payment_method_is_enabled'.tr);
@@ -232,6 +236,9 @@ class OrderPlaceButton extends StatelessWidget {
       return true;
     }else if(orderAmount < checkoutController.restaurant!.minimumOrder!) {
       showCustomSnackBar('${'minimum_order_amount_is'.tr} ${checkoutController.restaurant!.minimumOrder}');
+      return true;
+    }else if(checkoutController.subscriptionOrder && (!Get.find<SplashController>().configModel!.homeDelivery! || !checkoutController.restaurant!.delivery!)){
+      showCustomSnackBar('home_delivery_is_disable_for_subscription'.tr);
       return true;
     }else if(checkoutController.subscriptionOrder && checkoutController.subscriptionRange == null) {
       showCustomSnackBar('select_a_date_range_for_subscription'.tr);
@@ -271,14 +278,27 @@ class OrderPlaceButton extends StatelessWidget {
   }
 
   AddressModel? _processFinalAddress(bool isGuestLogIn) {
-    AddressModel? finalAddress = isGuestLogIn ? checkoutController.guestAddress : checkoutController.address[checkoutController.addressIndex];
+    AddressModel? finalAddress;
 
-    if(isGuestLogIn && checkoutController.orderType == 'take_away' || checkoutController.orderType == 'dine_in') {
-      String number = checkoutController.countryDialCode! + guestNumberTextEditingController.text;
-      finalAddress = AddressModel(contactPersonName: guestNameTextEditingController.text, contactPersonNumber: number,
+    if(!isGuestLogIn){
+      finalAddress = checkoutController.address;
+
+    }else if(isGuestLogIn && checkoutController.orderType == OrderType.take_away.name || checkoutController.orderType == OrderType.dine_in.name) {
+      String number = checkoutController.countryDialCode! + guestNumberController.text;
+      finalAddress = AddressModel(contactPersonName: guestNameController.text, contactPersonNumber: number,
         address: AddressHelper.getAddressFromSharedPref()!.address!, latitude: AddressHelper.getAddressFromSharedPref()!.latitude,
         longitude: AddressHelper.getAddressFromSharedPref()!.longitude, zoneId: AddressHelper.getAddressFromSharedPref()!.zoneId,
         email: guestEmailController.text,
+      );
+    }else if(isGuestLogIn && checkoutController.orderType == OrderType.delivery.name){
+      String number = checkoutController.countryDialCode! + guestNumberController.text;
+      finalAddress = AddressModel(contactPersonName: guestNameController.text, contactPersonNumber: number,
+        address: guestAddressController.text, email: guestEmailController.text,
+        road: guestStreetNumberController.text, house: guestHouseController.text, floor: guestFloorController.text,
+        addressType: AddressHelper.getAddressFromSharedPref()!.addressType,
+        latitude: locationController.position.latitude.toString(),
+        longitude: locationController.position.longitude.toString(),
+        zoneId: locationController.zoneID,
       );
     }
 
@@ -361,7 +381,7 @@ class OrderPlaceButton extends StatelessWidget {
       road: isGuestLogIn ? finalAddress.road??'' : checkoutController.streetNumberController.text.trim(),
       house: isGuestLogIn ? finalAddress.house??'' : checkoutController.houseController.text.trim(),
       floor: isGuestLogIn ? finalAddress.floor??'' : checkoutController.floorController.text.trim(),
-      dmTips: (checkoutController.orderType == 'take_away' || checkoutController.subscriptionOrder || checkoutController.selectedTips == 0) ? '' : checkoutController.tips.toString(),
+      dmTips: (checkoutController.orderType == 'take_away' || checkoutController.subscriptionOrder || checkoutController.selectedTips == 0) ? '0' : checkoutController.tips.toString(),
       subscriptionOrder: checkoutController.subscriptionOrder ? '1' : '0',
       subscriptionType: checkoutController.subscriptionType, subscriptionQuantity: subscriptionQty.toString(),
       subscriptionDays: days,

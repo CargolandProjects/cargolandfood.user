@@ -97,7 +97,7 @@ class RestaurantView extends StatelessWidget {
       child: CustomInkWellWidget(
         onTap: onTap ?? () {
           if(restaurant.restaurantStatus == 1){
-            Get.toNamed(RouteHelper.getRestaurantRoute(restaurant.id), arguments: RestaurantScreen(restaurant: restaurant));
+            Get.toNamed(RouteHelper.getRestaurantRoute(restaurant.id, slug: restaurant.slug ?? ''), arguments: RestaurantScreen(restaurant: restaurant));
           }else if(restaurant.restaurantStatus == 0){
             showCustomSnackBar('restaurant_is_not_available'.tr);
           }

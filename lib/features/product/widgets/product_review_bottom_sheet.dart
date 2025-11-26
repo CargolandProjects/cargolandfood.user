@@ -61,7 +61,7 @@ class ProductReviewBottomSheet extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeLarge, vertical: Dimensions.paddingSizeExtraSmall),
               child: Column(children: [
 
-                Text(product.name ?? '', style: robotoSemiMedium.copyWith(fontSize: Dimensions.fontSizeLarge)),
+                Text(product.name ?? '', style: robotoSemiBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
                 SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                 Text('${product.reviewCount} ${'reviews'.tr}', style: robotoMedium.copyWith(color: Theme.of(context).disabledColor)),
@@ -79,7 +79,7 @@ class ProductReviewBottomSheet extends StatelessWidget {
                       padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeDefault),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
 
-                        Text(product.reviews?[index].userName ?? '', style: robotoSemiMedium),
+                        Text(product.reviews?[index].userName ?? '', style: robotoSemiBold),
                         SizedBox(height: Dimensions.paddingSizeExtraSmall),
 
                         RatingBarWidget(rating: product.avgRating, size: 15, ratingCount: null, reviewCount: null),

@@ -1,3 +1,4 @@
+import 'package:stackfood_multivendor/common/enums/order_status.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/order/controllers/order_controller.dart';
 import 'package:stackfood_multivendor/features/order/widgets/cancellation_dialogue.dart';
@@ -8,8 +9,8 @@ import 'package:stackfood_multivendor/features/order/domain/models/order_details
 import 'package:stackfood_multivendor/features/order/domain/models/order_model.dart';
 import 'package:stackfood_multivendor/helper/address_helper.dart';
 import 'package:stackfood_multivendor/helper/price_converter.dart';
+import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
-import 'package:stackfood_multivendor/util/app_constants.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -29,91 +30,87 @@ class BottomViewWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool subscription = order.subscription != null;
 
-    bool pending = order.orderStatus == AppConstants.pending;
-    bool accepted = order.orderStatus == AppConstants.accepted;
-    bool confirmed = order.orderStatus == AppConstants.confirmed;
-    bool processing = order.orderStatus == AppConstants.processing;
-    bool pickedUp = order.orderStatus == AppConstants.pickedUp;
-    bool delivered = order.orderStatus == AppConstants.delivered;
-    bool cancelled = order.orderStatus == AppConstants.cancelled;
+    bool isDesktop = ResponsiveHelper.isDesktop(context);
+
+    bool subscription = order.subscription != null;
+    bool pending = order.orderStatus == OrderStatus.pending.name;
+    bool accepted = order.orderStatus == OrderStatus.accepted.name;
+    bool confirmed = order.orderStatus == OrderStatus.confirmed.name;
+    bool processing = order.orderStatus == OrderStatus.processing.name;
+    bool pickedUp = order.orderStatus == OrderStatus.picked_up.name;
+    bool delivered = order.orderStatus == OrderStatus.delivered.name;
+    bool cancelled = order.orderStatus == OrderStatus.canceled.name;
     bool cod = order.paymentMethod == 'cash_on_delivery';
     bool digitalPay = order.paymentMethod == 'digital_payment';
     bool offlinePay = order.paymentMethod == 'offline_payment';
 
     return Column(children: [
-      !orderController.showCancelled ? Center(
-        child: SizedBox(
-          width: Dimensions.webMaxWidth + 20,
-          child: Row(children: [
-            ((!subscription || (order.subscription!.status != 'canceled' && order.subscription!.status != 'completed')) && ((pending && !digitalPay) || accepted || confirmed
-            || processing || order.orderStatus == 'handover'|| pickedUp)) && order.orderType == 'delivery' ? Expanded(
-              child: CustomButtonWidget(
-                buttonText: subscription ? 'track_subscription'.tr : 'track_order'.tr,
-                margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                onPressed: () async {
-                  orderController.cancelTimer();
-                  await Get.toNamed(RouteHelper.getOrderTrackingRoute(order.id, contactNumber));
-                  orderController.callTrackOrderApi(orderModel: order, orderId: orderId.toString(), contactNumber: contactNumber);
-                },
-              ),
-            ) : const SizedBox(),
+      !orderController.showCancelled ? Container(
+        padding: EdgeInsets.all(!isDesktop ? Dimensions.paddingSizeDefault : 0),
+        child: Center(
+          child: SizedBox(
+            width: Dimensions.webMaxWidth + 20,
+            child: Row(children: [
+              ((!subscription || (order.subscription!.status != 'canceled' && order.subscription!.status != 'completed')) && ((pending && !digitalPay) || accepted || confirmed
+              || processing || order.orderStatus == 'handover'|| pickedUp)) && order.orderType == 'delivery' ? Expanded(
+                child: CustomButtonWidget(
+                  buttonText: subscription ? 'track_subscription'.tr : 'track_order'.tr,
+                  margin: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
+                  onPressed: () async {
+                    orderController.cancelTimer();
+                    await Get.toNamed(RouteHelper.getOrderTrackingRoute(order.id, contactNumber));
+                    orderController.callTrackOrderApi(orderModel: order, orderId: orderId.toString(), contactNumber: contactNumber);
+                  },
+                ),
+              ) : const SizedBox(),
 
-            (!offlinePay && pending && order.paymentStatus == 'unpaid' && digitalPay && Get.find<SplashController>().configModel!.cashOnDelivery!) ?
-            Expanded(
-              child: CustomButtonWidget(
-                buttonText: 'switch_to_cash_on_delivery'.tr,
-                margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                onPressed: () {
-                  Get.dialog(ConfirmationDialogWidget(
-                      icon: Images.warning, description: 'are_you_sure_to_switch'.tr,
-                      onYesPressed: () {
-                        double maxCodOrderAmount = AddressHelper.getAddressFromSharedPref()!.zoneData!.firstWhere((data) => data.id == order.restaurant!.zoneId).maxCodOrderAmount
-                            ?? 0;
+              (!offlinePay && pending && order.paymentStatus == 'unpaid' && digitalPay && Get.find<SplashController>().configModel!.cashOnDelivery!) ? Expanded(
+                child: CustomButtonWidget(
+                  buttonText: 'switch_to_cash_on_delivery'.tr,
+                  margin: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
+                  onPressed: () {
+                    Get.dialog(ConfirmationDialogWidget(
+                        icon: Images.warning, description: 'are_you_sure_to_switch'.tr,
+                        onYesPressed: () {
+                          double maxCodOrderAmount = AddressHelper.getAddressFromSharedPref()!.zoneData!.firstWhere((data) => data.id == order.restaurant!.zoneId).maxCodOrderAmount
+                              ?? 0;
 
-                        if(maxCodOrderAmount > total){
-                          orderController.switchToCOD(order.id.toString(), null).then((isSuccess) {
-                            Get.back();
-                            if(isSuccess) {
+                          if(maxCodOrderAmount > total){
+                            orderController.switchToCOD(order.id.toString(), null).then((isSuccess) {
+                              Get.back();
+                              if(isSuccess) {
+                                Get.back();
+                              }
+                            });
+                          }else{
+                            if(Get.isDialogOpen!) {
                               Get.back();
                             }
-                          });
-                        }else{
-                          if(Get.isDialogOpen!) {
-                            Get.back();
+                            showCustomSnackBar('${'you_cant_order_more_then'.tr} ${PriceConverter.convertPrice(maxCodOrderAmount)} ${'in_cash_on_delivery'.tr}');
                           }
-                          showCustomSnackBar('${'you_cant_order_more_then'.tr} ${PriceConverter.convertPrice(maxCodOrderAmount)} ${'in_cash_on_delivery'.tr}');
                         }
-                      }
-                  ));
-                },
-              ),
-            ): const SizedBox(),
+                    ));
+                  },
+                ),
+              ): const SizedBox(),
 
-            (subscription ? (order.subscription!.status == 'active' || order.subscription!.status == 'paused')
-            : (pending)) ? Expanded(child: Padding(
-              padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-              child: TextButton(
-                style: TextButton.styleFrom(minimumSize: const Size(1, 50), shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                  side: BorderSide(width: 2, color: Theme.of(context).disabledColor),
-                )),
+              (subscription ? (order.subscription!.status == 'active' || order.subscription!.status == 'paused') : (pending)) ? Expanded(child: CustomButtonWidget(
+                buttonText: subscription ? 'cancel_subscription'.tr : 'cancel_order'.tr,
+                color: Theme.of(context).disabledColor.withValues(alpha: 0.2),
+                textColor: Theme.of(context).textTheme.bodyLarge?.color,
                 onPressed: () {
                   if(subscription) {
-                    Get.dialog(SubscriptionPauseDialog(subscriptionID: order.subscriptionId, isPause: false));
+                    Get.dialog(SubscriptionPauseDialog(subscriptionID: order.subscriptionId, isPause: false, orderId: orderId.toString(), contactNumber: contactNumber));
                   }else {
                     orderController.setOrderCancelReason('');
                     Get.dialog(CancellationDialogue(orderId: order.id));
                   }
                 },
-                child: Text(subscription ? 'cancel_subscription'.tr : 'cancel_order'.tr, style: robotoBold.copyWith(
-                  color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeDefault,
-                )),
-              ),
-            )) : const SizedBox(),
+              )) : const SizedBox(),
 
-          ]),
+            ]),
+          ),
         ),
       ) : Center(
         child: Container(
@@ -133,16 +130,17 @@ class BottomViewWidget extends StatelessWidget {
         buttonText: 'pause_subscription'.tr,
         margin: const EdgeInsets.all(Dimensions.paddingSizeSmall),
         onPressed: () async {
-          Get.dialog(SubscriptionPauseDialog(subscriptionID: order.subscriptionId, isPause: true));
+          Get.dialog(SubscriptionPauseDialog(subscriptionID: order.subscriptionId, isPause: true, orderId: orderId.toString(), contactNumber: contactNumber));
         },
       ) : const SizedBox(),
 
-      Center(
+      (!subscription && delivered && orderController.orderDetails![0].itemCampaignId == null) || !subscription && Get.find<SplashController>().configModel!.repeatOrderOption! && (delivered || cancelled || order.orderStatus == 'failed' || order.orderStatus == 'refund_request_canceled')
+          ? orderController.orderDetails![0].itemCampaignId == null ? Center(
         child: SizedBox(
           width: Dimensions.webMaxWidth,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
-            child: !orderController.isLoading ? Get.find<AuthController>().isLoggedIn() ? Row(
+          child: !orderController.isLoading ? Get.find<AuthController>().isLoggedIn() ? Padding(
+            padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeDefault),
+            child: Row(
               children: [
                 (!subscription && delivered && orderController.orderDetails![0].itemCampaignId == null) ? Expanded(
                   child: CustomButtonWidget(
@@ -173,10 +171,10 @@ class BottomViewWidget extends StatelessWidget {
                   ),
                 ) : const SizedBox() : const SizedBox(),
               ],
-            ) : const SizedBox() : const Center(child: CircularProgressIndicator()),
-          ),
+            ),
+          ) : const SizedBox() : const Center(child: CircularProgressIndicator()),
         ),
-      ),
+      ) : const SizedBox() : const SizedBox(),
 
 
       (!offlinePay && (order.orderStatus == 'failed' || cancelled) && !cod && Get.find<SplashController>().configModel!.cashOnDelivery!) ? Center(

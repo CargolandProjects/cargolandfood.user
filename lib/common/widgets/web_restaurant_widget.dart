@@ -28,7 +28,7 @@ class WebRestaurantWidget extends StatelessWidget {
       child: InkWell(
         onTap: (){
           if(restaurant != null && restaurant!.restaurantStatus == 1){
-            Get.toNamed(RouteHelper.getRestaurantRoute(restaurant!.id), arguments: RestaurantScreen(restaurant: restaurant));
+            Get.toNamed(RouteHelper.getRestaurantRoute(restaurant!.id, slug: restaurant!.slug ?? ''), arguments: RestaurantScreen(restaurant: restaurant));
           }else if(restaurant!.restaurantStatus == 0){
             showCustomSnackBar('restaurant_is_not_available'.tr);
           }

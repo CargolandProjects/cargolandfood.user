@@ -213,7 +213,7 @@ class _SelectLocationViewWidgetState extends State<SelectLocationViewWidget> {
             child: InkWell(
               onTap: () {
                 if(ResponsiveHelper.isDesktop(context)) {
-                  showGeneralDialog(context: context, pageBuilder: (_,__,___) {
+                  showGeneralDialog(context: context, pageBuilder: (_,_,_) {
                     return SelectLocationViewWidget(fromView: false, mapController: _mapController, inDialog: true);
                   });
                 } else {

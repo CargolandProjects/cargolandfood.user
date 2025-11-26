@@ -36,25 +36,6 @@ class OrderTypeWidget extends StatelessWidget {
             ),
           ),
         ]),
-        /*child: ListTile(
-            leading: Image.asset(
-              icon, width: 30, height: 30,
-              color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
-            ),
-            dense: true,
-            contentPadding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
-            minLeadingWidth: 0,
-            horizontalTitleGap: Dimensions.paddingSizeExtraSmall,
-            title: Text(
-              title,
-              style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall),
-            ),
-            subtitle: Text(
-              subtitle,
-              style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).disabledColor),
-              maxLines: 1, overflow: TextOverflow.ellipsis,
-            ),
-          ),*/
       ),
     );
   }

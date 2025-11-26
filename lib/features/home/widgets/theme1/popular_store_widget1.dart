@@ -57,7 +57,7 @@ class PopularStoreWidget1 extends StatelessWidget {
                   child: InkWell(
                     onTap: () {
                       Get.toNamed(
-                        RouteHelper.getRestaurantRoute(restaurant[index].id),
+                        RouteHelper.getRestaurantRoute(restaurant[index].id, slug: restaurant[index].slug ?? ''),
                         arguments: RestaurantScreen(restaurant: restaurant[index]),
                       );
                     },

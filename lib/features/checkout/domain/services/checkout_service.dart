@@ -142,8 +142,8 @@ class CheckoutService implements CheckoutServiceInterface {
   }
 
   @override
-  Future<bool> saveOfflineInfo(String data) async {
-    return await checkoutRepositoryInterface.saveOfflineInfo(data);
+  Future<bool> saveOfflineInfo(String data, String? guestId) async {
+    return await checkoutRepositoryInterface.saveOfflineInfo(data, guestId);
   }
 
   @override
@@ -233,13 +233,13 @@ class CheckoutService implements CheckoutServiceInterface {
   }
 
   @override
-  Future<bool> updateOfflineInfo(String data) async {
-    return await checkoutRepositoryInterface.updateOfflineInfo(data);
+  Future<bool> updateOfflineInfo(String data, String? guestId) async {
+    return await checkoutRepositoryInterface.updateOfflineInfo(data, guestId);
   }
 
   @override
-  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data}) async {
-    return await checkoutRepositoryInterface.checkRestaurantValidation(data: data);
+  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data, String? guestId}) async {
+    return await checkoutRepositoryInterface.checkRestaurantValidation(data: data, guestId: guestId);
   }
 
   @override

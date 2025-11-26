@@ -40,7 +40,7 @@ class OfflinePaymentButton extends StatelessWidget {
                 Flexible(
                   child: Text(
                     'pay_offline'.tr,
-                    style: robotoSemiMedium.copyWith(fontSize: Dimensions.fontSizeDefault, color: disablePayment! ? Theme.of(context).disabledColor : Theme.of(context).textTheme.bodyLarge!.color),
+                    style: robotoSemiBold.copyWith(fontSize: Dimensions.fontSizeDefault, color: disablePayment! ? Theme.of(context).disabledColor : Theme.of(context).textTheme.bodyLarge!.color),
                     overflow: TextOverflow.ellipsis, maxLines: 1,
                   ),
                 ),

@@ -11,6 +11,12 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
+    <!-- Voice Search Permission -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+
     <queries>
         <intent>
             <action android:name="android.intent.action.VIEW" />
@@ -23,6 +29,9 @@
         <intent>
             <action android:name="android.intent.action.SEND" />
             <data android:mimeType="*/*" />
+        </intent>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
         </intent>
     </queries>
 
@@ -59,7 +68,7 @@
                  Flutter's first frame. -->
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
-                android:value="cargolandfood" />
+                android:value="stackfood" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -76,8 +85,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Accepts URIs that begin with YOUR_SCHEME://YOUR_HOST -->
                 <data
-                    android:scheme="Cargolandfood"
-                    android:host="cargolandfood.com" />
+                    android:scheme="StackFood"
+                    android:host="stackfood.com" />
             </intent-filter>
 
         </activity>

@@ -24,16 +24,12 @@ class DeliverymanRegistrationRepo implements DeliverymanRegistrationRepoInterfac
     throw UnimplementedError();
   }
 
-  ///Get all the zone in list
   @override
   Future<List<ZoneModel>?> getList({int? offset, bool? forDeliveryRegistration}) async{
     List<ZoneModel>? zoneList ;
     Response response = await apiClient.getData(AppConstants.zoneListUri);
     if(response.statusCode == 200) {
       zoneList = [];
-      if(forDeliveryRegistration!){
-        zoneList.add(ZoneModel(id: 0, name: 'select_zone'));
-      }
       response.body.forEach((zone) => zoneList!.add(ZoneModel.fromJson(zone)));
     }
     return zoneList;
@@ -45,7 +41,6 @@ class DeliverymanRegistrationRepo implements DeliverymanRegistrationRepoInterfac
     Response response = await apiClient.getData(AppConstants.vehiclesUri);
     if (response.statusCode == 200) {
       vehicles = [];
-      vehicles.add(VehicleModel(id: 0, type: 'select_vehicle_type'));
       response.body.forEach((vehicle) => vehicles!.add(VehicleModel.fromJson(vehicle)));
     }
     return vehicles;

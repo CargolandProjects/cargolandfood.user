@@ -1,4 +1,5 @@
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:get/get.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -48,7 +49,7 @@ class _MinMaxTimePickerWidgetState extends State<MinMaxTimePickerWidget> {
               color: selectedIndex == index ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : Colors.transparent,
             ),
             child: Center(child: Text(
-              widget.times[index].toString(),
+              widget.times[index].toString().tr,
               style: selectedIndex == index ? robotoBold.copyWith(fontSize: Dimensions.fontSizeExtraLarge) : robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
             )),
           );

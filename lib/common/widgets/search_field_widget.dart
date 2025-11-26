@@ -26,7 +26,7 @@ class _SearchFieldWidgetState extends State<SearchFieldWidget> {
       controller: widget.controller,
       textInputAction: TextInputAction.search,
       onTap: widget.onTap,
-      autofocus: true,
+      //autofocus: true,
       inputFormatters: [
         FilteringTextInputFormatter.deny(RegExp(r'[!@#$%^&*(),.?":{}|<>_+-/~`•√π÷×§∆£¢€¥°=©®™✓;]')),
       ],

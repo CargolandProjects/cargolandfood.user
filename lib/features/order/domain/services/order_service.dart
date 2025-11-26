@@ -115,8 +115,8 @@ class OrderService implements OrderServiceInterface {
   }
 
   @override
-  Future<ResponseModel> cancelOrder(String orderID, String? reason) async {
-    return await orderRepositoryInterface.cancelOrder(orderID, reason);
+  Future<ResponseModel> cancelOrder(String orderID, String? reason, String? comment) async {
+    return await orderRepositoryInterface.cancelOrder(orderID, reason, comment);
   }
 
   @override

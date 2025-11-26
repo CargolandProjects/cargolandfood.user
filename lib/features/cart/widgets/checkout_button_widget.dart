@@ -77,18 +77,16 @@ class CheckoutButtonWidget extends StatelessWidget {
               ),
             ) : const SizedBox(),
 
-            GetBuilder<CartController>(
-              builder: (cartController) {
-                return CustomButtonWidget(
-                  radius: 10,
-                  buttonText: 'confirm_delivery_details'.tr,
-                  onPressed: cartController.isLoading || restaurantController.restaurant == null ? null : () {
-                    Get.find<CheckoutController>().updateFirstTime();
-                    _processToCheckoutButtonPressed(restaurantController);
-                  },
-                );
-              }
-            ),
+            GetBuilder<CartController>(builder: (cartController) {
+              return CustomButtonWidget(
+                radius: 10,
+                buttonText: 'confirm_delivery_details'.tr,
+                onPressed: cartController.isLoading || restaurantController.restaurant == null ? null : () {
+                  Get.find<CheckoutController>().updateFirstTime();
+                  _processToCheckoutButtonPressed(restaurantController);
+                },
+              );
+            }),
             SizedBox(height: isDesktop ? Dimensions.paddingSizeExtraLarge : 0),
           ]);
         }),
@@ -101,9 +99,7 @@ class CheckoutButtonWidget extends StatelessWidget {
       showCustomSnackBar('one_or_more_product_unavailable'.tr);
     } else if(restaurantController.restaurant!.freeDelivery == null || restaurantController.restaurant!.cutlery == null) {
       showCustomSnackBar('restaurant_is_unavailable'.tr);
-    }/* else if(!isRestaurantOpen) {
-      showCustomSnackBar('restaurant_is_close_now'.tr);
-    } */else {
+    }else {
       Get.find<CouponController>().removeCouponData(false);
       Get.toNamed(RouteHelper.getCheckoutRoute('cart', fromDineIn: fromDineIn));
     }

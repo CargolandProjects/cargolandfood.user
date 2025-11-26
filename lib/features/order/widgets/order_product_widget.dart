@@ -4,7 +4,6 @@ import 'package:stackfood_multivendor/features/order/domain/models/order_details
 import 'package:stackfood_multivendor/features/order/domain/models/order_model.dart';
 import 'package:stackfood_multivendor/common/models/product_model.dart';
 import 'package:stackfood_multivendor/helper/price_converter.dart';
-import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -71,12 +70,26 @@ class OrderProductWidget extends StatelessWidget {
           Expanded(
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
               Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-                Expanded(child: Text(
-                  orderDetails.foodDetails!.name!,
-                  style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall),
-                  maxLines: 1, overflow: TextOverflow.ellipsis,
-                )),
-                const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+                Expanded(
+                  child: Row(children: [
+                    Flexible(
+                      child: Text(
+                        orderDetails.foodDetails?.name ?? '',
+                        style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall),
+                        maxLines: 1, overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
+                    Get.find<SplashController>().configModel!.toggleVegNonVeg! ? CustomAssetImageWidget(
+                      orderDetails.foodDetails!.veg == 0 ? Images.nonVegImage : Images.vegImage,
+                      height: 11, width: 11,
+                    ) : SizedBox(),
+
+                  ]),
+                ),
+                const SizedBox(width: Dimensions.paddingSizeDefault),
+
                 Text('${'quantity'.tr}: ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall)),
                 Text(
                   orderDetails.quantity.toString(),
@@ -91,11 +104,6 @@ class OrderProductWidget extends StatelessWidget {
                   style: robotoMedium, textDirection: TextDirection.ltr,
                 )),
 
-                Get.find<SplashController>().configModel!.toggleVegNonVeg! ? CustomAssetImageWidget(
-                  orderDetails.foodDetails!.veg == 0 ? Images.nonVegImage : Images.vegImage,
-                  height: 11, width: 11,
-                ) : const SizedBox(),
-
                 SizedBox(width: orderDetails.foodDetails!.isRestaurantHalalActive! && orderDetails.foodDetails!.isHalalFood! ? Dimensions.paddingSizeExtraSmall : 0),
 
                 orderDetails.foodDetails!.isRestaurantHalalActive! && orderDetails.foodDetails!.isHalalFood! ? const CustomAssetImageWidget(
@@ -106,7 +114,6 @@ class OrderProductWidget extends StatelessWidget {
               addOnText.isNotEmpty ? Padding(
                 padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  //SizedBox(width: orderDetails.foodDetails!.imageFullUrl != null && orderDetails.foodDetails!.imageFullUrl!.isNotEmpty ? 80 : 0),
                   Text('${'addons'.tr}: ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
                   Flexible(child: Text(
                       addOnText,
@@ -118,7 +125,6 @@ class OrderProductWidget extends StatelessWidget {
               variationText != '' ? (orderDetails.foodDetails!.variations != null && orderDetails.foodDetails!.variations!.isNotEmpty) ? Padding(
                 padding: const EdgeInsets.only(top: Dimensions.paddingSizeExtraSmall),
                 child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  //SizedBox(width: orderDetails.foodDetails!.imageFullUrl != null && orderDetails.foodDetails!.imageFullUrl!.isNotEmpty ? 80 : 0),
                   Text('${'variations'.tr}: ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor)),
                   Flexible(child: Text(
                       variationText!,
@@ -130,9 +136,6 @@ class OrderProductWidget extends StatelessWidget {
             ]),
           ),
         ]),
-
-        (!ResponsiveHelper.isDesktop(context) && index == itemLength! - 1) ? const SizedBox() : const Divider(height: Dimensions.paddingSizeLarge),
-        SizedBox(height: (!ResponsiveHelper.isDesktop(context) && index == itemLength! - 1) ? 0 : Dimensions.paddingSizeSmall),
 
       ]),
     );

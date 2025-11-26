@@ -170,20 +170,26 @@ class _WebConversationListViewWidgetState extends State<WebConversationListViewW
                           ),
                         ),
 
-                        GetBuilder<ProfileController>(builder: (profileController) {
-                          return (profileController.userInfoModel != null && profileController.userInfoModel!.userInfo != null
-                              && widget.conversation!.conversations![index]!.lastMessage!.senderId != profileController.userInfoModel!.userInfo!.id
-                              && widget.conversation!.conversations![index]!.unreadMessageCount! > 0) ? Positioned(right: Get.find<LocalizationController>().isLtr ? 5 : null, bottom: 8, left: Get.find<LocalizationController>().isLtr ? null : 5,
-                            child: Container(
-                              padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                              decoration: BoxDecoration(color: Theme.of(context).primaryColor, shape: BoxShape.circle),
-                              child: Text(
-                                widget.conversation!.conversations![index]!.unreadMessageCount.toString(),
-                                style: robotoMedium.copyWith(color: Theme.of(context).cardColor, fontSize: Dimensions.fontSizeExtraSmall),
-                              ),
-                            ),
-                          ) : const SizedBox();
-                        }),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: Dimensions.paddingSizeSmall, right: Dimensions.paddingSizeSmall),
+                          child: Align(
+                            alignment: Get.find<LocalizationController>().isLtr ? Alignment.centerRight : Alignment.centerLeft,
+                            child: GetBuilder<ProfileController>(builder: (profileController) {
+                              return (profileController.userInfoModel != null && profileController.userInfoModel!.userInfo != null
+                                  && widget.conversation!.conversations![index]!.lastMessage!.senderId != profileController.userInfoModel!.userInfo!.id
+                                  && widget.conversation!.conversations![index]!.unreadMessageCount! > 0) ? Positioned(right: Get.find<LocalizationController>().isLtr ? 5 : null, bottom: 8, left: Get.find<LocalizationController>().isLtr ? null : 5,
+                                child: Container(
+                                  padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
+                                  decoration: BoxDecoration(color: Theme.of(context).primaryColor, shape: BoxShape.circle),
+                                  child: Text(
+                                    widget.conversation!.conversations![index]!.unreadMessageCount.toString(),
+                                    style: robotoMedium.copyWith(color: Theme.of(context).cardColor, fontSize: Dimensions.fontSizeExtraSmall),
+                                  ),
+                                ),
+                              ) : const SizedBox();
+                            }),
+                          ),
+                        ),
 
                       ]),
                     ),

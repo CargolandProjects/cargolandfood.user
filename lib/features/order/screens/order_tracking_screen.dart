@@ -45,8 +45,8 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
 
   void _loadData() async {
     await Get.find<LocationController>().getCurrentLocation(true, notify: false, defaultLatLng: LatLng(
-      double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!),
-      double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!),
+      double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'),
+      double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0'),
     ));
     await Get.find<OrderController>().trackOrder(widget.orderID, null, true, contactNumber: widget.contactNumber);
     _timerTrackOrder();
@@ -149,7 +149,7 @@ class OrderTrackingScreenState extends State<OrderTrackingScreen> with WidgetsBi
             _isLoading ? const Center(child: CircularProgressIndicator()) : const SizedBox(),
 
             Positioned(
-              right: 15, bottom: track.orderType != 'take_away' /*&& (track.orderType != 'dine_in')*/ && track.deliveryMan == null ? 150 : 190,
+              right: 10, bottom: ResponsiveHelper.isDesktop(context) ? 190 : 150,
               child: InkWell(
                 onTap: () => _checkPermission(() async {
                   AddressModel address = await Get.find<LocationController>().getCurrentLocation(false, mapController: _controller);

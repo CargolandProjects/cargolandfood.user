@@ -64,9 +64,9 @@ class RestaurantAdditionalDataSectionWidget extends StatelessWidget {
             ) : showDate ? Container(
               height: 50,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                  color: Theme.of(context).cardColor,
-                  border: Border.all(color: Theme.of(context).primaryColor, width: 0.3)
+                borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                color: Theme.of(context).cardColor,
+                border: Border.all(color: Theme.of(context).disabledColor, width: 0.3),
               ),
               padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
               child: Row(children: [
@@ -104,11 +104,11 @@ class RestaurantAdditionalDataSectionWidget extends StatelessWidget {
                 itemBuilder: (context, i) {
                   return Row(children: [
                     Checkbox(
-                        activeColor: Theme.of(context).primaryColor,
-                        value: restaurantRegiController.additionalList![index][i] == restaurantRegiController.dataList![index].checkData![i],
-                        onChanged: (bool? isChecked) {
-                          restaurantRegiController.setAdditionalCheckData(index, i, restaurantRegiController.dataList![index].checkData![i]);
-                        }
+                      activeColor: Theme.of(context).primaryColor,
+                      value: restaurantRegiController.additionalList![index][i] == restaurantRegiController.dataList![index].checkData![i],
+                      onChanged: (bool? isChecked) {
+                        restaurantRegiController.setAdditionalCheckData(index, i, restaurantRegiController.dataList![index].checkData![i]);
+                      },
                     ),
                     Text(
                       restaurantRegiController.dataList![index].checkData![i],

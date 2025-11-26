@@ -2,6 +2,7 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_button_widget.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_card.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_text_field_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/footer_view_widget.dart';
 import 'package:stackfood_multivendor/features/language/controllers/localization_controller.dart';
@@ -10,6 +11,9 @@ import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.
 import 'package:stackfood_multivendor/features/location/controllers/location_controller.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
 import 'package:stackfood_multivendor/features/location/screens/pick_map_screen.dart';
+import 'package:stackfood_multivendor/features/location/widgets/animated_map_icon_extended.dart';
+import 'package:stackfood_multivendor/features/location/widgets/animated_map_icon_minimized.dart';
+import 'package:stackfood_multivendor/features/location/widgets/custom_floating_action_button.dart';
 import 'package:stackfood_multivendor/features/location/widgets/location_search_dialog.dart';
 import 'package:stackfood_multivendor/features/location/widgets/permission_dialog.dart';
 import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
@@ -62,6 +66,8 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   final FocusNode _emailFocus = FocusNode();
   CameraPosition? _cameraPosition;
   late LatLng _initialPosition;
+  double _currentZoomLevel = 16.0;
+
   bool _otherSelect = false;
   String? _countryDialCode = Get.find<AuthController>().getUserCountryCode().isNotEmpty
       ? Get.find<AuthController>().getUserCountryCode()
@@ -160,31 +166,32 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
                           ]) : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                             addressSectionWidget(locationController, isDesktop),
                             
-                            informationSectionWidget(locationController, isDesktop),
+                            //informationSectionWidget(locationController, isDesktop),
                           ]),
                         ),
                       ),
                     ),
                   ]),
                 ),
-              ), 
+              ),
+
               !isDesktop ? GetBuilder<AddressController>(builder: (addressController) {
                 return Container(
                   padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
                   decoration: BoxDecoration(
                     color: Theme.of(context).cardColor,
-                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 10)],
+                    boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 5, spreadRadius: 1)],
                   ),
                   child: CustomButtonWidget(
                     radius: Dimensions.paddingSizeSmall,
                     width: Dimensions.webMaxWidth,
-                    margin: EdgeInsets.all(isDesktop ? 0 : Dimensions.paddingSizeSmall),
                     buttonText: widget.forGuest ? 'continue'.tr : widget.address == null ? 'save_location'.tr : 'update_address'.tr,
                     isLoading: addressController.isLoading,
                     onPressed: locationController.loading ? null : () => _onSaveButtonPressed(locationController),
                   ),
                 );
               }) : const SizedBox(),
+
             ]);
           });
         }),
@@ -195,216 +202,262 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
   Widget addressSectionWidget(LocationController locationController, bool isDesktop) {
     return Container(
       decoration: isDesktop ? BoxDecoration(
-          color: Theme.of(context).cardColor,
-          borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-          boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10)],
       ) : const BoxDecoration(),
       padding: EdgeInsets.all(isDesktop ? Dimensions.paddingSizeLarge : 0),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Container(
-          height: isDesktop ? 260 : 145,
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-            border: Border.all(width: 1.5, color: Theme.of(context).primaryColor.withValues(alpha: 0.5)),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-            child: Stack(clipBehavior: Clip.none, children: [
-              
-              GoogleMap(
-                initialCameraPosition: CameraPosition(target: _initialPosition, zoom: 17),
-                minMaxZoomPreference: const MinMaxZoomPreference(0, 16),
-                onTap: isDesktop ? null : (latLng) {
-                  Get.toNamed(
-                    RouteHelper.getPickMapRoute('add-address', false),
-                    arguments: PickMapScreen(
-                      fromAddAddress: true,
-                      fromSignUp: false,
-                      fromSplash: false,
-                      googleMapController: locationController.mapController,
-                      route: null,
-                      canRoute: false,
-                    ),
-                  );
-                  },
-                zoomControlsEnabled: false,
-                compassEnabled: false,
-                indoorViewEnabled: true,
-                mapToolbarEnabled: false,
-                onCameraIdle: () {
-                  locationController.updatePosition(_cameraPosition, true);
-                },
-                onCameraMove: ((position) => _cameraPosition = position),
-                onMapCreated: (GoogleMapController controller) {
-                  locationController.setMapController(controller);
-                  if (widget.address == null) {
-                    locationController.getCurrentLocation(true, mapController: controller);
-                  }
-                },
-                gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-                  Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer()),
-                  Factory<PanGestureRecognizer>(() => PanGestureRecognizer()),
-                  Factory<ScaleGestureRecognizer>(() => ScaleGestureRecognizer()),
-                  Factory<TapGestureRecognizer>(() => TapGestureRecognizer()),
-                  Factory<VerticalDragGestureRecognizer>(() => VerticalDragGestureRecognizer()),
-                },
-                style: Get.isDarkMode ? Get.find<ThemeController>().darkMap : Get.find<ThemeController>().lightMap,
-              ),
-              
-              locationController.loading ? const Center(child: CircularProgressIndicator()) : const SizedBox(),
-              
-              Center(
-                child: !locationController.loading ? Image.asset(Images.pickMarker, height: 50, width: 50) : const CircularProgressIndicator(),
-              ),
-              
-              Positioned(
-                bottom: 10, right: 0,
-                child: InkWell(
-                  onTap: () => _checkPermission(() {
-                    locationController.getCurrentLocation(true, mapController: locationController.mapController);
-                  }),
-                  child: Container(
-                    width: 30, height: 30,
-                    margin: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(Dimensions.radiusSmall), color: Theme.of(context).cardColor),
-                    child: Icon(Icons.my_location, color: Theme.of(context).primaryColor, size: 20),
-                  ),
-                ),
-              ),
-              
-              Positioned(
-                top: 10, right: 0,
-                child: InkWell(
-                  onTap: () {
-                    Get.toNamed(
-                      RouteHelper.getPickMapRoute('add-address', false),
-                      arguments: PickMapScreen(
-                        fromAddAddress: true, fromSignUp: false, fromSplash: false,
-                        googleMapController: locationController.mapController,
-                        route: null, canRoute: false,
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 30, height: 30,
-                    margin: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(Dimensions.radiusSmall), color: Theme.of(context).cardColor),
-                    child: Icon(Icons.fullscreen, color: Theme.of(context).primaryColor, size: 20),
-                  ),
-                ),
-              ),
-              
-              Positioned(
-                top: 10,
-                left: 10,
-                child: LocationSearchDialog(
-                  mapController: locationController.mapController,
-                  fromAddress: true,
-                  pickedLocation: _addressController.text,
-                  callBack: (Position? position) {
-                    if (position != null) {
-                      _cameraPosition = CameraPosition(target: LatLng(position.latitude, position.longitude), zoom: 16);
-                      locationController.mapController!.moveCamera(CameraUpdate.newCameraPosition(_cameraPosition!));
-                      locationController.updatePosition(_cameraPosition, true);
-                    }
-                  },
-                  child: Container(
-                    height: 30,
-                    width: 200,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                      color: Theme.of(context).cardColor,
-                      boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 2)],
-                    ),
-                    padding: const EdgeInsets.only(left: 10),
-                    alignment: Alignment.centerLeft,
-                    child: Text('search'.tr, style: robotoRegular.copyWith(color: Theme.of(context).hintColor)),
-                  ),
-                ),
-              ),
-            ]),
-          ),
-        ),
-        const SizedBox(height: Dimensions.paddingSizeSmall),
-        
-        Center(child: Text(
-          'add_the_location_correctly'.tr,
-          style: robotoRegular.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeExtraSmall),
-        )),
-        const SizedBox(height: Dimensions.paddingSizeLarge),
-        
-        Text('label_as'.tr, style: robotoRegular),
-        const SizedBox(height: Dimensions.paddingSizeSmall),
-        
-        SizedBox(
-          height: 55,
-          child: ListView.builder(
-            shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            itemCount: locationController.addressTypeList.length,
-            itemBuilder: (context, index) => Padding(
-              padding: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
-              child: InkWell(
-                onTap: () {
-                  _otherSelect = index == 2;
-                  locationController.setAddressTypeIndex(index);
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeSmall),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                    color: locationController.addressTypeIndex == index ? Theme.of(context).primaryColor.withValues(alpha: 0.1) : Theme.of(context).cardColor,
-                    border: Border.all(color: locationController.addressTypeIndex == index ? Theme.of(context).primaryColor : Theme.of(context).disabledColor),
-                  ),
-                  child: Row(children: [
-                    SizedBox(
-                      height: 24, width: 24,
-                      child: Image.asset(
-                        index == 0 ? Images.homeIcon : index == 1 ? Images.workIcon : Images.otherIcon,
-                        color: locationController.addressTypeIndex == index ? Theme.of(context).primaryColor : Theme.of(context).disabledColor,
-                      ),
-                    ),
-                    SizedBox(width: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeSmall : 0),
-                    
-                    ResponsiveHelper.isDesktop(context) ? Text(
-                      index == 0 ? 'home'.tr : index == 1 ? 'office'.tr : 'others'.tr,
-                      style: robotoRegular.copyWith(color: locationController.addressTypeIndex == index ? Theme.of(context).textTheme.bodyLarge?.color : Theme.of(context).disabledColor,
-                      ),
-                    ) : const SizedBox(),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
 
-                  ]),
+        CustomCard(
+          isBorder: false,
+          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(
+              widget.fromCheckout ? 'set_your_exact_delivery_location'.tr : 'add_the_location_correctly'.tr,
+              style: robotoSemiBold,
+            ),
+            const SizedBox(height: Dimensions.paddingSizeSmall),
+
+            Container(
+              height: 320,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                border: Border.all(width: 1.5, color: Theme.of(context).disabledColor.withValues(alpha: 0.5)),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                child: Stack(clipBehavior: Clip.none, children: [
+
+                  GoogleMap(
+                    initialCameraPosition: CameraPosition(target: _initialPosition, zoom: _currentZoomLevel),
+                    minMaxZoomPreference: const MinMaxZoomPreference(0, 16),
+                    onTap: isDesktop ? null : (latLng) {
+                      Get.toNamed(
+                        RouteHelper.getPickMapRoute('add-address', false),
+                        arguments: PickMapScreen(
+                          fromAddAddress: true,
+                          fromSignUp: false,
+                          fromSplash: false,
+                          googleMapController: locationController.mapController,
+                          route: null,
+                          canRoute: false,
+                        ),
+                      );
+                      },
+                    zoomControlsEnabled: false,
+                    compassEnabled: false,
+                    indoorViewEnabled: false,
+                    mapToolbarEnabled: false,
+                    onCameraMove: ((position) => _cameraPosition = position),
+                    onCameraMoveStarted: () {
+                      locationController.updateCameraMovingStatus(true);
+                    },
+                    onCameraIdle: () {
+                      locationController.updateCameraMovingStatus(false);
+                      locationController.updatePosition(_cameraPosition, true);
+                    },
+                    onMapCreated: (GoogleMapController controller) {
+                      locationController.setMapController(controller);
+                      if (widget.address == null) {
+                        locationController.getCurrentLocation(true, mapController: controller);
+                      }
+                    },
+                    gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
+                      Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer()),
+                      Factory<PanGestureRecognizer>(() => PanGestureRecognizer()),
+                      Factory<ScaleGestureRecognizer>(() => ScaleGestureRecognizer()),
+                      Factory<TapGestureRecognizer>(() => TapGestureRecognizer()),
+                      Factory<VerticalDragGestureRecognizer>(() => VerticalDragGestureRecognizer()),
+                    },
+                    style: Get.isDarkMode ? Get.find<ThemeController>().darkMap : Get.find<ThemeController>().lightMap,
+                  ),
+
+                  Center(child: Padding(
+                    padding: const EdgeInsets.only(bottom: Dimensions.pickMapIconSize * 0.65),
+                    child: locationController.isCameraMoving ? const AnimatedMapIconExtended() : const AnimatedMapIconMinimised(),
+                  )),
+
+                  Positioned(
+                    top: 10, left: 10, right: 10,
+                    child: LocationSearchDialog(
+                      mapController: locationController.mapController,
+                      fromAddress: true,
+                      pickedLocation: _addressController.text,
+                      callBack: (Position? position) {
+                        if (position != null) {
+                          _cameraPosition = CameraPosition(target: LatLng(position.latitude, position.longitude), zoom: 16);
+                          locationController.mapController!.moveCamera(CameraUpdate.newCameraPosition(_cameraPosition!));
+                          locationController.updatePosition(_cameraPosition, true);
+                        }
+                      },
+                      child: Container(
+                        height: 30,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                          color: Theme.of(context).cardColor,
+                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 2)],
+                        ),
+                        padding: const EdgeInsets.only(left: 10),
+                        alignment: Alignment.centerLeft,
+                        child: Text('search_here'.tr, style: robotoRegular.copyWith(color: Theme.of(context).hintColor)),
+                      ),
+                    ),
+                  ),
+
+                  Positioned(
+                    bottom: 10, right: 10,
+                    child: Column(children: [
+
+                      CustomFloatingActionButton(
+                        onTap: () {
+                          Get.toNamed(
+                            RouteHelper.getPickMapRoute('add-address', false),
+                            arguments: PickMapScreen(
+                              fromAddAddress: true, fromSignUp: false, fromSplash: false,
+                              googleMapController: locationController.mapController,
+                              route: null, canRoute: false,
+                            ),
+                          );
+                        },
+                        icon: Icons.fullscreen,
+                        heroTag: 'view_full_map_button',
+                        iconColor: Theme.of(context).disabledColor, iconSize: 20,
+                      ),
+                      SizedBox(height: Dimensions.paddingSizeSmall),
+
+                      CustomFloatingActionButton(
+                        onTap: () {
+                          _checkPermission(() {
+                            locationController.getCurrentLocation(true, mapController: locationController.mapController);
+                          });
+                        },
+                        icon: Icons.my_location,
+                        heroTag: 'my_location',
+                        iconColor: Theme.of(context).disabledColor, iconSize: 20,
+                      ),
+                      SizedBox(height: Dimensions.paddingSizeSmall),
+
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).cardColor,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Column(children: [
+                          CustomFloatingActionButton(
+                            icon: Icons.add, heroTag: 'add_button',
+                            iconColor: Theme.of(context).disabledColor, iconSize: 20,
+                            onTap: () {
+                              _currentZoomLevel++;
+                              locationController.mapController?.animateCamera(CameraUpdate.zoomTo(_currentZoomLevel));
+                            },
+                          ),
+
+                          Container(
+                            width: 20, height: 1,
+                            color: Theme.of(context).disabledColor.withValues(alpha: 0.5),
+                          ),
+
+                          CustomFloatingActionButton(
+                            icon: Icons.remove, heroTag: 'remove_button',
+                            iconColor: Theme.of(context).disabledColor, iconSize: 20,
+                            onTap: () {
+                              _currentZoomLevel--;
+                              locationController.mapController?.animateCamera(CameraUpdate.zoomTo(_currentZoomLevel));
+                            },
+                          ),
+
+                        ]),
+                      ),
+
+                    ]),
+                  ),
+
+                ]),
+              ),
+            ),
+          ]),
+        ),
+        const SizedBox(height: Dimensions.paddingSizeDefault),
+
+        CustomCard(
+          isBorder: false,
+          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text('address_type'.tr, style: robotoSemiBold),
+            const SizedBox(height: Dimensions.paddingSizeSmall),
+
+            SizedBox(
+              height: 45,
+              child: ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemCount: locationController.addressTypeList.length,
+                itemBuilder: (context, index) => Padding(
+                  padding: const EdgeInsets.only(right: Dimensions.paddingSizeLarge),
+                  child: InkWell(
+                    onTap: () {
+                      _otherSelect = index == 2;
+                      locationController.setAddressTypeIndex(index);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: Dimensions.paddingSizeExtraSmall),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                        color: locationController.addressTypeIndex == index ? Theme.of(context).primaryColor : Theme.of(context).cardColor,
+                        border: Border.all(color: locationController.addressTypeIndex == index ? Theme.of(context).primaryColor : Theme.of(context).disabledColor),
+                      ),
+                      child: Row(children: [
+                        SizedBox(
+                          height: 20, width: 20,
+                          child: Image.asset(
+                            index == 0 ? Images.homeIcon : index == 1 ? Images.workIcon : Images.otherIcon,
+                            color: locationController.addressTypeIndex == index ? Theme.of(context).cardColor : Theme.of(context).disabledColor,
+                          ),
+                        ),
+                        SizedBox(width: Dimensions.paddingSizeSmall),
+
+                        Text(
+                          index == 0 ? 'home'.tr : index == 1 ? 'office'.tr : 'others'.tr,
+                          style: robotoRegular.copyWith(color: locationController.addressTypeIndex == index ? Theme.of(context).cardColor : Theme.of(context).disabledColor),
+                        ),
+                      ]),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+            SizedBox(height: _otherSelect ? Dimensions.paddingSizeLarge : 0),
+
+            _otherSelect ? CustomTextFieldWidget(
+              hintText: 'ex_02'.tr,
+              labelText: 'level_name'.tr,
+              inputType: TextInputType.text,
+              controller: _levelController,
+              focusNode: _levelNode,
+              nextFocus: _addressNode,
+              capitalization: TextCapitalization.words,
+              showBorder: true,
+            ) : const SizedBox(),
+            const SizedBox(height: Dimensions.paddingSizeOverLarge),
+
+            CustomTextFieldWidget(
+              hintText: 'delivery_address'.tr,
+              labelText: 'delivery_address'.tr,
+              required: true,
+              inputType: TextInputType.streetAddress,
+              focusNode: _addressNode,
+              nextFocus: _nameNode,
+              controller: _addressController,
+              onChanged: (text) => locationController.setPlaceMark(text),
+              showBorder: true,
+            ),
+            SizedBox(height: isDesktop ? 0 : Dimensions.paddingSizeOverLarge),
+
+            isDesktop ? SizedBox() : informationSectionWidget(locationController, isDesktop),
+          ]),
         ),
-        SizedBox(height: _otherSelect ? Dimensions.paddingSizeOverLarge : 0),
-        
-        _otherSelect ? CustomTextFieldWidget(
-          hintText: 'ex_02'.tr,
-          labelText: 'level_name'.tr,
-          inputType: TextInputType.text,
-          controller: _levelController,
-          focusNode: _levelNode,
-          nextFocus: _addressNode,
-          capitalization: TextCapitalization.words,
-          showBorder: true,
-        ) : const SizedBox(),
-        const SizedBox(height: Dimensions.paddingSizeOverLarge),
-        
-        CustomTextFieldWidget(
-          hintText: 'delivery_address'.tr,
-          labelText: 'delivery_address'.tr,
-          required: true,
-          inputType: TextInputType.streetAddress,
-          focusNode: _addressNode,
-          nextFocus: _nameNode,
-          controller: _addressController,
-          onChanged: (text) => locationController.setPlaceMark(text),
-          showBorder: true,
-        ),
-        SizedBox(height: ResponsiveHelper.isDesktop(context) ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeOverLarge),
         
       ]),
     );
@@ -493,7 +546,7 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
             ),
           ),
         ]),
-        const SizedBox(height: Dimensions.paddingSizeOverLarge),
+        SizedBox(height: isDesktop ? Dimensions.paddingSizeOverLarge : 0),
         
         isDesktop ? GetBuilder<AddressController>(builder: (addressController) {
           return CustomButtonWidget(
@@ -505,7 +558,6 @@ class _AddAddressScreenState extends State<AddAddressScreen> {
             onPressed: locationController.loading ? null : () => _onSaveButtonPressed(locationController),
           );
         }) : const SizedBox(),
-        const SizedBox(height: Dimensions.paddingSizeLarge),
         
       ]),
     );

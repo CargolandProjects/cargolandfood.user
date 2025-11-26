@@ -43,15 +43,18 @@ class BottomSectionWidget extends StatelessWidget {
   final List<CartModel>? cartList;
   final double price;
   final double addOns;
-  final TextEditingController guestNameTextEditingController;
-  final TextEditingController guestNumberTextEditingController;
-  final TextEditingController guestEmailController;
-  final FocusNode guestNumberNode;
-  final FocusNode guestEmailNode;
   final ExpansibleController expansionTileController;
   final JustTheController serviceFeeTooltipController;
   final double referralDiscount;
   final double extraPackagingAmount;
+  final TextEditingController guestNameController;
+  final TextEditingController guestNumberController;
+  final TextEditingController guestEmailController;
+  final TextEditingController guestAddressController;
+  final TextEditingController guestStreetNumberController;
+  final TextEditingController guestHouseController;
+  final TextEditingController guestFloorController;
+
   const BottomSectionWidget({
     super.key, required this.isCashOnDeliveryActive, required this.isDigitalPaymentActive,
     required this.isWalletActive, required this.total,
@@ -59,9 +62,10 @@ class BottomSectionWidget extends StatelessWidget {
     required this.taxIncluded, required this.tax, required this.deliveryCharge, required this.checkoutController,
     required this.locationController, required this.todayClosed, required this.tomorrowClosed,
     required this.orderAmount, this.maxCodOrderAmount, required this.subscriptionQty, required this.taxPercent,
-    required this.fromCart, required this.cartList, required this.price, required this.addOns, required this.charge, required this.guestNameTextEditingController,
-    required this.guestNumberTextEditingController, required this.guestNumberNode, required this.isOfflinePaymentActive, required this.guestEmailController,
-    required this.guestEmailNode, required this.expansionTileController, required this.serviceFeeTooltipController, required this.referralDiscount, required this.extraPackagingAmount,
+    required this.fromCart, required this.cartList, required this.price, required this.addOns, required this.charge, required this.guestNameController,
+    required this.guestNumberController, required this.isOfflinePaymentActive, required this.guestEmailController,
+    required this.expansionTileController, required this.serviceFeeTooltipController, required this.referralDiscount, required this.extraPackagingAmount,
+    required this.guestAddressController, required this.guestStreetNumberController, required this.guestHouseController, required this.guestFloorController,
   });
 
   @override
@@ -152,10 +156,11 @@ class BottomSectionWidget extends StatelessWidget {
                 todayClosed: todayClosed, tomorrowClosed: tomorrowClosed, orderAmount: orderAmount, deliveryCharge: deliveryCharge,
                 tax: tax, discount: discount, total: total, maxCodOrderAmount: maxCodOrderAmount, subscriptionQty: subscriptionQty,
                 cartList: cartList, isCashOnDeliveryActive: isCashOnDeliveryActive, isDigitalPaymentActive: isDigitalPaymentActive,
-                isWalletActive: isWalletActive, fromCart: fromCart, guestNumberTextEditingController: guestNumberTextEditingController,
-                guestNameTextEditingController: guestNameTextEditingController, guestNumberNode: guestNumberNode, isOfflinePaymentActive: isOfflinePaymentActive,
-                guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
+                isWalletActive: isWalletActive, fromCart: fromCart, isOfflinePaymentActive: isOfflinePaymentActive,
                 couponController: couponController, subTotal: subTotal, taxIncluded: taxIncluded, taxPercent: taxPercent, extraPackagingAmount: extraPackagingAmount,
+                guestNameController: guestNameController, guestNumberController: guestNumberController,
+                guestEmailController: guestEmailController, guestAddressController: guestAddressController,
+                guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
               ),
             ],
           ),

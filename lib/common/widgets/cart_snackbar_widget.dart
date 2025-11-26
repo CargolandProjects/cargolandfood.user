@@ -6,22 +6,31 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 void showCartSnackBarWidget() {
-  ScaffoldMessenger.of(Get.context!).showSnackBar(SnackBar(
-    dismissDirection: DismissDirection.horizontal,
-    margin: ResponsiveHelper.isDesktop(Get.context) ?  EdgeInsets.only(
-      right: Get.context!.width * 0.7,
-      left: Dimensions.paddingSizeSmall, bottom: Dimensions.paddingSizeSmall,
-    ) : const EdgeInsets.all(Dimensions.paddingSizeSmall),
-    duration: const Duration(seconds: 3),
+  Get.snackbar(
+    '',
+    'item_added_to_cart'.tr,
+    titleText: const SizedBox.shrink(),
     backgroundColor: Colors.green,
-    action: SnackBarAction(label: 'view_cart'.tr, textColor: Colors.white, onPressed: () {
-      Get.toNamed(RouteHelper.getCartRoute());
-    }),
-    behavior: SnackBarBehavior.floating,
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
-    content: Text(
+    colorText: Colors.white,
+    messageText: Text(
       'item_added_to_cart'.tr,
       style: robotoMedium.copyWith(color: Colors.white),
     ),
-  ));
+    snackPosition: SnackPosition.BOTTOM,
+    margin: ResponsiveHelper.isDesktop(Get.context) ? EdgeInsets.only(
+      right: Get.context!.width * 0.7,
+      left: Dimensions.paddingSizeSmall,
+      bottom: Dimensions.paddingSizeSmall,
+    ) : const EdgeInsets.all(Dimensions.paddingSizeSmall),
+    duration: const Duration(seconds: 3),
+    borderRadius: Dimensions.radiusSmall,
+    isDismissible: true,
+    mainButton: TextButton(
+      onPressed: () {
+        Get.back();
+        Get.toNamed(RouteHelper.getCartRoute());
+      },
+      child: Text('view_cart'.tr, style: const TextStyle(color: Colors.white)),
+    ),
+  );
 }

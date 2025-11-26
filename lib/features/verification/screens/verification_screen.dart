@@ -294,7 +294,11 @@ class VerificationScreenState extends State<VerificationScreen> {
           Get.toNamed(RouteHelper.getResetPasswordRoute(phone: _number, email: _email, token: Get.find<VerificationController>().verificationCode, page: 'reset-password'));
         }
       } else {
-        Get.offNamed(RouteHelper.getAccessLocationRoute('verification'));
+        if(ResponsiveHelper.isDesktop(context)) {
+          Get.offAllNamed(RouteHelper.getInitialRoute());
+        } else {
+          Get.offNamed(RouteHelper.getAccessLocationRoute('verification'));
+        }
       }
     }
   }

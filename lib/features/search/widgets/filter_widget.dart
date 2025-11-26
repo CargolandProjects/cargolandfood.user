@@ -383,7 +383,7 @@ class _FilterWidgetState extends State<FilterWidget> {
                         searchController.resetFilter();
                       }
                       Get.back();
-                      searchController.searchData1(searchController.searchText, 1);
+                      searchController.searchData(searchController.searchText, 1);
                     },
                     buttonText: 'clear_filter'.tr,
                   ),
@@ -395,7 +395,7 @@ class _FilterWidgetState extends State<FilterWidget> {
                     buttonText: 'filter'.tr,
                     onPressed: () async {
                       Get.back();
-                      searchController.searchData1(searchController.searchText, 1);
+                      searchController.searchData(searchController.searchText, 1);
                     },
                   ),
                 ),

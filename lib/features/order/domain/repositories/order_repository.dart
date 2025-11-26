@@ -102,8 +102,8 @@ class OrderRepository implements OrderRepositoryInterface {
   }
 
   @override
-  Future<ResponseModel> cancelOrder(String orderID, String? reason) async {
-    Map<String, String> data = {'_method': 'put', 'order_id': orderID, 'reason': reason!};
+  Future<ResponseModel> cancelOrder(String orderID, String? reason, String? comment) async {
+    Map<String, String> data = {'_method': 'put', 'order_id': orderID, 'reason': reason ?? '', 'note': comment ?? ''};
     if(AuthHelper.isGuestLoggedIn()){
       data.addAll({'guest_id': AuthHelper.getGuestId()});
     }
@@ -138,7 +138,7 @@ class OrderRepository implements OrderRepositoryInterface {
   @override
   Future<ResponseModel> updateSubscriptionStatus(int? subscriptionID, String? startDate, String? endDate, String status, String note, String? reason) async {
     Response response = await apiClient.postData(
-      '${AppConstants.subscriptionListUri}/$subscriptionID',
+      '${AppConstants.subscriptionListUri}/update/$subscriptionID',
       {'_method': 'put', 'status': status, 'note': note, 'cancellation_reason': reason, 'start_date': startDate, 'end_date': endDate},
     );
     if(response.statusCode == 200) {
@@ -150,13 +150,11 @@ class OrderRepository implements OrderRepositoryInterface {
 
   @override
   Future add(value) {
-    // TODO: implement add
     throw UnimplementedError();
   }
 
   @override
   Future delete(int? id) {
-    // TODO: implement delete
     throw UnimplementedError();
   }
 
@@ -209,9 +207,7 @@ class OrderRepository implements OrderRepositoryInterface {
 
   @override
   Future update(Map<String, dynamic> body, int? id) {
-    // TODO: implement update
     throw UnimplementedError();
   }
-
   
 }

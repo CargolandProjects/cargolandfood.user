@@ -26,9 +26,6 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
   List<PredictionModel> _predictionList = [];
   List<String> _predictList = <String>[];
   int selectedIndex = -1;
-  // bool _firstTime = true;
-  // late List<String> options = [];
-
 
   @override
   void initState() {
@@ -39,10 +36,6 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
 
   @override
   Widget build(BuildContext context) {
-    // if(_firstTime) {
-    //   _search(widget.pickedLocation ?? '');
-    //   _firstTime = false;
-    // }
     if(controller.isAttached && !controller.isOpen) {
       controller.text = widget.pickedLocation ?? '';
     }
@@ -66,7 +59,7 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
             ),
           ],
           viewOnChanged: (value) async {
-            // options = (await _search(value, lController)).toList();
+
           },
           viewConstraints: const BoxConstraints(minHeight: 100 , maxHeight: 300),
 
@@ -76,6 +69,7 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                border: Border.all(color: Theme.of(context).primaryColor.withValues(alpha: 0.3)),
               ),
               padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
               child: Row(children: [
@@ -89,7 +83,7 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
                   maxLines: 1, overflow: TextOverflow.ellipsis,
                 )),
 
-                const Icon(Icons.search),
+                Icon(Icons.search, color: Theme.of(context).disabledColor),
               ]),
             );
           },
@@ -126,15 +120,6 @@ class _LocationSearchDialogState extends State<LocationSearchDialog> {
 
   Future<Iterable<String>> _search(String query, LocationController locationController) async {
     _predictionList = await locationController.searchLocation(query);
-    // if(_firstTime) {
-    //   _predictionList = await Get.find<LocationController>().searchLocation(query);
-    //   _firstTime = false;
-    // } else {
-    //   Future.delayed(const Duration(milliseconds: 0), () async {
-    //     _predictionList = await locationController.searchLocation(query);
-    //   });
-    //   print('=======update will call========');
-    // }
 
     if (query == '') {
       return const Iterable<String>.empty();

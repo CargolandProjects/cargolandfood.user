@@ -112,9 +112,9 @@ class SignUpWidgetState extends State<SignUpWidget> {
                         validator: (value) => ValidateCheck.validateEmptyText(value, "please_enter_your_name".tr),
                       ),
                     ),
-                    SizedBox(width: Get.find<SplashController>().configModel!.refEarningStatus == 1 && isDesktop ? Dimensions.paddingSizeSmall : 0),
+                    SizedBox(width: Get.find<SplashController>().configModel!.refEarningStatus! && isDesktop ? Dimensions.paddingSizeSmall : 0),
 
-                    (Get.find<SplashController>().configModel!.refEarningStatus == 1 && isDesktop) ? Expanded(
+                    (Get.find<SplashController>().configModel!.refEarningStatus! && isDesktop) ? Expanded(
                       child: Padding(
                         padding: EdgeInsets.only(bottom: _isReferFieldGap ? Dimensions.paddingSizeLarge + 1 : 0),
                         child: CustomTextFieldWidget(
@@ -217,8 +217,8 @@ class SignUpWidgetState extends State<SignUpWidget> {
                       required: true,
                       controller: _confirmPasswordController,
                       focusNode: _confirmPasswordFocus,
-                      nextFocus: Get.find<SplashController>().configModel!.refEarningStatus == 1 ? _referCodeFocus : null,
-                      inputAction: Get.find<SplashController>().configModel!.refEarningStatus == 1 ? TextInputAction.next : TextInputAction.done,
+                      nextFocus: Get.find<SplashController>().configModel!.refEarningStatus! ? _referCodeFocus : null,
+                      inputAction: Get.find<SplashController>().configModel!.refEarningStatus! ? TextInputAction.next : TextInputAction.done,
                       inputType: TextInputType.visiblePassword,
                       prefixIcon: Icons.lock,
                       isPassword: true,
@@ -236,8 +236,8 @@ class SignUpWidgetState extends State<SignUpWidget> {
                     required: true,
                     controller: _confirmPasswordController,
                     focusNode: _confirmPasswordFocus,
-                    nextFocus: Get.find<SplashController>().configModel!.refEarningStatus == 1 ? _referCodeFocus : null,
-                    inputAction: Get.find<SplashController>().configModel!.refEarningStatus == 1 ? TextInputAction.next : TextInputAction.done,
+                    nextFocus: Get.find<SplashController>().configModel!.refEarningStatus! ? _referCodeFocus : null,
+                    inputAction: Get.find<SplashController>().configModel!.refEarningStatus! ? TextInputAction.next : TextInputAction.done,
                     inputType: TextInputType.visiblePassword,
                     prefixIcon: Icons.lock,
                     isPassword: true,
@@ -247,7 +247,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
                   SizedBox(height: !isDesktop ? Dimensions.paddingSizeLarge : 0),
 
 
-                  (Get.find<SplashController>().configModel!.refEarningStatus == 1 && !isDesktop) ? CustomTextFieldWidget(
+                  (Get.find<SplashController>().configModel!.refEarningStatus! && !isDesktop) ? CustomTextFieldWidget(
                     hintText: 'refer_code'.tr,
                     labelText: 'refer_code'.tr,
                     showLabelText: true,
@@ -260,7 +260,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
                     divider: false,
                     prefixSize: 14,
                   ) : const SizedBox(),
-                  SizedBox(height: (Get.find<SplashController>().configModel!.refEarningStatus == 1 && !isDesktop) ? Dimensions.paddingSizeLarge : 0),
+                  SizedBox(height: (Get.find<SplashController>().configModel!.refEarningStatus! && !isDesktop) ? Dimensions.paddingSizeLarge : 0),
 
                   TramsConditionsCheckBoxWidget(authController: authController, fromSignUp : true, fromDialog: isDesktop ? true : false),
                   SizedBox(height: isDesktop ? Dimensions.paddingSizeLarge : Dimensions.paddingSizeDefault),

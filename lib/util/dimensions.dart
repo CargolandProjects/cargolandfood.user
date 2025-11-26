@@ -17,10 +17,17 @@ class Dimensions {
   static const double paddingSizeExtraOverLarge = 35.0;
 
   static const double radiusSmall = 5.0;
+  static const double radiusMedium = 8;
   static const double radiusDefault = 10.0;
   static const double radiusLarge = 15.0;
   static const double radiusExtraLarge = 20.0;
 
   static const double webMaxWidth = 1170;
   static const int messageInputLength = 250;
+  static const double pickMapIconSize = 100.0;
+  static const double maxLimitOfFileSentINConversation = 25;
+  static const double maxLimitOfTotalFileSent = 5;
+  static const double maxSizeOfASingleFile = 10;
+  static const double maxImageSend = 10;
+  static const double limitOfPickedVideoSizeInMB = 50;
 }

@@ -76,24 +76,39 @@ class _AddFundDialogueWidgetState extends State<AddFundDialogueWidget> {
                 Text('add_fund_form_secured_digital_payment_gateways'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall), textAlign: TextAlign.center),
                 const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                CustomTextFieldWidget(
-                  hintText: 'enter_amount'.tr,
-                  showLabelText: false,
-                  isAmount: true,
-                  inputType: TextInputType.number,
-                  focusNode: focusNode,
-                  inputAction: TextInputAction.done,
-                  controller: inputAmountController,
-                  textAlign: TextAlign.center,
-                  onChanged: (String value){
-                    try{
-                      if(double.parse(value) > 0){
-                        walletController.isTextFieldEmpty(value);
-                      }
-                    }catch(e) {
-                      walletController.isTextFieldEmpty('');
-                    }
-                  },
+                Container(
+                  padding: EdgeInsets.all(Dimensions.paddingSizeLarge),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
+                    color: Theme.of(context).disabledColor.withValues(alpha: 0.1),
+                  ),
+                  child: Column(
+                    children: [
+
+                      Text('${'enter_amount'.tr} (${Get.find<SplashController>().configModel?.currencySymbol!})', style: robotoRegular),
+                      SizedBox(height: Dimensions.paddingSizeDefault),
+
+                      CustomTextFieldWidget(
+                        hintText: 'ex_100'.tr,
+                        showLabelText: false,
+                        isAmount: true,
+                        inputType: TextInputType.number,
+                        focusNode: focusNode,
+                        inputAction: TextInputAction.done,
+                        controller: inputAmountController,
+                        textAlign: TextAlign.center,
+                        onChanged: (String value){
+                          try{
+                            if(double.parse(value) > 0){
+                              walletController.isTextFieldEmpty(value);
+                            }
+                          }catch(e) {
+                            walletController.isTextFieldEmpty('');
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
                 const SizedBox(height: Dimensions.paddingSizeLarge),
 

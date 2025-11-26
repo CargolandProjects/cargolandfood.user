@@ -18,7 +18,7 @@ class PartialPayView extends StatelessWidget {
     return GetBuilder<CheckoutController>(
       builder: (checkoutController) {
         return Get.find<SplashController>().configModel!.partialPaymentStatus! && !checkoutController.subscriptionOrder
-        && Get.find<SplashController>().configModel!.customerWalletStatus == 1
+        && Get.find<SplashController>().configModel!.customerWalletStatus!
         && Get.find<ProfileController>().userInfoModel != null && (checkoutController.distance != -1)
         && Get.find<ProfileController>().userInfoModel!.walletBalance! > 0 ? AnimatedContainer(
           duration: const Duration(seconds: 2),

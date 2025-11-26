@@ -4,9 +4,7 @@ import 'package:stackfood_multivendor/common/models/restaurant_model.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
 import 'package:stackfood_multivendor/features/home/screens/home_screen.dart';
 import 'package:stackfood_multivendor/features/order/domain/models/order_model.dart';
-import 'package:stackfood_multivendor/features/address/controllers/address_controller.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
-import 'package:stackfood_multivendor/features/address/widgets/address_card_widget.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
 import 'package:stackfood_multivendor/features/checkout/domain/models/offline_method_model.dart';
@@ -21,13 +19,9 @@ import 'package:stackfood_multivendor/features/loyalty/controllers/loyalty_contr
 import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/features/restaurant/controllers/restaurant_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
-import 'package:stackfood_multivendor/helper/address_helper.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/app_constants.dart';
-import 'package:stackfood_multivendor/util/dimensions.dart';
-import 'package:stackfood_multivendor/util/styles.dart';
-import 'package:stackfood_multivendor/common/widgets/custom_dropdown_widget.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -38,11 +32,8 @@ class CheckoutController extends GetxController implements GetxService {
   final CheckoutServiceInterface checkoutServiceInterface;
   CheckoutController({required this.checkoutServiceInterface});
 
-  List<DropdownItem<int>> _addressList = [];
-  List<DropdownItem<int>> get addressList => _addressList;
-
-  List<AddressModel> _address = [];
-  List<AddressModel> get address => _address;
+  AddressModel? _address;
+  AddressModel? get address => _address;
 
   Restaurant? _restaurant;
   Restaurant? get restaurant => _restaurant;
@@ -74,6 +65,8 @@ class CheckoutController extends GetxController implements GetxService {
   final TextEditingController couponController = TextEditingController();
   final TextEditingController noteController = TextEditingController();
   final TextEditingController tipController = TextEditingController(text: '0');
+  String addressType = '';
+  final TextEditingController addressController = TextEditingController();
   final TextEditingController streetNumberController = TextEditingController();
   final TextEditingController houseController = TextEditingController();
   final TextEditingController floorController = TextEditingController();
@@ -142,9 +135,6 @@ class CheckoutController extends GetxController implements GetxService {
   AddressModel? _guestAddress;
   AddressModel? get guestAddress => _guestAddress;
 
-  int _addressIndex = 0;
-  int get addressIndex => _addressIndex;
-
   bool _isDmTipSave = false;
   bool get isDmTipSave => _isDmTipSave;
 
@@ -169,9 +159,6 @@ class CheckoutController extends GetxController implements GetxService {
   bool _isLoadingUpdate = false;
   bool get isLoadingUpdate => _isLoadingUpdate;
 
-  // String? _estimateDate;
-  // String? get estimateDate => _estimateDate;
-
   String? _estimateDineInTime;
   String? get estimateDineInTime => _estimateDineInTime;
 
@@ -192,6 +179,24 @@ class CheckoutController extends GetxController implements GetxService {
 
   int? _taxIncluded;
   int? get taxIncluded => _taxIncluded;
+
+  bool _showMoreDetails = false;
+  bool get showMoreDetails => _showMoreDetails;
+
+  bool _showChangeAmount = true;
+  bool get showChangeAmount => _showChangeAmount;
+
+  void setShowChangeAmount(bool value){
+    _showChangeAmount = value;
+    update();
+  }
+
+  void setShowMoreDetails(bool value, {bool willUpdate = true}) {
+    _showMoreDetails = value;
+    if(willUpdate) {
+      update();
+    }
+  }
 
   void updateFirstTime() {
     _isFirstTime = true;
@@ -242,13 +247,6 @@ class CheckoutController extends GetxController implements GetxService {
     }
   }
 
-  void setAddressIndex(int index, {bool canUpdate = true} ) {
-    _addressIndex = index;
-    if(canUpdate) {
-      update();
-    }
-  }
-
   void setDateCloseRestaurant(bool status) {
     _customDateRestaurantClose = status;
     update();
@@ -259,15 +257,10 @@ class CheckoutController extends GetxController implements GetxService {
     update();
   }
 
-  void _setGuestAddress(AddressModel? address) {
-    _guestAddress = address;
-    update();
-  }
-
   Future<bool> saveOfflineInfo(String data) async {
     _isLoading = true;
     update();
-    bool success = await checkoutServiceInterface.saveOfflineInfo(data);
+    bool success = await checkoutServiceInterface.saveOfflineInfo(data, Get.find<AuthController>().isLoggedIn() ? null : Get.find<AuthController>().getGuestId());
     if (success) {
       _isLoading = false;
       _guestAddress = null;
@@ -288,9 +281,9 @@ class CheckoutController extends GetxController implements GetxService {
 
   void setPaymentMethod(int index, {bool willUpdate = true}) {
     _paymentMethodIndex = index;
-    if(willUpdate) {
-      update();
-    }
+    index == 0 ? _showChangeAmount = true : _showChangeAmount = false;
+
+    if(willUpdate) update();
   }
 
   void selectOfflineBank(int index){
@@ -328,7 +321,7 @@ class CheckoutController extends GetxController implements GetxService {
     Get.find<CouponController>().removeCouponData(false);
     await Get.find<RestaurantController>().getRestaurantDetails(Restaurant(id: restaurantID));
     initializeTimeSlot(Get.find<RestaurantController>().restaurant!);
-    insertAddresses(Get.context!, null);
+    insertAddresses(null);
   }
 
   bool isRestaurantClosed(DateTime dateTime, bool active, List<Schedules>? schedules, {int? customDateDuration}) {
@@ -462,97 +455,15 @@ class CheckoutController extends GetxController implements GetxService {
     return true;
   }
 
-  void insertAddresses(BuildContext context, AddressModel? addressModel, {bool notify = false}) {
-    _addressList = [];
-    _address = [];
+  void insertAddresses(AddressModel? addressModel, {bool notify = false}){
+    _address = addressModel;
 
-    _addressList.add(
-        DropdownItem<int>(value: -1, child: SizedBox(
-          width: context.width > Dimensions.webMaxWidth ? Dimensions.webMaxWidth-50 : context.width-50,
-          child: Padding(
-            padding: const EdgeInsets.all(5.0),
-            child: Row(children: [
-              const Expanded(child: SizedBox()),
-              Text(
-                'add_new_address'.tr,
-                style: robotoMedium.copyWith(color: Theme.of(context).primaryColor),
-              ),
-              const SizedBox(width: Dimensions.paddingSizeSmall),
-
-              Icon(Icons.add_circle_outline_sharp, size: 20, color: Theme.of(context).primaryColor)
-            ]),
-          ),
-        ))
-    );
-
-    _address.add(AddressHelper.getAddressFromSharedPref()!);
-    _addressList.add(
-        DropdownItem<int>(value: 0, child: SizedBox(
-          width: context.width > Dimensions.webMaxWidth ? Dimensions.webMaxWidth-50 : context.width-50,
-          child: AddressCardWidget(
-            address: AddressHelper.getAddressFromSharedPref(),
-            fromAddress: false, fromCheckout: true,
-          ),
-        ))
-    );
-
-    if(Get.find<RestaurantController>().restaurant != null) {
-      if(Get.find<AddressController>().addressList != null) {
-        int i = 0;
-        for(int index=0; index<Get.find<AddressController>().addressList!.length; index++) {
-          if(Get.find<AddressController>().addressList![index].zoneIds!.contains(Get.find<RestaurantController>().restaurant!.zoneId)) {
-
-            _address.add(Get.find<AddressController>().addressList![index]);
-            _addressList.add(DropdownItem<int>(value: i + 1, child: SizedBox(
-              width: context.width > Dimensions.webMaxWidth ? Dimensions.webMaxWidth-50 : context.width-50,
-              child: AddressCardWidget(
-                address: Get.find<AddressController>().addressList![index],
-                fromAddress: false, fromCheckout: true,
-              ),
-            )));
-            i++;
-          }
-        }
-
-      }
-
-      if(addressModel != null) {
-        _address.add(addressModel);
-        _addressList.add(DropdownItem<int>(value: _address.length- 1, child: SizedBox(
-          width: context.width > Dimensions.webMaxWidth ? Dimensions.webMaxWidth-50 : context.width-50,
-          child: AddressCardWidget(
-            address: addressModel,
-            fromAddress: false, fromCheckout: true,
-          ),
-        )));
-        setAddressIndex(_address.length- 1);
-      }
-
-      _addressList.add(
-          DropdownItem<int>(value: -2, child: SizedBox(
-            width: context.width > Dimensions.webMaxWidth ? Dimensions.webMaxWidth-50 : context.width-50,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
-              child: Row(children: [
-                const Expanded(child: SizedBox()),
-
-                Icon(Icons.my_location_sharp, size: 20, color: Theme.of(context).primaryColor),
-                const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                Text(
-                  'use_my_current_location'.tr,
-                  style: robotoMedium.copyWith(color: Theme.of(context).primaryColor),
-                ),
-                const Expanded(child: SizedBox()),
-
-              ]),
-            ),
-          ))
-      );
-    }
-    if(notify) {
-      update();
-    }
+    addressType = _address?.addressType ?? '';
+    addressController.text = _address?.address ?? '';
+    streetNumberController.text = _address?.road ?? '';
+    houseController.text = _address?.house ?? '';
+    floorController.text = _address?.floor ?? '';
+    if(notify) update();
   }
 
   Future<void> initializeTimeSlot(Restaurant restaurant) async {
@@ -644,7 +555,7 @@ class CheckoutController extends GetxController implements GetxService {
       if(fromCart) {
         Get.find<CartController>().clearCartList();
       }
-      _setGuestAddress(null);
+      setGuestAddress(null);
       stopLoader();
       if(paymentMethodIndex == 0 || paymentMethodIndex == 1) {
         double total = ((amount / 100) * Get.find<SplashController>().configModel!.loyaltyPointItemPurchasePoint!);
@@ -684,7 +595,7 @@ class CheckoutController extends GetxController implements GetxService {
 
   void clearPrevData() {
     _distance = null;
-    _addressIndex = 0;
+    //_addressIndex = 0;
     _paymentMethodIndex = -1;
     _selectedDateSlot = 0;
     _selectedTimeSlot = 0;
@@ -703,7 +614,7 @@ class CheckoutController extends GetxController implements GetxService {
   Future<bool> updateOfflineInfo(String data) async {
     _isLoadingUpdate = true;
     update();
-    bool success = await checkoutServiceInterface.updateOfflineInfo(data);
+    bool success = await checkoutServiceInterface.updateOfflineInfo(data, Get.find<AuthController>().isLoggedIn() ? null : Get.find<AuthController>().getGuestId());
     if (success) {
       _isLoadingUpdate = false;
     }
@@ -714,7 +625,7 @@ class CheckoutController extends GetxController implements GetxService {
   Future<bool> checkRestaurantValidation({required Map<String, dynamic> data}) async {
     _isLoading = true;
     update();
-    bool success = await checkoutServiceInterface.checkRestaurantValidation(data: data);
+    bool success = await checkoutServiceInterface.checkRestaurantValidation(data: data, guestId: Get.find<AuthController>().isLoggedIn() ? null : Get.find<AuthController>().getGuestId());
     _isLoading = false;
     update();
     return success;

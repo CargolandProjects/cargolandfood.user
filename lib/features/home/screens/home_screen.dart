@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:stackfood_multivendor/common/widgets/menu_drawer_widget.dart';
 import 'package:stackfood_multivendor/features/dine_in/controllers/dine_in_controller.dart';
@@ -46,7 +47,6 @@ import 'package:stackfood_multivendor/helper/auth_helper.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
-import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:stackfood_multivendor/common/widgets/footer_view_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/web_menu_bar.dart';
@@ -337,11 +337,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 boxShadow: [BoxShadow(color: Colors.grey.withValues(alpha: 0.1), spreadRadius: 1, blurRadius: 10, offset: const Offset(0, 1))],
                               ),
                               child: Row(children: [
-                                Image.asset(Images.searchIcon, width: 25, height: 25),
+                                Icon(CupertinoIcons.search, size: 25, color: Theme.of(context).disabledColor),
                                 const SizedBox(width: Dimensions.paddingSizeExtraSmall),
+
                                 Expanded(child: Text('are_you_hungry'.tr, style: robotoRegular.copyWith(
-                                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor.withValues(alpha: 0.6),
+                                  fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).hintColor,
                                 ))),
+
+                                Icon(Icons.keyboard_voice_sharp, size: 25, color: Theme.of(context).disabledColor),
                               ]),
                             ),
                           ),

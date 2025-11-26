@@ -11,6 +11,7 @@ import 'package:stackfood_multivendor/features/search/widgets/search_result_widg
 import 'package:stackfood_multivendor/features/cuisine/controllers/cuisine_controller.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
+import 'package:stackfood_multivendor/helper/voice_permission_handler.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -80,7 +81,9 @@ class SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     bool isDesktop = ResponsiveHelper.isDesktop(context);
+
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
@@ -114,10 +117,17 @@ class SearchScreenState extends State<SearchScreen> {
                     decoration: BoxDecoration(
                       color: Theme.of(context).cardColor,
                       borderRadius: BorderRadius.circular(50),
-                      border: Border.all(color: Theme.of(context).primaryColor, width: 0.3),
+                      border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.5)),
                     ),
-                    padding: EdgeInsets.only(left: Dimensions.paddingSizeDefault),
                     child: Row(children: [
+
+                      IconButton(
+                        key: _searchBarKey,
+                        onPressed: (){
+                          _actionSearch(context, searchController, false);
+                        },
+                        icon: Icon(!searchController.isSearchMode ? Icons.filter_list : CupertinoIcons.search, size: 28, color: Theme.of(context).disabledColor),
+                      ),
 
                       Expanded(child: SearchFieldWidget(
                         controller: _searchTextEditingController,
@@ -135,11 +145,14 @@ class SearchScreenState extends State<SearchScreen> {
                       )),
 
                       IconButton(
-                        key: _searchBarKey,
-                        onPressed: (){
-                          _actionSearch(context, searchController, false);
+                        onPressed: () async {
+                          await VoicePermissionHandler.openVoiceSearch(
+                            context: context,
+                            searchTextEditingController: _searchTextEditingController,
+                            isDesktop: isDesktop,
+                          );
                         },
-                        icon: Icon(!searchController.isSearchMode ? Icons.filter_list : CupertinoIcons.search, size: 28,),
+                        icon: Icon(Icons.keyboard_voice_sharp, size: 28, color: Theme.of(context).disabledColor),
                       ),
 
                     ]),
@@ -176,46 +189,15 @@ class SearchScreenState extends State<SearchScreen> {
                   SizedBox(height: searchController.historyList.isNotEmpty ? Dimensions.paddingSizeExtraSmall : 0),
 
                   SizedBox(
-                    // height: isDesktop ? 36 : null,
                     child: ListView.builder(
                       itemCount: searchController.historyList.length > 10 ? 10 : searchController.historyList.length,
                       physics: const NeverScrollableScrollPhysics(),
-                      // scrollDirection: isDesktop ? Axis.horizontal : Axis.vertical,
                       shrinkWrap: true,
                       itemBuilder: (context, index) {
-                        return /*isDesktop ?
-                        Container(
-                          margin: const EdgeInsets.only(right: Dimensions.paddingSizeSmall),
-                          padding: const EdgeInsets.symmetric(horizontal : Dimensions.paddingSizeDefault),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).primaryColor.withValues(alpha: 0.10),
-                            border: Border.all(color: Theme.of(context).primaryColor),
-                            borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
-                          ),
-                          child: InkWell(
-                            onTap: () {
-                              _searchTextEditingController.text = searchController.historyList[index];
-                              searchController.searchData1(searchController.historyList[index], 1);
-                            },
-                            child: Row(
-                              children: [
-                                Text(searchController.historyList[index], style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeExtraSmall, color: Theme.of(context).primaryColor), maxLines: 1, overflow: TextOverflow.ellipsis),
-                                const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                                InkWell(
-                                  onTap: () => searchController.removeHistory(index),
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeExtraSmall),
-                                    child: Icon(Icons.close, color: Theme.of(context).primaryColor, size: 16),
-                                  ),
-                                )
-                              ],
-                            ),
-                          ),
-                        ) : */InkWell(
+                        return InkWell(
                           onTap: () {
                             _searchTextEditingController.text = searchController.historyList[index];
-                            searchController.searchData1(searchController.historyList[index], 1);
+                            searchController.searchData(searchController.historyList[index], 1);
                           },
                           child: Row(children: [
 
@@ -260,7 +242,7 @@ class SearchScreenState extends State<SearchScreen> {
                         child: InkWell(
                           onTap: () {
                             _searchTextEditingController.text = product.name!;
-                            searchController.searchData1(product.name!, 1);
+                            searchController.searchData(product.name!, 1);
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeSmall),
@@ -341,9 +323,6 @@ class SearchScreenState extends State<SearchScreen> {
               ),
             ) : SearchResultWidget(searchText: _searchTextEditingController.text.trim())),
 
-
-
-
           ]);
         })),
         bottomNavigationBar: GetBuilder<CartController>(builder: (cartController) {
@@ -390,7 +369,7 @@ class SearchScreenState extends State<SearchScreen> {
   void _actionSearch(BuildContext context, search.SearchController searchController, bool isSubmit) {
     if(searchController.isSearchMode || isSubmit) {
       if(_searchTextEditingController.text.trim().isNotEmpty) {
-        searchController.searchData1(_searchTextEditingController.text.trim(), 1);
+        searchController.searchData(_searchTextEditingController.text.trim(), 1);
       }else {
         showCustomSnackBar('search_food_or_restaurant'.tr);
       }
@@ -398,10 +377,7 @@ class SearchScreenState extends State<SearchScreen> {
       double? maxValue = searchController.upperValue > 0 ? searchController.upperValue : 1000;
       double? minValue = searchController.lowerValue;
       ResponsiveHelper.isMobile(context) ? Get.bottomSheet(FilterWidget(maxValue: maxValue, minValue: minValue, isRestaurant: searchController.isRestaurant), isScrollControlled: true)
-      : /*Get.dialog(Dialog(
-        // insetPadding: const EdgeInsets.all(30),
-        child: FilterWidget(maxValue: maxValue, minValue: minValue, isRestaurant: searchController.isRestaurant),
-      )) */ _showSearchDialog(maxValue, minValue, searchController.isRestaurant);
+      : _showSearchDialog(maxValue, minValue, searchController.isRestaurant);
     }
   }
 
@@ -421,12 +397,11 @@ class SearchScreenState extends State<SearchScreen> {
           height: renderBox.size.height + MediaQuery.of(context).size.height * 0.6,
           child: Material(
             color: Theme.of(context).cardColor,
-            // color: Provider.of<ThemeProvider>(context, listen: false).darkTheme ? Theme.of(context).cardColor : null,
             elevation: 0,
             borderRadius: BorderRadius.circular(30),
             child: FilterWidget(maxValue: maxValue, minValue: minValue, isRestaurant: isRestaurant),
           ),
-          ),
+        ),
 
       ]),
     );

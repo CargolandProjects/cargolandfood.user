@@ -1,3 +1,4 @@
+import 'package:stackfood_multivendor/common/enums/order_status.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_asset_image_widget.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
 import 'package:stackfood_multivendor/features/notification/controllers/notification_controller.dart';
@@ -9,7 +10,6 @@ import 'package:stackfood_multivendor/features/splash/controllers/splash_control
 import 'package:stackfood_multivendor/helper/date_converter.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
-import 'package:stackfood_multivendor/util/app_constants.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -42,7 +42,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     if(Get.find<AuthController>().isLoggedIn()) {
       Get.find<NotificationController>().getNotificationList(true);
     }
-    if(Get.find<ProfileController>().userInfoModel?.walletBalance == null) {
+    if(Get.find<AuthController>().isLoggedIn() && (Get.find<ProfileController>().userInfoModel?.walletBalance == null)) {
       await Get.find<ProfileController>().getUserInfo();
     }
   }
@@ -136,8 +136,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 },
                               );
                             }else if(notificationController.notificationList![index].data!.type == 'order_status'){
-                              if(notificationController.notificationList![index].data!.orderStatus == AppConstants.pickedUp
-                                  || notificationController.notificationList![index].data!.orderStatus == AppConstants.handover) {
+                              if(notificationController.notificationList![index].data!.orderStatus == OrderStatus.picked_up.name
+                                  || notificationController.notificationList![index].data!.orderStatus == OrderStatus.handover.name) {
                                 Get.toNamed(RouteHelper.getOrderTrackingRoute(notificationController.notificationList![index].data!.orderId!, null));
                               }else {
                                 Get.toNamed(RouteHelper.getOrderDetailsRoute(notificationController.notificationList![index].data!.orderId!, fromGuestTrack: true));
@@ -161,8 +161,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                 notificationController.notificationList![index].data!.type == 'push_notification' ? Images.pushNotificationIcon
                                 : notificationController.notificationList![index].data!.type == 'referral_code' ? Images.referPersonIcon
                                 : notificationController.notificationList![index].data!.type == 'referral_earn' ? Images.referEarnIcon
-                                : notificationController.notificationList![index].data!.orderStatus == AppConstants.pickedUp
-                                || notificationController.notificationList![index].data!.orderStatus == AppConstants.handover ? Images.orderOnTheWaYIcon : Images.orderConfirmIcon,
+                                : notificationController.notificationList![index].data!.orderStatus == OrderStatus.picked_up.name
+                                || notificationController.notificationList![index].data!.orderStatus == OrderStatus.handover.name ? Images.orderOnTheWaYIcon : Images.orderConfirmIcon,
                                 height: 34, width: 34, fit: BoxFit.cover,
                               ),
                               const SizedBox(width: Dimensions.paddingSizeSmall),

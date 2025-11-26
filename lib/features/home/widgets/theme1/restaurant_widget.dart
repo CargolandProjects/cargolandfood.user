@@ -30,7 +30,7 @@ class RestaurantWidget extends StatelessWidget {
 
         if(restaurant != null && restaurant!.restaurantStatus == 1){
           Get.toNamed(
-            RouteHelper.getRestaurantRoute(restaurant!.id),
+            RouteHelper.getRestaurantRoute(restaurant!.id, slug: restaurant!.slug ?? ''),
             arguments: RestaurantScreen(restaurant: restaurant),
           );
         }else if(restaurant!.restaurantStatus == 0){

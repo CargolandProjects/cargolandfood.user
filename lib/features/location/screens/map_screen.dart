@@ -209,8 +209,8 @@ class MapScreenState extends State<MapScreen> {
             flat: true,
             anchor: const Offset(0.5, 0.5),
             position: LatLng(
-              double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!),
-              double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!),
+              double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'),
+              double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0'),
             ),
             icon: myLocationMarkerIcon,
           ));
@@ -235,7 +235,7 @@ class MapScreenState extends State<MapScreen> {
         }
       }else {
         bounds = LatLngBounds(
-          southwest: LatLng(double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!), double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!)),
+          southwest: LatLng(double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'), double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0')),
           northeast: LatLng(double.parse(widget.address.latitude!), double.parse(widget.address.longitude!)),
         );
       }

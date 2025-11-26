@@ -43,11 +43,6 @@ class TopSectionWidget extends StatelessWidget {
   final double total;
   final JustTheController tooltipController3;
   final JustTheController tooltipController2;
-  final TextEditingController guestNameTextEditingController;
-  final TextEditingController guestNumberTextEditingController;
-  final TextEditingController guestEmailController;
-  final FocusNode guestNumberNode;
-  final FocusNode guestEmailNode;
   final JustTheController loginTooltipController;
   final Function() callBack;
   final String deliveryChargeForView;
@@ -55,6 +50,20 @@ class TopSectionWidget extends StatelessWidget {
   final double badWeatherCharge;
   final double extraChargeForToolTip;
   final ScrollController deliveryOptionScrollController;
+  final TextEditingController guestNameController;
+  final TextEditingController guestNumberController;
+  final TextEditingController guestEmailController;
+  final TextEditingController guestAddressController;
+  final TextEditingController guestStreetNumberController;
+  final TextEditingController guestHouseController;
+  final TextEditingController guestFloorController;
+  final FocusNode guestNameNode;
+  final FocusNode guestNumberNode;
+  final FocusNode guestEmailNode;
+  final FocusNode guestAddressNode;
+  final FocusNode guestStreetNumberNode;
+  final FocusNode guestHouseNode;
+  final FocusNode guestFloorNode;
 
   const TopSectionWidget({
     super.key, required this.charge, required this.deliveryCharge, required this.locationController,
@@ -62,10 +71,12 @@ class TopSectionWidget extends StatelessWidget {
     required this.addOns, required this.restaurantSubscriptionActive, required this.showTips,
     required this.isCashOnDeliveryActive, required this.isDigitalPaymentActive, required this.isWalletActive,
     required this.fromCart, required this.total, required this.tooltipController3, required this.tooltipController2,
-    required this.guestNameTextEditingController, required this.guestNumberTextEditingController, required this.guestNumberNode,
+    required this.guestNameController, required this.guestNumberController, required this.guestNumberNode,
     required this.isOfflinePaymentActive, required this.guestEmailController, required this.guestEmailNode,
     required this.loginTooltipController, required this.callBack, required this.deliveryChargeForView,
-    required this.deliveryFeeTooltipController, required this.badWeatherCharge, required this.extraChargeForToolTip, required this.deliveryOptionScrollController});
+    required this.deliveryFeeTooltipController, required this.badWeatherCharge, required this.extraChargeForToolTip, required this.deliveryOptionScrollController,
+    required this.guestAddressController, required this.guestStreetNumberController, required this.guestHouseController, required this.guestFloorController,
+    required this.guestNameNode, required this.guestAddressNode, required this.guestStreetNumberNode, required this.guestHouseNode, required this.guestFloorNode});
 
   @override
   Widget build(BuildContext context) {
@@ -182,16 +193,16 @@ class TopSectionWidget extends StatelessWidget {
               ) : const SizedBox(),
               SizedBox(width: (Get.find<SplashController>().configModel!.homeDelivery! && checkoutController.restaurant!.delivery!) ? Dimensions.paddingSizeDefault : 0),
 
-              (Get.find<SplashController>().configModel!.takeAway! && checkoutController.restaurant!.takeAway!) ? DeliveryOptionButton(
+              (Get.find<SplashController>().configModel!.takeAway! && checkoutController.restaurant!.takeAway! && !checkoutController.subscriptionOrder) ? DeliveryOptionButton(
                 value: 'take_away', title: 'take_away'.tr, charge: deliveryCharge, isFree: true, total: total,
                 badWeatherCharge: badWeatherCharge, extraChargeForToolTip: extraChargeForToolTip,
               ) : const SizedBox(),
-              SizedBox(width: (Get.find<SplashController>().configModel!.takeAway! && checkoutController.restaurant!.takeAway!) ? Dimensions.paddingSizeDefault : 0),
+              SizedBox(width: (Get.find<SplashController>().configModel!.takeAway! && checkoutController.restaurant!.takeAway! && !checkoutController.subscriptionOrder) ? Dimensions.paddingSizeDefault : 0),
 
-              (Get.find<SplashController>().configModel!.dineInOrderOption! && checkoutController.restaurant!.isActiveDineIn!) ? DeliveryOptionButton(
+              (Get.find<SplashController>().configModel!.dineInOrderOption! && checkoutController.restaurant!.isActiveDineIn! && !checkoutController.subscriptionOrder) ? DeliveryOptionButton(
                 value: 'dine_in', title: 'dine_in'.tr, charge: deliveryCharge, isFree: true, total: total,
-                badWeatherCharge: badWeatherCharge, extraChargeForToolTip: extraChargeForToolTip, guestNameTextEditingController: guestNameTextEditingController,
-                guestNumberTextEditingController: guestNumberTextEditingController, guestEmailController: guestEmailController,
+                badWeatherCharge: badWeatherCharge, extraChargeForToolTip: extraChargeForToolTip, guestNameTextEditingController: guestNameController,
+                guestNumberTextEditingController: guestNumberController, guestEmailController: guestEmailController,
               ) : const SizedBox(),
 
             ])),
@@ -208,10 +219,12 @@ class TopSectionWidget extends StatelessWidget {
 
         ///Delivery Address
         DeliverySection(
-          checkoutController: checkoutController,
-          locationController: locationController, guestNameTextEditingController: guestNameTextEditingController,
-          guestNumberTextEditingController: guestNumberTextEditingController, guestNumberNode: guestNumberNode,
-          guestEmailController: guestEmailController, guestEmailNode: guestEmailNode,
+          checkoutController: checkoutController, locationController: locationController,
+          guestNameController: guestNameController, guestNumberController: guestNumberController, guestEmailController: guestEmailController,
+          guestAddressController: guestAddressController, guestStreetNumberController: guestStreetNumberController,
+          guestStreetNumberNode: guestStreetNumberNode, guestFloorController: guestFloorController, guestHouseController: guestHouseController,
+          guestNameNode: guestNameNode, guestNumberNode: guestNumberNode, guestEmailNode: guestEmailNode,
+          guestAddressNode: guestAddressNode, guestFloorNode: guestFloorNode, guestHouseNode: guestHouseNode,
         ),
         const SizedBox(height: Dimensions.paddingSizeSmall),
 

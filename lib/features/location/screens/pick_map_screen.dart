@@ -1,4 +1,8 @@
+import 'package:stackfood_multivendor/common/widgets/custom_app_bar_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:stackfood_multivendor/features/location/widgets/animated_map_icon_extended.dart';
+import 'package:stackfood_multivendor/features/location/widgets/animated_map_icon_minimized.dart';
+import 'package:stackfood_multivendor/features/location/widgets/custom_floating_action_button.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
 import 'package:stackfood_multivendor/features/location/controllers/location_controller.dart';
@@ -7,7 +11,6 @@ import 'package:stackfood_multivendor/features/location/widgets/permission_dialo
 import 'package:stackfood_multivendor/features/splash/controllers/theme_controller.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
-import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_button_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/web_menu_bar.dart';
 import 'package:flutter/material.dart';
@@ -22,9 +25,10 @@ class PickMapScreen extends StatefulWidget {
   final bool canRoute;
   final String? route;
   final GoogleMapController? googleMapController;
+  final bool fromGuestCheckout;
   const PickMapScreen({
     super.key, required this.fromSignUp, required this.fromAddAddress, required this.canRoute,
-    required this.route, this.googleMapController, required this.fromSplash,
+    required this.route, this.googleMapController, required this.fromSplash, this.fromGuestCheckout = false,
   });
 
   @override
@@ -35,6 +39,7 @@ class _PickMapScreenState extends State<PickMapScreen> {
   GoogleMapController? _mapController;
   CameraPosition? _cameraPosition;
   late LatLng _initialPosition;
+  double _currentZoomLevel = 16.0;
 
   @override
   void initState() {
@@ -54,7 +59,7 @@ class _PickMapScreenState extends State<PickMapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ResponsiveHelper.isDesktop(context) ? const WebMenuBar() : null,
+      appBar: ResponsiveHelper.isDesktop(context) ? const WebMenuBar() : (widget.fromAddAddress && widget.fromGuestCheckout) ? CustomAppBarWidget(title: 'delivery_address'.tr) : null,
       body: SafeArea(child: Center(child: SizedBox(
         width: Dimensions.webMaxWidth,
         child: GetBuilder<LocationController>(builder: (locationController) {
@@ -62,9 +67,8 @@ class _PickMapScreenState extends State<PickMapScreen> {
 
             GoogleMap(
               initialCameraPosition: CameraPosition(
-                target: widget.fromAddAddress ? LatLng(locationController.position.latitude, locationController.position.longitude)
-                    : _initialPosition,
-                zoom: 16,
+                target: widget.fromAddAddress ? LatLng(locationController.position.latitude, locationController.position.longitude) : _initialPosition,
+                zoom: _currentZoomLevel,
               ),
               minMaxZoomPreference: const MinMaxZoomPreference(0, 16),
               onMapCreated: (GoogleMapController mapController) {
@@ -82,57 +86,85 @@ class _PickMapScreenState extends State<PickMapScreen> {
                 _cameraPosition = cameraPosition;
               },
               onCameraMoveStarted: () {
+                locationController.updateCameraMovingStatus(true);
                 locationController.disableButton();
               },
               onCameraIdle: () {
+                locationController.updateCameraMovingStatus(false);
                 Get.find<LocationController>().updatePosition(_cameraPosition, false);
               },
               style: Get.isDarkMode ? Get.find<ThemeController>().darkMap : Get.find<ThemeController>().lightMap,
             ),
 
-            Center(child: !locationController.loading ? Image.asset(Images.pickMarker, height: 50, width: 50)
-                : const CircularProgressIndicator()),
+            Center(child: Padding(
+              padding: const EdgeInsets.only(bottom: Dimensions.pickMapIconSize * 0.65),
+              child: locationController.isCameraMoving ? const AnimatedMapIconExtended() : const AnimatedMapIconMinimised(),
+            )),
 
             Positioned(
               top: Dimensions.paddingSizeLarge, left: Dimensions.paddingSizeSmall, right: Dimensions.paddingSizeSmall,
               child: LocationSearchDialog(mapController: _mapController, pickedLocation: locationController.pickAddress!),
-              /*child: InkWell(
-                onTap: () => Get.dialog(LocationSearchDialog(mapController: _mapController)),
-                child: Container(
-                  height: 50,
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall),
-                  decoration: BoxDecoration(color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
-                  child: Row(children: [
-                    Icon(Icons.location_on, size: 25, color: Theme.of(context).primaryColor),
-                    const SizedBox(width: Dimensions.paddingSizeExtraSmall),
-                    Expanded(
-                      child: Text(
-                        locationController.pickAddress!,
-                        style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge), maxLines: 1, overflow: TextOverflow.ellipsis,
-                      ),
+            ),
+
+            Positioned(
+              bottom: 100, right: Dimensions.paddingSizeLarge,
+              child: Column(children: [
+
+                Container(
+                  width: 40, height: 40,
+                  decoration: BoxDecoration(shape: BoxShape.circle,
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 6, spreadRadius: 0.5, offset: const Offset(0, 4))],
+                  ),
+                  child: FloatingActionButton(
+                    mini: true, backgroundColor: Theme.of(context).cardColor,
+                    onPressed: () => _checkPermission(() {
+                      Get.find<LocationController>().getCurrentLocation(false, mapController: _mapController);
+                    }),
+                    child: Icon(Icons.my_location, color: Theme.of(context).primaryColor),
+                  ),
+                ),
+                const SizedBox(height: Dimensions.paddingSizeDefault),
+
+                Container(
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).cardColor,
+                    boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.2), blurRadius: 6, spreadRadius: 0.5, offset: const Offset(0, 4))],
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Column(children: [
+                    CustomFloatingActionButton(
+                      icon: Icons.add, heroTag: 'add_button',
+                      onTap: () {
+                        _currentZoomLevel++;
+                        _mapController?.animateCamera(CameraUpdate.zoomTo(_currentZoomLevel));
+                      },
                     ),
-                    const SizedBox(width: Dimensions.paddingSizeSmall),
-                    Icon(Icons.search, size: 25, color: Theme.of(context).textTheme.bodyLarge!.color),
+
+                    Container(
+                      width: 20, height: 1,
+                      color: Theme.of(context).disabledColor.withValues(alpha: 0.5),
+                    ),
+
+                    CustomFloatingActionButton(
+                      icon: Icons.remove, heroTag: 'remove_button',
+                      onTap: () {
+                        _currentZoomLevel--;
+                        _mapController?.animateCamera(CameraUpdate.zoomTo(_currentZoomLevel));
+                      },
+                    ),
+
+
                   ]),
                 ),
-              ),*/
+
+
+              ]),
             ),
 
             Positioned(
-              bottom: 80, right: Dimensions.paddingSizeSmall,
-              child: FloatingActionButton(
-                mini: true, backgroundColor: Theme.of(context).cardColor,
-                onPressed: () => _checkPermission(() {
-                  Get.find<LocationController>().getCurrentLocation(false, mapController: _mapController);
-                }),
-                child: Icon(Icons.my_location, color: Theme.of(context).primaryColor),
-              ),
-            ),
-
-            Positioned(
-              bottom: Dimensions.paddingSizeLarge, left: Dimensions.paddingSizeSmall, right: Dimensions.paddingSizeSmall,
+              bottom: Dimensions.paddingSizeLarge, left: Dimensions.paddingSizeLarge, right: Dimensions.paddingSizeLarge,
               child: CustomButtonWidget(
-                buttonText: locationController.inZone ? widget.fromAddAddress ? 'pick_address'.tr : 'pick_location'.tr
+                buttonText: locationController.inZone ? widget.fromAddAddress ? 'confirm_address'.tr : 'set_location'.tr
                     : 'service_not_available_in_this_area'.tr,
                 isLoading: locationController.isLoading,
                 onPressed: (locationController.buttonDisabled || locationController.loading) ? null
@@ -153,8 +185,9 @@ class _PickMapScreenState extends State<PickMapScreen> {
           widget.googleMapController!.moveCamera(CameraUpdate.newCameraPosition(CameraPosition(target: LatLng(
             locationController.pickPosition.latitude, locationController.pickPosition.longitude,
           ), zoom: 17)));
-          locationController.addAddressData();
         }
+
+        locationController.addAddressData();
         Get.back();
       }else {
         AddressModel address = AddressModel(

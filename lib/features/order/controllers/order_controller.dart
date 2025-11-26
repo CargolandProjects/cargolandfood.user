@@ -330,7 +330,8 @@ class OrderController extends GetxController implements GetxService {
     update();
   }
 
-  Future<bool> updateSubscriptionStatus(int? subscriptionID, DateTime? startDate, DateTime? endDate, String status, String note, String? reason) async {
+  Future<bool> updateSubscriptionStatus(int? subscriptionID, DateTime? startDate, DateTime? endDate, String status,
+      String note, String? reason, String? orderId, String? contactNumber) async {
     _subscriveLoading = true;
     update();
 
@@ -340,6 +341,7 @@ class OrderController extends GetxController implements GetxService {
     );
     if (responseModel.isSuccess) {
       Get.back();
+      timerTrackOrder(orderId.toString(), contactNumber: contactNumber);
       if(status == 'canceled' || startDate!.isAtSameMomentAs(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day))) {
         _trackModel!.subscription!.status = status;
       }
@@ -455,10 +457,10 @@ class OrderController extends GetxController implements GetxService {
     }
   }
 
-  Future<bool> cancelOrder(int? orderID, String? cancelReason) async {
+  Future<bool> cancelOrder(int? orderID, String? cancelReason, {String? comment}) async {
     _isCancelLoading = true;
     update();
-    ResponseModel responseModel = await orderServiceInterface.cancelOrder(orderID.toString(), cancelReason);
+    ResponseModel responseModel = await orderServiceInterface.cancelOrder(orderID.toString(), cancelReason, comment);
     _isCancelLoading = false;
     Get.back();
     if (responseModel.isSuccess) {
@@ -466,6 +468,8 @@ class OrderController extends GetxController implements GetxService {
       _runningOrderList!.remove(orderModel);
       _showCancelled = true;
       showCustomSnackBar(responseModel.message, isError: false);
+    } else {
+      showCustomSnackBar(responseModel.message);
     }
     update();
     return responseModel.isSuccess;

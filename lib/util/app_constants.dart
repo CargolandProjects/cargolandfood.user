@@ -4,14 +4,16 @@ import 'package:get/get.dart';
 
 class AppConstants {
   static const String appName = 'Cargolandfood';
-  static const double appVersion = 8.4;
+  static const double appVersion = 8.6;
 
-  ///Flutter SDK: 3.35.2
+  ///Flutter SDK: 3.38.2
 
   static const String fontFamily = 'Roboto';
   static const bool payInWevView = false;
-  static const String webHostedUrl = 'https://web.cargolandfood.com';
+  static const String webHostedUrl = 'https:/web.cargolandfood.com';
   static const bool useReactWebsite = false;
+  static const String googleServerClientId =
+      '491987943015-agln6biv84krpnngdphj87jkko7r9lb8.apps.googleusercontent.com';
 
   static const String baseUrl = 'https://cargolandfood.com';
   static const String categoryUri = '/api/v1/categories';
@@ -60,6 +62,8 @@ class AppConstants {
   static const String wishListGetUri = '/api/v1/customer/wish-list';
   static const String addWishListUri = '/api/v1/customer/wish-list/add?';
   static const String removeWishListUri = '/api/v1/customer/wish-list/remove?';
+  static const String clearAllWishListUri =
+      '/api/v1/customer/wish-list/clear-all';
   static const String notificationUri = '/api/v1/customer/notifications';
   static const String updateProfileUri = '/api/v1/customer/update-profile';
   static const String searchUri = '/api/v1/';
@@ -121,12 +125,12 @@ class AppConstants {
       '/api/v1/customer/order/send-notification';
   static const String cartRestaurantSuggestedItemsUri =
       '/api/v1/products/recommended/most-reviewed';
-  static const String aboutUsUri = '/about-us';
-  static const String privacyPolicyUri = '/privacy-policy';
-  static const String termsAndConditionUri = '/terms-and-conditions';
-  static const String cancellationUri = '/cancellation-policy';
-  static const String refundUri = '/refund-policy';
-  static const String shippingPolicyUri = '/shipping-policy';
+  static const String aboutUsUri = '/api/v1/about-us';
+  static const String privacyPolicyUri = '/api/v1/privacy-policy';
+  static const String termsAndConditionUri = '/api/v1/terms-and-conditions';
+  static const String cancellationUri = '/api/v1/cancellation-policy';
+  static const String refundUri = '/api/v1/refund-policy';
+  static const String shippingPolicyUri = '/api/v1/shipping-policy';
   static const String subscriptionUri = '/api/v1/newsletter/subscribe';
   static const String addFundUri = '/api/v1/customer/wallet/add-fund';
   static const String walletBonusUri = '/api/v1/customer/wallet/bonuses';
@@ -167,6 +171,8 @@ class AppConstants {
   static const String removeItemCartUri = '/api/v1/customer/cart/remove-item';
   static const String addMultipleItemCartUri =
       '/api/v1/customer/cart/add-multiple';
+  static const String promoStatusUri = '/api/v1/promo/status';
+  static const String promoSeenUri = '/api/v1/promo/seen';
 
   /// Shared Key
   static const String theme = 'theme';
@@ -215,29 +221,12 @@ class AppConstants {
 
   /// Delivery Tips
   static List<String> tips = ['0', '15', '10', '20', '40', 'custom'];
+
   static List<String> deliveryInstructionList = [
     'Deliver to front door',
     'Deliver to the reception desk',
     'Avoid calling me',
   ];
-
-  ///Order Status
-  static const String pending = 'pending';
-  static const String accepted = 'accepted';
-  static const String processing = 'processing';
-  static const String confirmed = 'confirmed';
-  static const String handover = 'handover';
-  static const String pickedUp = 'picked_up';
-  static const String delivered = 'delivered';
-  static const String cancelled = 'canceled';
-  static const String refundRequested = 'refund_requested';
-
-  /// Delivery Type
-  static const String delivery = 'delivery';
-  static const String takeAway = 'take_away';
-
-  /// Preference Day
-  static List<String?> preferenceDays = ['today', 'tomorrow'];
 
   /// Deep Links
   static const String yourScheme = 'StackFood';
@@ -282,11 +271,4 @@ class AppConstants {
     {'title': 'earned_by_referral', 'value': 'referrer'},
     {'title': 'cash_back_transactions', 'value': 'CashBack'},
   ];
-
-  static const double maxLimitOfFileSentINConversation = 25;
-  static const double maxLimitOfTotalFileSent = 5;
-  static const double maxSizeOfASingleFile = 10;
-  static const double maxImageSend = 10;
-
-  static const double limitOfPickedVideoSizeInMB = 50;
 }

@@ -32,7 +32,6 @@ class _NewPassScreenState extends State<NewPassScreen> {
   final TextEditingController _confirmPasswordController = TextEditingController();
   final FocusNode _newPasswordFocus = FocusNode();
   final FocusNode _confirmPasswordFocus = FocusNode();
-  final ScrollController _scrollController = ScrollController();
   GlobalKey<FormState>? _formKey;
 
   @override
@@ -43,91 +42,143 @@ class _NewPassScreenState extends State<NewPassScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: ResponsiveHelper.isDesktop(context) ? Colors.transparent : Theme.of(context).cardColor,
-      appBar: widget.fromDialog ? null : CustomAppBarWidget(title: widget.fromPasswordChange ? 'change_password'.tr : 'reset_password'.tr),
+
+    bool isDesktop = ResponsiveHelper.isDesktop(context);
+
+    return isDesktop ? Form(
+      key: _formKey,
+      child: Center(child: Container(
+        height: 575, width: 475,
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+        ),
+        child: Column(children: [
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              onPressed: () => Get.back(),
+              icon: const Icon(Icons.clear),
+            ),
+          ),
+
+          Expanded(
+            child: Padding(
+              padding:  EdgeInsets.all(Dimensions.paddingSizeOverLarge),
+              child: Column(children: [
+                Image.asset(Images.changePasswordBg, height: 170, width: 190),
+                const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                Text('enter_your_new_password'.tr, style: robotoBold, textAlign: TextAlign.center),
+                const SizedBox(height: Dimensions.paddingSizeOverLarge),
+
+                CustomTextFieldWidget(
+                  hintText: '8+characters'.tr,
+                  controller: _newPasswordController,
+                  focusNode: _newPasswordFocus,
+                  nextFocus: _confirmPasswordFocus,
+                  inputType: TextInputType.visiblePassword,
+                  prefixIcon: Icons.lock,
+                  isPassword: true,
+                  divider: false,
+                  labelText: 'new_password'.tr,
+                  validator: (value) => ValidateCheck.validateEmptyText(value, 'please_enter_new_password'.tr),
+                ),
+                const SizedBox(height: Dimensions.paddingSizeLarge),
+
+                CustomTextFieldWidget(
+                  hintText: 're_enter_your_password'.tr,
+                  controller: _confirmPasswordController,
+                  focusNode: _confirmPasswordFocus,
+                  inputAction: TextInputAction.done,
+                  inputType: TextInputType.visiblePassword,
+                  prefixIcon: Icons.lock,
+                  isPassword: true,
+                  onSubmit: (text) => GetPlatform.isWeb ? _onPressedPasswordChange() : null,
+                  labelText: 'confirm_password'.tr,
+                  validator: (value) => ValidateCheck.validateEmptyText(value, 'please_enter_confirm_password'.tr),
+                ),
+
+              ]),
+            ),
+          ),
+
+          GetBuilder<ProfileController>(builder: (profileController) {
+            return GetBuilder<VerificationController>(builder: (verificationController) {
+              return CustomButtonWidget(
+                radius: Dimensions.radiusDefault,
+                margin: const EdgeInsets.only(left: Dimensions.paddingSizeLarge, right: Dimensions.paddingSizeLarge, bottom: Dimensions.paddingSizeLarge),
+                buttonText: 'submit'.tr,
+                isLoading: widget.fromPasswordChange ? profileController.isLoading : verificationController.isLoading,
+                onPressed: () => _onPressedPasswordChange(),
+              );
+            });
+          }),
+        ]),
+      )),
+    ) : Scaffold(
+      appBar: CustomAppBarWidget(title: widget.fromPasswordChange ? 'change_password'.tr : 'reset_password'.tr),
       body: Form(
         key: _formKey,
-        child: Center(child: SingleChildScrollView(
-          controller: _scrollController,
-          physics: const BouncingScrollPhysics(),
-          padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-          child: Center(child: Container(
-            height: widget.fromDialog ? 516 : null,
-            width: widget.fromDialog ? 475 : context.width > 700 ? 700 : context.width,
-            margin: const EdgeInsets.all(Dimensions.paddingSizeDefault),
-            decoration: context.width > 700 ? BoxDecoration(
-              color: Theme.of(context).cardColor, borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-              boxShadow: widget.fromDialog ? null : [BoxShadow(color: Colors.grey[Get.isDarkMode ? 700 : 300]!, blurRadius: 5, spreadRadius: 1)],
-            ) : null,
-            child: Column(
-              children: [
-                ResponsiveHelper.isDesktop(context) ? Align(
-                  alignment: Alignment.topRight,
-                  child: IconButton(
-                    onPressed: () => Get.back(),
-                    icon: const Icon(Icons.clear),
-                  ),
-                ) : const SizedBox(),
+        child: Column(
+          children: [
 
-                Padding(
-                  padding: widget.fromDialog ? const EdgeInsets.all(Dimensions.paddingSizeOverLarge) : context.width > 700 ? const EdgeInsets.all(Dimensions.paddingSizeDefault) : const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                  child: Column(children: [
-                    Image.asset(Images.resetLock, height: 100),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
+                child: Column(
+                  children: [
+
+                    Image.asset(Images.changePasswordBg, height: 170, width: 190),
                     const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                    Text('enter_new_password'.tr, style: robotoRegular.copyWith(color: Theme.of(context).disabledColor), textAlign: TextAlign.center),
+                    Text('enter_your_new_password'.tr, style: robotoBold, textAlign: TextAlign.center),
                     const SizedBox(height: Dimensions.paddingSizeOverLarge),
 
-                    Column(children: [
+                    CustomTextFieldWidget(
+                      hintText: '8+characters'.tr,
+                      controller: _newPasswordController,
+                      focusNode: _newPasswordFocus,
+                      nextFocus: _confirmPasswordFocus,
+                      inputType: TextInputType.visiblePassword,
+                      prefixIcon: Icons.lock,
+                      isPassword: true,
+                      divider: false,
+                      labelText: 'new_password'.tr,
+                      validator: (value) => ValidateCheck.validateEmptyText(value, 'please_enter_new_password'.tr),
+                    ),
+                    const SizedBox(height: Dimensions.paddingSizeLarge),
 
-                      CustomTextFieldWidget(
-                        hintText: '8+characters'.tr,
-                        controller: _newPasswordController,
-                        focusNode: _newPasswordFocus,
-                        nextFocus: _confirmPasswordFocus,
-                        inputType: TextInputType.visiblePassword,
-                        prefixIcon: Icons.lock,
-                        isPassword: true,
-                        divider: false,
-                        labelText: 'new_password'.tr,
-                        validator: (value) => ValidateCheck.validateEmptyText(value, 'please_enter_new_password'.tr),
-                      ),
-                      const SizedBox(height: Dimensions.paddingSizeLarge),
-
-                      CustomTextFieldWidget(
-                        hintText: 're_enter_your_password'.tr,
-                        controller: _confirmPasswordController,
-                        focusNode: _confirmPasswordFocus,
-                        inputAction: TextInputAction.done,
-                        inputType: TextInputType.visiblePassword,
-                        prefixIcon: Icons.lock,
-                        isPassword: true,
-                        onSubmit: (text) => GetPlatform.isWeb ? _onPressedPasswordChange() : null,
-                        labelText: 'confirm_password'.tr,
-                        validator: (value) => ValidateCheck.validateEmptyText(value, 'please_enter_confirm_password'.tr),
-                      ),
-
-                    ]),
-                    const SizedBox(height: 50),
-
-                    GetBuilder<ProfileController>(builder: (profileController) {
-                      return GetBuilder<VerificationController>(builder: (verificationController) {
-                        return CustomButtonWidget(
-                          radius: Dimensions.radiusDefault,
-                          buttonText: 'submit'.tr,
-                          isLoading: widget.fromPasswordChange ? profileController.isLoading : verificationController.isLoading,
-                          onPressed: () => _onPressedPasswordChange(),
-                        );
-                      });
-                    }),
-
-                  ]),
-                )
-              ],
+                    CustomTextFieldWidget(
+                      hintText: 're_enter_your_password'.tr,
+                      controller: _confirmPasswordController,
+                      focusNode: _confirmPasswordFocus,
+                      inputAction: TextInputAction.done,
+                      inputType: TextInputType.visiblePassword,
+                      prefixIcon: Icons.lock,
+                      isPassword: true,
+                      onSubmit: (text) => GetPlatform.isWeb ? _onPressedPasswordChange() : null,
+                      labelText: 'confirm_password'.tr,
+                      validator: (value) => ValidateCheck.validateEmptyText(value, 'please_enter_confirm_password'.tr),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          )),
-        )),
+
+            GetBuilder<ProfileController>(builder: (profileController) {
+              return GetBuilder<VerificationController>(builder: (verificationController) {
+                return CustomButtonWidget(
+                  margin: const EdgeInsets.all(Dimensions.paddingSizeDefault),
+                  radius: Dimensions.radiusDefault,
+                  buttonText: 'update_password'.tr,
+                  isLoading: widget.fromPasswordChange ? profileController.isLoading : verificationController.isLoading,
+                  onPressed: () => _onPressedPasswordChange(),
+                );
+              });
+            }),
+
+          ],
+        ),
       ),
     );
   }

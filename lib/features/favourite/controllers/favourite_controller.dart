@@ -24,6 +24,9 @@ class FavouriteController extends GetxController implements GetxService {
   bool _isDisable = false;
   bool get isDisable => _isDisable;
 
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
+
   void addToFavouriteList(Product? product, int? restaurantId, bool isRestaurant) async {
     _isDisable = true;
     update();
@@ -85,15 +88,12 @@ class FavouriteController extends GetxController implements GetxService {
         _wishRestIdList = [];
       }
       update();
-      // _wishProductList!.addAll(favouriteServiceInterface.prepareFoods(response) as Iterable<Product?>);
-      // _wishProductIdList.addAll(favouriteServiceInterface.prepareFoodIds(_wishProductList));
       response.body['food'].forEach((food) async {
         Product product = Product.fromJson(food);
         _wishProductList!.add(product);
         _wishProductIdList.add(product.id);
       });
-      // _wishRestList!.addAll(favouriteServiceInterface.prepareRestaurants(response) as Iterable<Restaurant?>);
-      // _wishRestIdList.addAll(favouriteServiceInterface.prepareRestaurantsIds(_wishRestList));
+
       response.body['restaurant'].forEach((res) async {
         Restaurant? restaurant;
         try{
@@ -111,5 +111,24 @@ class FavouriteController extends GetxController implements GetxService {
   void removeFavourites() {
     _wishProductIdList = [];
     _wishRestIdList = [];
+  }
+
+  Future<void> clearAll() async {
+    _isLoading = true;
+    update();
+
+    Response response = await favouriteServiceInterface.clearAll();
+    if (response.statusCode == 200) {
+      _wishProductList = [];
+      _wishProductIdList = [];
+
+      _wishRestList = [];
+      _wishRestIdList = [];
+      getFavouriteList(fromFavScreen: true);
+      Get.back();
+      showCustomSnackBar(response.body['message'], isError: false);
+    }
+    _isLoading = false;
+    update();
   }
 }

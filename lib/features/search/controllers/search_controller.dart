@@ -1,19 +1,22 @@
+import 'dart:async';
 import 'package:stackfood_multivendor/common/models/product_model.dart';
 import 'package:stackfood_multivendor/common/models/restaurant_model.dart';
 import 'package:stackfood_multivendor/features/search/domain/models/search_suggestion_model.dart';
 import 'package:stackfood_multivendor/features/search/domain/services/search_service_interface.dart';
 import 'package:get/get.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
+import 'package:flutter/material.dart';
 
 class SearchController extends GetxController implements GetxService {
   final SearchServiceInterface searchServiceInterface;
 
-  SearchController({required this.searchServiceInterface});
+  SearchController({required this.searchServiceInterface}) {
+    // create speech instance for reuse
+    _speech = stt.SpeechToText();
+  }
 
   List<Product>? _searchProductList;
   List<Product>? get searchProductList => _searchProductList;
-
-  // List<Product>? _allProductList;
-  // List<Product>? get allProductList => _allProductList;
 
   List<Product>? _suggestedFoodList;
   List<Product>? get suggestedFoodList => _suggestedFoodList;
@@ -47,20 +50,11 @@ class SearchController extends GetxController implements GetxService {
   final List<String> _restaurantSortList = ['ascending'.tr, 'descending'.tr];
   List<String> get restaurantSortList => _restaurantSortList;
 
-  // final List<String> _priceSortList = ['low_to_high'.tr, 'high_to_low'.tr];
-  // List<String> get priceSortList => _priceSortList;
-
   int _sortIndex = -1;
   int get sortIndex => _sortIndex;
 
-  // int _priceSortIndex = -1;
-  // int get priceSortIndex => _priceSortIndex;
-
   int _restaurantSortIndex = -1;
   int get restaurantSortIndex => _restaurantSortIndex;
-
-  // int _restaurantPriceSortIndex = -1;
-  // int get restaurantPriceSortIndex => _restaurantPriceSortIndex;
 
   int _rating = -1;
   int get rating => _rating;
@@ -82,7 +76,6 @@ class SearchController extends GetxController implements GetxService {
 
   bool _isNewArrivalsRestaurant = false;
   bool get isNewArrivalsRestaurant => _isNewArrivalsRestaurant;
-
 
   bool _isPopularFood = false;
   bool get isPopularFood => _isPopularFood;
@@ -194,9 +187,11 @@ class SearchController extends GetxController implements GetxService {
     update();
   }
 
-  void setRestaurant(bool isRestaurant) {
+  void setRestaurant(bool isRestaurant, {bool willUpdate = true}) {
     _isRestaurant = isRestaurant;
-    update();
+    if(willUpdate) {
+      update();
+    }
   }
 
   void setSearchMode(bool isSearchMode, {bool canUpdate = true}) {
@@ -204,13 +199,10 @@ class SearchController extends GetxController implements GetxService {
     if(isSearchMode) {
       _searchText = '';
       _allRestList = null;
-      // _allProductList = null;
       _searchProductList = null;
       _searchRestList = null;
       _sortIndex = -1;
-      // _priceSortIndex = -1;
       _restaurantSortIndex = -1;
-      // _restaurantPriceSortIndex = -1;
       _isDiscountedFoods = false;
       _isDiscountedRestaurant = false;
       _isAvailableFoods = false;
@@ -238,16 +230,6 @@ class SearchController extends GetxController implements GetxService {
     update();
   }
 
-  // void sortFoodSearchList() {
-  //   _searchProductList = searchServiceInterface.sortFoodSearchList(_allProductList, _upperValue, _lowerValue, _rating, _veg, _nonVeg, _isAvailableFoods, _isDiscountedFoods, _sortIndex, _priceSortIndex);
-  //   update();
-  // }
-
-  // void sortRestSearchList() {
-  //   _searchRestList = searchServiceInterface.sortRestaurantSearchList(_allRestList, _restaurantRating, _restaurantVeg, _restaurantNonVeg, _isAvailableRestaurant, _isDiscountedRestaurant, _restaurantSortIndex, _restaurantPriceSortIndex);
-  //   update();
-  // }
-
   void setSearchText(String text) {
     _searchText = text;
     update();
@@ -270,11 +252,10 @@ class SearchController extends GetxController implements GetxService {
         foods.add(restaurant.name!);
       }
     }
-    // update();
     return foods;
   }
 
-  Future<void> searchData1(String query, int offset) async {
+  Future<void> searchData(String query, int offset, {bool willUpdate = true}) async {
 
     int rating = searchServiceInterface.findRatings(_isRestaurant ? _restaurantRating : _rating);
     bool isNewActive = _isRestaurant ? _isNewArrivalsRestaurant : _isNewArrivalsFoods;
@@ -283,19 +264,13 @@ class SearchController extends GetxController implements GetxService {
     bool discounted = _isRestaurant ? _isDiscountedRestaurant : _isDiscountedFoods;
     String sortBy = searchServiceInterface.getSortBy(_isRestaurant, _restaurantSortIndex, _sortIndex);
 
-    // if((_isRestaurant && query.isNotEmpty && query != _restResultText) || (!_isRestaurant && query.isNotEmpty && query != _prodResultText || offset != 1) || fromFilter) {
       _searchText = query;
-      // _rating = -1;
-      // _restaurantRating = -1;
-      // _upperValue = 0;
-      // _lowerValue = 0;
       if(offset == 1) {
         if (_isRestaurant) {
           _searchRestList = null;
           _allRestList = null;
         } else {
           _searchProductList = null;
-          // _allProductList = null;
         }
       } else {
         _paginate = true;
@@ -305,22 +280,24 @@ class SearchController extends GetxController implements GetxService {
       }
       searchServiceInterface.saveSearchHistory(_historyList);
       _isSearchMode = false;
-      update();
+      if(willUpdate) {
+        update();
+      }
 
       Response response = await searchServiceInterface.getSearchData(
-          query: query,
-          isRestaurant: _isRestaurant,
-          offset: offset,
-          type: type,
-          isNew: isNewActive ? 1 : 0,
-          isPopular: isPopular ? 1 : 0,
-          isOneRatting: rating == 1 ? 1 : 0,
-          isTwoRatting: rating == 2 ? 1 : 0,
-          isThreeRatting: rating == 3 ? 1 : 0,
-          isFourRatting: rating == 4 ? 1 : 0,
-          isFiveRatting: rating == 5 ? 1 : 0,
-          sortBy: sortBy,
-          discounted: discounted ? 1 : 0,
+        query: query,
+        isRestaurant: _isRestaurant,
+        offset: offset,
+        type: type,
+        isNew: isNewActive ? 1 : 0,
+        isPopular: isPopular ? 1 : 0,
+        isOneRatting: rating == 1 ? 1 : 0,
+        isTwoRatting: rating == 2 ? 1 : 0,
+        isThreeRatting: rating == 3 ? 1 : 0,
+        isFourRatting: rating == 4 ? 1 : 0,
+        isFiveRatting: rating == 5 ? 1 : 0,
+        sortBy: sortBy,
+        discounted: discounted ? 1 : 0,
         minPrice: _lowerValue, maxPrice: _upperValue,
         selectedCuisines: _selectedCuisines,
         isOpenRestaurant: _isOpenRestaurant ? 1 : 0,
@@ -347,10 +324,8 @@ class SearchController extends GetxController implements GetxService {
           } else {
             if(offset == 1) {
               _searchProductList = [];
-              // _allProductList = [];
             }
             _searchProductList!.addAll(ProductModel.fromJson(response.body).products!);
-            // _allProductList!.addAll(ProductModel.fromJson(response.body).products!);
             totalSize = ProductModel.fromJson(response.body).totalSize;
             pageOffset = ProductModel.fromJson(response.body).offset;
             if(_lowerValue == 0 || _upperValue == 0) {
@@ -358,70 +333,15 @@ class SearchController extends GetxController implements GetxService {
               _upperValue = ProductModel.fromJson(response.body).maxPrice ?? 0;
             }
           }
-
         }
-
       }
-    // }
     _paginate = false;
     update();
   }
 
-
-
-  // void searchData(String query) async {
-  //   if((_isRestaurant && query.isNotEmpty && query != _restResultText) || (!_isRestaurant && query.isNotEmpty && query != _prodResultText)) {
-  //     _searchText = query;
-  //     _rating = -1;
-  //     _restaurantRating = -1;
-  //     _upperValue = 0;
-  //     _lowerValue = 0;
-  //     if (_isRestaurant) {
-  //       _searchRestList = null;
-  //       _allRestList = null;
-  //     } else {
-  //       _searchProductList = null;
-  //       _allProductList = null;
-  //     }
-  //     if (!_historyList.contains(query)) {
-  //       _historyList.insert(0, query);
-  //     }
-  //     searchServiceInterface.saveSearchHistory(_historyList);
-  //     _isSearchMode = false;
-  //     update();
-  //
-  //     // Response response = await searchServiceInterface.getSearchData(query, _isRestaurant);
-  //     if (response.statusCode == 200) {
-  //       if (query.isEmpty) {
-  //         if (_isRestaurant) {
-  //           _searchRestList = [];
-  //         } else {
-  //           _searchProductList = [];
-  //         }
-  //       } else {
-  //         if (_isRestaurant) {
-  //           _restResultText = query;
-  //           _searchRestList = [];
-  //           _allRestList = [];
-  //           _searchRestList!.addAll(RestaurantModel.fromJson(response.body).restaurants!);
-  //           _allRestList!.addAll(RestaurantModel.fromJson(response.body).restaurants!);
-  //         } else {
-  //           _prodResultText = query;
-  //           _searchProductList = [];
-  //           _allProductList = [];
-  //           _searchProductList!.addAll(ProductModel.fromJson(response.body).products!);
-  //           _allProductList!.addAll(ProductModel.fromJson(response.body).products!);
-  //         }
-  //       }
-  //     }
-  //     update();
-  //   }
-  // }
-
   void getHistoryList() {
     _searchText = '';
     _historyList = [];
-    // _allProductList = [];
     _searchProductList = [];
     _allRestList = [];
     _searchRestList = [];
@@ -455,20 +375,10 @@ class SearchController extends GetxController implements GetxService {
     update();
   }
 
-  // void setPriceSortIndex(int index) {
-  //   _priceSortIndex = index;
-  //   update();
-  // }
-
   void setRestSortIndex(int index) {
     _restaurantSortIndex = index;
     update();
   }
-
-  // void setRestPriceSortIndex(int index) {
-  //   _restaurantPriceSortIndex = index;
-  //   update();
-  // }
 
   void resetFilter() {
     _rating = -1;
@@ -479,7 +389,6 @@ class SearchController extends GetxController implements GetxService {
     _veg = false;
     _nonVeg = false;
     _sortIndex = -1;
-    // _priceSortIndex = -1;
     _isNewArrivalsFoods = false;
     _isPopularFood = false;
     update();
@@ -492,7 +401,6 @@ class SearchController extends GetxController implements GetxService {
     _restaurantVeg = false;
     _restaurantNonVeg = false;
     _restaurantSortIndex = -1;
-    // _restaurantPriceSortIndex = -1;
     _isNewArrivalsRestaurant = false;
     _isPopularRestaurant = false;
     _isOpenRestaurant = false;
@@ -504,6 +412,150 @@ class SearchController extends GetxController implements GetxService {
       _historyList.insert(0, query);
     }
     searchServiceInterface.saveSearchHistory(_historyList);
+  }
+
+
+  ///Voice Search..................
+
+  bool voiceIsListening = false;
+  String voiceText = '';
+  double voiceSoundLevel = 0.0;
+  bool voiceAvailable = false;
+  Timer? _voiceAutoSubmitTimer;
+
+  late stt.SpeechToText _speech;
+
+  /// Initialize speech (safe to call multiple times)
+  Future<void> initVoice({bool isUpdate = true}) async {
+    try {
+      final available = await _speech.initialize(onStatus: _onStatus, onError: _onError);
+      voiceAvailable = available;
+    } catch (e) {
+      voiceAvailable = false;
+    }
+    if(isUpdate) update();
+  }
+
+  void _onStatus(String status) {
+    if (status == stt.SpeechToText.listeningStatus) {
+      setVoiceListening(true);
+      cancelVoiceAutoSubmit();
+    } else if (status == stt.SpeechToText.doneStatus || status == stt.SpeechToText.notListeningStatus || status == 'not listening') {
+      setVoiceListening(false);
+      scheduleVoiceAutoSubmit(const Duration(seconds: 2));
+    }
+  }
+
+  void _onError(dynamic error) {
+    setVoiceListening(false);
+  }
+
+  /// Start listening and optionally update an external TextEditingController live
+  Future<void> startVoiceListening({TextEditingController? externalController}) async {
+    cancelVoiceAutoSubmit();
+
+    // clear any previous session
+    try {
+      if (_speech.isListening) await _speech.stop();
+      await _speech.cancel();
+    } catch (_) {}
+
+    if (!voiceAvailable) {
+      await initVoice();
+      if (!voiceAvailable) return;
+    }
+
+    // reset
+    setVoiceText('');
+    setVoiceSoundLevel(0.0);
+
+    try {
+      await _speech.listen(
+        onResult: (result) {
+          final recognized = result.recognizedWords;
+          setVoiceText(recognized);
+          if (externalController != null) {
+            externalController.text = recognized;
+            externalController.selection = TextSelection.fromPosition(TextPosition(offset: externalController.text.length));
+          }
+        },
+        listenFor: const Duration(seconds: 60),
+        pauseFor: const Duration(seconds: 5),
+        onSoundLevelChange: (level) {
+          final normalized = (level / 50).clamp(0.0, 1.0);
+          setVoiceSoundLevel(normalized);
+        },
+        localeId: Get.deviceLocale?.languageCode,
+        listenOptions: stt.SpeechListenOptions(partialResults: true, cancelOnError: true, listenMode: stt.ListenMode.search),
+      );
+      if (_speech.isListening) {
+        setVoiceListening(true);
+      } else {
+        setVoiceListening(false);
+      }
+    } catch (e) {
+      setVoiceListening(false);
+    }
+  }
+
+  /// Stop or cancel listening
+  Future<void> stopVoiceListening({bool submit = false}) async {
+    cancelVoiceAutoSubmit();
+    try {
+      await _speech.stop();
+    } catch (e) {
+      try {
+        await _speech.cancel();
+      } catch (_) {}
+    }
+    setVoiceListening(false);
+    if (submit) await submitVoiceNow();
+  }
+
+  void setVoiceListening(bool value, {bool isUpdate = true}) {
+    voiceIsListening = value;
+    if(isUpdate) update();
+  }
+
+  void setVoiceText(String text, {bool isUpdate = true}) {
+    voiceText = text;
+    if(isUpdate) update();
+  }
+
+  void setVoiceSoundLevel(double level, {bool isUpdate = true}) {
+    voiceSoundLevel = level;
+    if(isUpdate) update();
+  }
+
+  void scheduleVoiceAutoSubmit(Duration duration) {
+    _voiceAutoSubmitTimer?.cancel();
+    _voiceAutoSubmitTimer = Timer(duration, () async {
+      await submitVoiceNow();
+    });
+  }
+
+  void cancelVoiceAutoSubmit() {
+    _voiceAutoSubmitTimer?.cancel();
+    _voiceAutoSubmitTimer = null;
+  }
+
+  Future<void> submitVoiceNow() async {
+    cancelVoiceAutoSubmit();
+    final text = voiceText.trim();
+    if (text.isNotEmpty) {
+      try {
+        if ((Get.isBottomSheetOpen ?? false) || (Get.isDialogOpen ?? false)) {
+          Get.back();
+        }
+      } catch (_) {}
+      await searchData(text, 1);
+    }
+  }
+
+  @override
+  void onClose() {
+    _voiceAutoSubmitTimer?.cancel();
+    super.onClose();
   }
 
 }

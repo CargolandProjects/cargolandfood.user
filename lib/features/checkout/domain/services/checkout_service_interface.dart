@@ -15,7 +15,7 @@ abstract class CheckoutServiceInterface {
   Future<List<TimeSlotModel>?> initializeTimeSlot(Restaurant restaurant, int? scheduleOrderSlotDuration);
   List<TimeSlotModel>? validateTimeSlot(List<TimeSlotModel> slots, DateTime date);
   List<int>? validateSlotIndexes(List<TimeSlotModel> slots, DateTime date);
-  Future<bool> saveOfflineInfo(String data);
+  Future<bool> saveOfflineInfo(String data, String? guestId);
   int selectInstruction(int index, int selected);
   Future<Response> placeOrder(PlaceOrderBodyModel orderBody);
   Future<Response> sendNotificationRequest(String orderId, String? guestId);
@@ -23,8 +23,8 @@ abstract class CheckoutServiceInterface {
   int selectTimeSlot(bool instanceOrder);
   double updateTips(int index, int selectedTips);
   Future<double?> getDistanceInKM(LatLng originLatLng, LatLng destinationLatLng, {bool isDuration = false});
-  Future<bool> updateOfflineInfo(String data);
-  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data});
+  Future<bool> updateOfflineInfo(String data, String? guestId);
+  Future<bool> checkRestaurantValidation({required Map<String, dynamic> data, String? guestId});
   Future<Response> getOrderTax(PlaceOrderBodyModel placeOrderBody);
   void saveDmTipIndex(String i);
   String getDmTipIndex();

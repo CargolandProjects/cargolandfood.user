@@ -36,7 +36,7 @@ class NoDataScreen extends StatelessWidget {
       padding: const EdgeInsets.all(Dimensions.paddingSizeLarge),
       child: Column(mainAxisAlignment: fromAddress ? MainAxisAlignment.start : MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.center, children: [
 
-        fromAddress ? SizedBox(height : height * 0.25) : SizedBox(
+        fromAddress ? SizedBox(height : isDesktop ? height * 0.1 : height * 0.25) : SizedBox(
           height: isEmptyTransaction || isEmptyCoupon ? height * 0.15  : isDesktop ? height * 0.2 : height * 0.3,
         ),
 

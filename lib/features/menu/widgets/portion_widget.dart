@@ -1,4 +1,3 @@
-
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,7 @@ class PortionWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: Dimensions.paddingSizeSmall),
         child: Column(children: [
           Row(children: [
-            Image.asset(icon, height: 16, width: 16, color: Theme.of(context).textTheme.bodyMedium!.color),
+            Image.asset(icon, height: 16, width: 16, color: Theme.of(context).textTheme.bodyMedium!.color?.withValues(alpha: 0.7)),
             const SizedBox(width: Dimensions.paddingSizeSmall),
 
             Expanded(child: Text(title, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeDefault))),

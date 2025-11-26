@@ -35,7 +35,7 @@ class TramsConditionsCheckBoxWidget extends StatelessWidget {
             TextSpan(text: 'i_agree_with_all_the'.tr, style: robotoRegular.copyWith(fontSize: ResponsiveHelper.isDesktop(context) ? Dimensions.fontSizeExtraSmall : null, color: Theme.of(context).hintColor)),
             const TextSpan(text: ' '),
             TextSpan(
-              recognizer: TapGestureRecognizer()..onTap = () => Get.toNamed(RouteHelper.getHtmlRoute('terms-and-condition')),
+              recognizer: TapGestureRecognizer()..onTap = () => Get.toNamed(RouteHelper.getTermsAndConditionRoute()),
               text: 'terms_conditions'.tr,
               style: robotoMedium.copyWith(fontSize: ResponsiveHelper.isDesktop(context) ? Dimensions.fontSizeExtraSmall : null, color: Theme.of(context).primaryColor),
             ),

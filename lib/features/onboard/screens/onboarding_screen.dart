@@ -21,13 +21,17 @@ class OnBoardingScreen extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Theme.of(context).primaryColor.withValues(alpha: 0.05),
           actions: [
-            onBoardingController.selectedIndex == 2 ? const SizedBox() : InkWell(
-              onTap: () {
-                _configureToRouteInitialPage();
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(Dimensions.paddingSizeSmall),
-                child: Text('skip'.tr, style: robotoBold.copyWith(color: Theme.of(context).disabledColor)),
+            onBoardingController.selectedIndex == 2 ? const SizedBox() : Container(
+              padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: Dimensions.paddingSizeExtraSmall),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(Dimensions.radiusExtraLarge),
+                border: Border.all(color: Theme.of(context).primaryColor),
+              ),
+              child: InkWell(
+                onTap: () {
+                  _configureToRouteInitialPage();
+                },
+                child: Text('skip'.tr, style: robotoBold.copyWith(color: Theme.of(context).primaryColor)),
               ),
             ),
             const SizedBox(width: 30),
@@ -92,15 +96,14 @@ class OnBoardingScreen extends StatelessWidget {
             ),
           ),
 
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: _pageIndicators(onBoardingController, context),
+          ),
 
           Container(
             padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeDefault, vertical: Dimensions.paddingSizeExtraLarge),
-            child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: _pageIndicators(onBoardingController, context),
-              ),
+            child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
 
               Stack(children: [
 

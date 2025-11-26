@@ -1,3 +1,4 @@
+import 'package:stackfood_multivendor/common/enums/order_status.dart';
 import 'package:stackfood_multivendor/features/order/controllers/order_controller.dart';
 import 'package:stackfood_multivendor/features/order/domain/models/order_model.dart';
 import 'package:stackfood_multivendor/features/order/widgets/guest_custom_stepper.dart';
@@ -5,7 +6,6 @@ import 'package:stackfood_multivendor/features/order/widgets/traking_map_widget.
 import 'package:stackfood_multivendor/helper/date_converter.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
-import 'package:stackfood_multivendor/util/app_constants.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -17,6 +17,7 @@ import 'package:stackfood_multivendor/common/widgets/menu_drawer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher_string.dart';
+
 class GuestTrackOrderScreen extends StatefulWidget {
   final String orderId;
   final String number;
@@ -80,15 +81,15 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
                         Column(children: [
                           GuestCustomStepper(
                             title: 'order_placed'.tr,
-                            isComplete: status == AppConstants.pending
-                                || status == AppConstants.confirmed
-                                || status == AppConstants.processing
-                                || status == AppConstants.pickedUp
-                                || status == AppConstants.handover
-                                || status == AppConstants.delivered
-                                || status == AppConstants.accepted
-                                || status == AppConstants.refundRequested,
-                            isActive: status == AppConstants.pending,
+                            isComplete: status == OrderStatus.pending.name
+                                || status == OrderStatus.confirmed.name
+                                || status == OrderStatus.processing.name
+                                || status == OrderStatus.picked_up.name
+                                || status == OrderStatus.handover.name
+                                || status == OrderStatus.delivered.name
+                                || status == OrderStatus.accepted.name
+                                || status == OrderStatus.refund_requested.name,
+                            isActive: status == OrderStatus.pending.name,
                             haveTopBar: false,
                             statusImage: Images.trackOrderPlace,
                             subTitle: DateConverter.dateTimeStringToDateTime(order!.scheduleAt!),
@@ -96,38 +97,38 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
 
                           GuestCustomStepper(
                             title: 'order_confirmed'.tr,
-                            isComplete: status == AppConstants.confirmed
-                                || status == AppConstants.processing
-                                || status == AppConstants.pickedUp
-                                || status == AppConstants.handover
-                                || status == AppConstants.delivered
-                                || status == AppConstants.accepted
-                                || status == AppConstants.refundRequested,
-                            isActive: status == AppConstants.confirmed || status == AppConstants.accepted,
+                            isComplete: status == OrderStatus.confirmed.name
+                                || status == OrderStatus.processing.name
+                                || status == OrderStatus.picked_up.name
+                                || status == OrderStatus.handover.name
+                                || status == OrderStatus.delivered.name
+                                || status == OrderStatus.accepted.name
+                                || status == OrderStatus.refund_requested.name,
+                            isActive: status == OrderStatus.confirmed.name || status == OrderStatus.accepted.name,
                             statusImage: Images.trackOrderAccept,
                           ),
 
                           GuestCustomStepper(
                             title: 'preparing_food'.tr,
-                            isComplete: status == AppConstants.processing
-                                || status == AppConstants.pickedUp
-                                || status == AppConstants.handover
-                                ||status == AppConstants.delivered
-                                || status == AppConstants.refundRequested,
-                            isActive: status == AppConstants.processing,
+                            isComplete: status == OrderStatus.processing.name
+                                || status == OrderStatus.picked_up.name
+                                || status == OrderStatus.handover.name
+                                ||status == OrderStatus.delivered.name
+                                || status == OrderStatus.refund_requested.name,
+                            isActive: status == OrderStatus.processing.name,
                             statusImage: Images.trackOrderPreparing,
                           ),
 
                           GuestCustomStepper(
                             title: 'order_is_on_the_way'.tr,
-                            isComplete: status == AppConstants.handover
-                                || status == AppConstants.pickedUp
-                                || status == AppConstants.delivered
-                                || status == AppConstants.refundRequested,
+                            isComplete: status == OrderStatus.handover.name
+                                || status == OrderStatus.picked_up.name
+                                || status == OrderStatus.delivered.name
+                                || status == OrderStatus.refund_requested.name,
                             statusImage: Images.trackOrderOnTheWay,
-                            isActive: status == AppConstants.handover,
+                            isActive: status == OrderStatus.handover.name,
                             subTitle: 'your_delivery_man_is_coming'.tr,
-                            trailing: (orderController.trackModel?.deliveryMan?.phone != null && status != AppConstants.delivered && status != AppConstants.refundRequested) ? InkWell(
+                            trailing: (orderController.trackModel?.deliveryMan?.phone != null && status != OrderStatus.delivered.name && status != OrderStatus.refund_requested.name) ? InkWell(
                               onTap: () async {
 
                                 if(await canLaunchUrlString('tel:${orderController.trackModel?.deliveryMan?.phone}')) {
@@ -143,11 +144,11 @@ class _GuestTrackOrderScreenState extends State<GuestTrackOrderScreen> {
 
                           GuestCustomStepper(
                             title: 'order_delivered'.tr,
-                            isComplete: status == AppConstants.delivered
-                                || status == AppConstants.refundRequested,
-                            isActive: status == AppConstants.delivered,
+                            isComplete: status == OrderStatus.delivered.name
+                                || status == OrderStatus.refund_requested.name,
+                            isActive: status == OrderStatus.delivered.name,
                             statusImage: Images.trackOrderDelivered,
-                            child: (orderController.trackModel?.deliveryMan != null && status != AppConstants.delivered && status != AppConstants.refundRequested)
+                            child: (orderController.trackModel?.deliveryMan != null && status != OrderStatus.delivered.name && status != OrderStatus.refund_requested.name)
                                 ? TrackingMapWidget(
                               track: orderController.trackModel,
                             ) : const SizedBox(),

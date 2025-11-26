@@ -1,6 +1,10 @@
 import 'package:flutter/cupertino.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_snackbar_widget.dart';
+import 'package:stackfood_multivendor/features/address/controllers/address_controller.dart';
 import 'package:stackfood_multivendor/features/address/domain/models/address_model.dart';
+import 'package:stackfood_multivendor/features/address/widgets/address_confirmation_dialogue_widget.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
+import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/util/images.dart';
 import 'package:stackfood_multivendor/util/styles.dart';
@@ -11,13 +15,12 @@ class AddressCardWidget extends StatelessWidget {
   final AddressModel? address;
   final bool fromAddress;
   final bool fromCheckout;
-  final Function? onRemovePressed;
-  final Function? onEditPressed;
   final Function? onTap;
   final bool isSelected;
   final bool fromDashBoard;
-  const AddressCardWidget({super.key, required this.address, required this.fromAddress, this.onRemovePressed, this.onEditPressed,
-    this.onTap, this.fromCheckout = false, this.isSelected = false, this.fromDashBoard = false});
+  final int? index;
+  const AddressCardWidget({super.key, required this.address, required this.fromAddress, this.onTap, this.fromCheckout = false,
+    this.isSelected = false, this.fromDashBoard = false, this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +38,7 @@ class AddressCardWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
             border: Border.all(color: isSelected ? Theme.of(context).primaryColor : Theme.of(context).cardColor, width: isSelected ? 0.5 : 0),
           ),
-          child: Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+          child: Row(mainAxisAlignment: MainAxisAlignment.start, crossAxisAlignment: CrossAxisAlignment.start, children: [
 
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -64,14 +67,52 @@ class AddressCardWidget extends StatelessWidget {
               ]),
             ),
 
-            fromAddress ? IconButton(
-              icon: Icon(Icons.edit, color: Theme.of(context).disabledColor, size: ResponsiveHelper.isDesktop(context) ? 25 : 20),
-              onPressed: onEditPressed as void Function()?,
-            ) : const SizedBox(),
+            fromAddress ? PopupMenuButton(
+              itemBuilder: (context) {
+                return <PopupMenuEntry>[
+                  PopupMenuItem(
+                    value: 'edit',
+                    child: Row(children: [
+                      Expanded(child: Text('edit'.tr, style: robotoRegular)),
+                      SizedBox(width: 20),
 
-            fromAddress ? IconButton(
-              icon: Icon(CupertinoIcons.delete, color: Theme.of(context).colorScheme.error, size: ResponsiveHelper.isDesktop(context) ? 25 : 20),
-              onPressed: onRemovePressed as void Function()?,
+                      Icon(CupertinoIcons.pencil_circle_fill, color: Colors.blue, size: 20),
+                    ]),
+                  ),
+
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(children: [
+                      Expanded(child: Text('delete'.tr, style: robotoRegular)),
+                      SizedBox(width: 20),
+
+                      Icon(CupertinoIcons.delete, color: Colors.red, size: 20),
+                    ]),
+                  ),
+                ];
+              },
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(Dimensions.radiusSmall)),
+              child: Icon(Icons.more_vert, size: 20, color: Theme.of(context).primaryColor),
+              onSelected: (dynamic value) {
+                if (value == 'delete') {
+                  if(Get.isSnackbarOpen) {
+                    Get.back();
+                  }
+                  Get.dialog(AddressConfirmDialogueWidget(
+                    icon: Images.locationConfirm,
+                    title: 'are_you_sure'.tr,
+                    description: 'you_want_to_delete_this_location'.tr,
+                    onYesPressed: () {
+                      Get.find<AddressController>().deleteAddress(address?.id, index!).then((response) {
+                        Get.back();
+                        showCustomSnackBar(response.message, isError: !response.isSuccess);
+                      });
+                    },
+                  ));
+                }else{
+                  Get.toNamed(RouteHelper.getEditAddressRoute(address));
+                }
+              },
             ) : const SizedBox(),
 
           ]),

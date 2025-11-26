@@ -41,7 +41,7 @@ class RestaurantsCardWidget extends StatelessWidget {
     return Stack(
       children: [
         Container(
-          width: isNewOnStackFood! ? ResponsiveHelper.isMobile(context) ? 350 : 380  : ResponsiveHelper.isMobile(context) ? 330: 355,
+          width: isNewOnStackFood! ? ResponsiveHelper.isMobile(context) ? 330 : 380  : ResponsiveHelper.isMobile(context) ? 330: 355,
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(Dimensions.radiusDefault),
@@ -50,7 +50,7 @@ class RestaurantsCardWidget extends StatelessWidget {
           child: CustomInkWellWidget(
             onTap: () {
               Get.toNamed(
-                RouteHelper.getRestaurantRoute(restaurant.id),
+                RouteHelper.getRestaurantRoute(restaurant.id, slug: restaurant.slug ?? ''),
                 arguments: RestaurantScreen(restaurant: restaurant),
               );
             },
@@ -58,136 +58,134 @@ class RestaurantsCardWidget extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(Dimensions.paddingSizeDefault),
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Row(children: [
-                      Stack(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.all(isNewOnStackFood! ? 2 : 3),
-                            height: isNewOnStackFood! ? 95 : 65, width: isNewOnStackFood! ? 95 : 65,
-                            decoration:  BoxDecoration(
-                              color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                              child:  CustomImageWidget(
-                                image: '${restaurant.logoFullUrl}',
-                                    fit: BoxFit.cover, height: isNewOnStackFood! ? 95 : 65, width: isNewOnStackFood! ? 95 : 65,
-                                isRestaurant: true,
-                              ),
-                            ),
+                Row(children: [
+                  Stack(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(isNewOnStackFood! ? 2 : 3),
+                        height: isNewOnStackFood! ? 95 : 65, width: isNewOnStackFood! ? 95 : 65,
+                        decoration:  BoxDecoration(
+                          color: Theme.of(context).primaryColor.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                          child:  CustomImageWidget(
+                            image: '${restaurant.logoFullUrl}',
+                                fit: BoxFit.cover, height: isNewOnStackFood! ? 95 : 65, width: isNewOnStackFood! ? 95 : 65,
+                            isRestaurant: true,
                           ),
-
-                          isAvailable ? const SizedBox() : const NotAvailableWidget(isRestaurant: true),
-
-                        ],
-                      ),
-                      const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              restaurant.name!,
-                              overflow: TextOverflow.ellipsis, maxLines: 1,
-                              style: robotoMedium.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            SizedBox(height: isNewOnStackFood! ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeExtraSmall),
-
-                            characteristics != '' ? Text(
-                              characteristics,
-                              overflow: TextOverflow.ellipsis, maxLines: 1,
-                              style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
-                            ) : const SizedBox(),
-                            SizedBox(height: isNewOnStackFood! ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeExtraSmall),
-
-                            Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-
-                              isNewOnStackFood! ? restaurant.freeDelivery! ? ImageWithTextRowWidget(
-                                widget: Image.asset(Images.deliveryIcon, height: 20, width: 20),
-                                text: 'free'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
-                              ) : const SizedBox() : IconWithTextRowWidget(
-                                icon: Icons.star_border, text: restaurant.avgRating!.toStringAsFixed(1),
-                                style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall)
-                              ),
-                              isNewOnStackFood! ? const SizedBox(width : Dimensions.paddingSizeExtraSmall) : const SizedBox(width: Dimensions.paddingSizeSmall),
-
-                              isNewOnStackFood! ? ImageWithTextRowWidget(
-                                widget: Image.asset(Images.distanceKm, height: 20, width: 20),
-                                text: '${distance > 100 ? '100+' : distance.toStringAsFixed(2)} ${'km'.tr}',
-                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
-                              ) : restaurant.freeDelivery! ? ImageWithTextRowWidget(widget: Image.asset(Images.deliveryIcon, height: 20, width: 20),
-                                  text: 'free'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall)) : const SizedBox(),
-                              isNewOnStackFood! ? const SizedBox(width : Dimensions.paddingSizeExtraSmall) : restaurant.freeDelivery! ? const SizedBox(width: Dimensions.paddingSizeSmall) : const SizedBox(),
-
-                              isNewOnStackFood! ? ImageWithTextRowWidget(
-                                widget: Image.asset(Images.itemCount, height: 20, width: 20),
-                                text: '${restaurant.foodsCount! > 8 ? '8 +' : '${restaurant.foodsCount}'} ${'item'.tr}',
-                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
-                              ) : IconWithTextRowWidget(
-                                icon: Icons.access_time_outlined,
-                                text: restaurant.deliveryTime!,
-                                style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
-                              ),
-
-                            ]),
-                          ],
                         ),
                       ),
+
+                      isAvailable ? const SizedBox() : const NotAvailableWidget(isRestaurant: true),
+
                     ],
                   ),
+                  const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                  isNewOnStackFood! ? const SizedBox() : Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                    restaurant.foods != null && restaurant.foods!.isNotEmpty ? Expanded(
-                      child: Stack(children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          restaurant.name!,
+                          overflow: TextOverflow.ellipsis, maxLines: 1,
+                          style: robotoMedium.copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        SizedBox(height: isNewOnStackFood! ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeExtraSmall),
 
-                        OverFlowContainerWidget(image: restaurant.foods![0].imageFullUrl ?? ''),
-
-                        restaurant.foods!.length > 1 ? Positioned(
-                          left: 22, bottom: 0,
-                          child: OverFlowContainerWidget(image: restaurant.foods![1].imageFullUrl ?? ''),
+                        characteristics != '' ? Text(
+                          characteristics,
+                          overflow: TextOverflow.ellipsis, maxLines: 1,
+                          style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).disabledColor),
                         ) : const SizedBox(),
+                        SizedBox(height: isNewOnStackFood! ? Dimensions.paddingSizeSmall : Dimensions.paddingSizeExtraSmall),
 
-                        restaurant.foods!.length > 2 ? Positioned(
-                          left: 42, bottom: 0,
-                          child: OverFlowContainerWidget(image: restaurant.foods![2].imageFullUrl ?? ''),
-                        ) : const SizedBox(),
+                        Row(mainAxisAlignment: MainAxisAlignment.start, children: [
 
-                        restaurant.foods!.length > 4 ? Positioned(
-                          left: 82, bottom: 0,
-                          child: Container(
-                            padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
-                            height: 30, width: 80,
-                            decoration:  BoxDecoration(
-                              color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(50),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  '${restaurant.foodsCount! > 11 ? '12 +' : restaurant.foodsCount!} ',
-                                  style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
-                                ),
-                                Text('items'.tr, style: robotoRegular.copyWith(fontSize: 10, color: Theme.of(context).primaryColor)),
-                              ],
-                            ),
+                          isNewOnStackFood! ? restaurant.freeDelivery! ? ImageWithTextRowWidget(
+                            widget: Image.asset(Images.deliveryIcon, height: 20, width: 20),
+                            text: 'free'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
+                          ) : const SizedBox() : IconWithTextRowWidget(
+                            icon: Icons.star_border, text: restaurant.avgRating!.toStringAsFixed(1),
+                            style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall)
                           ),
-                        ) : const SizedBox(),
+                          isNewOnStackFood! ? const SizedBox(width : Dimensions.paddingSizeExtraSmall) : const SizedBox(width: Dimensions.paddingSizeSmall),
 
-                        restaurant.foods!.length > 3 ?  Positioned(
-                          left: 62, bottom: 0,
-                          child: OverFlowContainerWidget(image: restaurant.foods![3].imageFullUrl ?? ''),
-                        ) : const SizedBox(),
-                      ]),
-                    ) : const SizedBox(),
+                          isNewOnStackFood! ? ImageWithTextRowWidget(
+                            widget: Image.asset(Images.distanceKm, height: 20, width: 20),
+                            text: '${distance > 100 ? '100+' : distance.toStringAsFixed(2)} ${'km'.tr}',
+                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
+                          ) : restaurant.freeDelivery! ? ImageWithTextRowWidget(widget: Image.asset(Images.deliveryIcon, height: 20, width: 20),
+                              text: 'free'.tr, style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall)) : const SizedBox(),
+                          isNewOnStackFood! ? const SizedBox(width : Dimensions.paddingSizeExtraSmall) : restaurant.freeDelivery! ? const SizedBox(width: Dimensions.paddingSizeSmall) : const SizedBox(),
 
-                    Icon(Icons.arrow_forward, color: Theme.of(context).primaryColor, size: 20),
-                  ]),
-                ],
-              ),
+                          isNewOnStackFood! ? ImageWithTextRowWidget(
+                            widget: Image.asset(Images.itemCount, height: 20, width: 20),
+                            text: '${restaurant.foodsCount! > 8 ? '8 +' : '${restaurant.foodsCount}'} ${'item'.tr}',
+                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
+                          ) : IconWithTextRowWidget(
+                            icon: Icons.access_time_outlined,
+                            text: restaurant.deliveryTime!,
+                            style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall),
+                          ),
+
+                        ]),
+                      ],
+                    ),
+                  ),
+                ]),
+
+                isNewOnStackFood! ? const SizedBox() : Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  restaurant.foods != null && restaurant.foods!.isNotEmpty ? Expanded(
+                    child: Stack(children: [
+
+                      OverFlowContainerWidget(image: restaurant.foods![0].imageFullUrl ?? ''),
+
+                      restaurant.foods!.length > 1 ? Positioned(
+                        left: 22, bottom: 0,
+                        child: OverFlowContainerWidget(image: restaurant.foods![1].imageFullUrl ?? ''),
+                      ) : const SizedBox(),
+
+                      restaurant.foods!.length > 2 ? Positioned(
+                        left: 42, bottom: 0,
+                        child: OverFlowContainerWidget(image: restaurant.foods![2].imageFullUrl ?? ''),
+                      ) : const SizedBox(),
+
+                      restaurant.foods!.length > 4 ? Positioned(
+                        left: 82, bottom: 0,
+                        child: Container(
+                          padding: const EdgeInsets.all(Dimensions.paddingSizeExtraSmall),
+                          height: 30, width: 80,
+                          decoration:  BoxDecoration(
+                            color: Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '${restaurant.foodsCount! > 11 ? '12 +' : restaurant.foodsCount!} ',
+                                style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall, color: Theme.of(context).primaryColor),
+                              ),
+                              Text('items'.tr, style: robotoRegular.copyWith(fontSize: 10, color: Theme.of(context).primaryColor)),
+                            ],
+                          ),
+                        ),
+                      ) : const SizedBox(),
+
+                      restaurant.foods!.length > 3 ?  Positioned(
+                        left: 62, bottom: 0,
+                        child: OverFlowContainerWidget(image: restaurant.foods![3].imageFullUrl ?? ''),
+                      ) : const SizedBox(),
+                    ]),
+                  ) : const SizedBox(),
+
+                  Icon(Icons.arrow_forward, color: Theme.of(context).primaryColor, size: 20),
+                ]),
+              ]),
             ),
           ),
         ),

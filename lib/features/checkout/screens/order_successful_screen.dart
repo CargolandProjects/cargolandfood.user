@@ -4,7 +4,6 @@ import 'package:stackfood_multivendor/features/order/controllers/order_controlle
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/theme_controller.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
-import 'package:stackfood_multivendor/features/location/domain/models/zone_response_model.dart';
 import 'package:stackfood_multivendor/helper/address_helper.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
@@ -61,14 +60,21 @@ class _OrderSuccessfulScreenState extends State<OrderSuccessfulScreen> {
         bool success = true;
         double? maximumCodOrderAmount;
         if(orderController.trackModel != null) {
-          ZoneData zoneData = AddressHelper.getAddressFromSharedPref()!.zoneData!.firstWhere((data) => data.id == AddressHelper.getAddressFromSharedPref()!.zoneId);
-          maximumCodOrderAmount = zoneData.maxCodOrderAmount;
+          final address = AddressHelper.getAddressFromSharedPref();
+
+          if(address?.zoneData != null && address!.zoneId != null) {
+            final matchingZones = address.zoneData!.where((data) => data.id == address.zoneId).toList();
+            if(matchingZones.isNotEmpty) {
+              maximumCodOrderAmount = matchingZones.first.maxCodOrderAmount;
+            }
+          }
+
           total = ((orderController.trackModel!.orderAmount! / 100) * Get.find<SplashController>().configModel!.loyaltyPointItemPurchasePoint!);
           success = orderController.trackModel!.paymentStatus == 'paid' || orderController.trackModel!.paymentMethod == 'cash_on_delivery' || orderController.trackModel!.paymentMethod == 'partial_payment';
 
           if (!success && !Get.isDialogOpen! && orderController.trackModel!.orderStatus != 'canceled' && Get.currentRoute.startsWith(RouteHelper.orderSuccess)) {
             Future.delayed(const Duration(seconds: 1), () {
-              Get.dialog(PaymentFailedDialog(orderID: orderId, orderAmount: total, maxCodOrderAmount: maximumCodOrderAmount, contactPersonNumber: widget.contactPersonNumber), barrierDismissible: false);
+              Get.dialog(PaymentFailedDialog(orderID: orderId, orderAmount: widget.totalAmount, maxCodOrderAmount: maximumCodOrderAmount, contactPersonNumber: widget.contactPersonNumber), barrierDismissible: false);
             });
           }
         }
@@ -101,7 +107,7 @@ class _OrderSuccessfulScreenState extends State<OrderSuccessfulScreen> {
                 ),
               ),
 
-              Get.find<AuthController>().isLoggedIn() && ResponsiveHelper.isDesktop(context) && (success && Get.find<SplashController>().configModel!.loyaltyPointStatus == 1 && total.floor() > 0 )  ? Column(children: [
+              Get.find<AuthController>().isLoggedIn() && ResponsiveHelper.isDesktop(context) && (success && Get.find<SplashController>().configModel!.loyaltyPointStatus! && total.floor() > 0 )  ? Column(children: [
 
                 Image.asset(Get.find<ThemeController>().darkTheme ? Images.giftBox1 : Images.giftBox, width: 150, height: 150),
 

@@ -21,6 +21,7 @@ import 'package:stackfood_multivendor/features/cart/domain/models/cart_model.dar
 import 'package:stackfood_multivendor/common/models/product_model.dart';
 import 'package:stackfood_multivendor/features/favourite/controllers/favourite_controller.dart';
 import 'package:stackfood_multivendor/features/product/controllers/product_controller.dart';
+import 'package:stackfood_multivendor/helper/address_helper.dart';
 import 'package:stackfood_multivendor/helper/cart_helper.dart';
 import 'package:stackfood_multivendor/helper/date_converter.dart';
 import 'package:stackfood_multivendor/helper/price_converter.dart';
@@ -171,7 +172,7 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                                       if(widget.inRestaurantPage) {
                                         Get.back();
                                       }else {
-                                        Get.offNamed(RouteHelper.getRestaurantRoute(product!.restaurantId));
+                                        Get.offNamed(RouteHelper.getRestaurantRoute(product!.restaurantId, slug: product?.restaurantName ?? ''));
                                       }
                                     },
                                     child: Padding(
@@ -695,22 +696,19 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
                               const SizedBox(width: Dimensions.paddingSizeSmall),
 
                               Expanded(
-                                child: GetBuilder<CartController>(
-                                  builder: (cartController) {
-                                    return CustomButtonWidget(
-                                      radius : Dimensions.paddingSizeDefault,
-                                      width: ResponsiveHelper.isDesktop(context) ? MediaQuery.of(context).size.width / 2.0 : null,
-                                      isLoading: cartController.isLoading,
-                                      buttonText: ((!product!.scheduleOrder! && !isAvailable) || (widget.isCampaign && !isAvailable)) ? 'not_available_now'.tr
-                                          : widget.isCampaign ? 'order_now'.tr : (widget.cart != null || productController.cartIndex != -1) ? 'update_in_cart'.tr : 'add_to_cart'.tr,
-                                      onPressed: ((!product!.scheduleOrder! && !isAvailable) || (widget.isCampaign && !isAvailable)) || (widget.cart != null && productController.checkOutOfStockVariationSelected(product?.variations) != null) ? null : () async {
-
-                                        _onButtonPressed(productController, cartController, priceWithVariation, priceWithDiscount, price, discount, discountType, addOnIdList, addOnsList, priceWithAddonsVariation);
-
-                                      },
-                                    );
-                                  }
-                                ),
+                                child: GetBuilder<CartController>(builder: (cartController) {
+                                  return CustomButtonWidget(
+                                    radius : Dimensions.paddingSizeDefault,
+                                    width: ResponsiveHelper.isDesktop(context) ? MediaQuery.of(context).size.width / 2.0 : null,
+                                    isLoading: cartController.isLoading,
+                                    buttonText: ((!product!.scheduleOrder! && !isAvailable) || (widget.isCampaign && !isAvailable)) ? 'not_available_now'.tr
+                                        : widget.isCampaign ? 'order_now'.tr : (widget.cart != null || productController.cartIndex != -1) ? 'update_in_cart'.tr : 'add_to_cart'.tr,
+                                    onPressed: ((!product!.scheduleOrder! && !isAvailable) || (widget.isCampaign && !isAvailable)) || (widget.cart != null && productController.checkOutOfStockVariationSelected(product?.variations) != null) ? null : () async {
+                                      Get.find<CheckoutController>().updateFirstTime();
+                                      _onButtonPressed(productController, cartController, priceWithVariation, priceWithDiscount, price, discount, discountType, addOnIdList, addOnsList, priceWithAddonsVariation);
+                                    },
+                                  );
+                                }),
                               ),
                             ],
                           ),
@@ -767,7 +765,14 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
       debugPrint('-------checkout cart : ${cartModel.toJson()}');
 
       if(widget.isCampaign) {
-        Get.find<CheckoutController>().updateFirstTime();
+        if(AddressHelper.getAddressFromSharedPref() == null) {
+
+          if(Get.isDialogOpen!) {
+            Get.back();
+          }
+          Get.find<SplashController>().navigateToLocationScreen('home');
+          return;
+        }
         Get.find<CartController>().setNeedExtraPackage(false);
         Get.back();
         Get.toNamed(RouteHelper.getCheckoutRoute('campaign'), arguments: CheckoutScreen(
@@ -825,6 +830,13 @@ class _ProductBottomSheetWidgetState extends State<ProductBottomSheetWidget> {
   }
 
   Future<void> _executeActions(CartController cartController, ProductController productController, CartModel cartModel, OnlineCart onlineCart) async {
+    if(AddressHelper.getAddressFromSharedPref() == null) {
+      if(Get.isDialogOpen!) {
+        Get.back();
+      }
+      Get.find<SplashController>().navigateToLocationScreen('home');
+      return;
+    }
     if (cartController.existAnotherRestaurantProduct(cartModel.product!.restaurantId)) {
       Get.dialog(ConfirmationDialogWidget(
         icon: Images.warning,

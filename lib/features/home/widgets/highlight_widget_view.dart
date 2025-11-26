@@ -278,7 +278,11 @@ class _HighlightVideoWidgetState extends State<HighlightVideoWidget> {
     ]);
 
     _createChewieController();
-    setState(() {});
+    Future.delayed(const Duration(seconds: 2), () {
+      if(mounted) {
+        setState(() {});
+      }
+    });
   }
 
   void _createChewieController() {
@@ -292,6 +296,8 @@ class _HighlightVideoWidgetState extends State<HighlightVideoWidget> {
 
   @override
   void dispose() {
+    videoPlayerController.dispose();
+    _chewieController?.dispose();
     super.dispose();
   }
 

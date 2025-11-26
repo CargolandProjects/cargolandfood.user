@@ -27,7 +27,7 @@ class RestaurantDetailsSheetWidget extends StatelessWidget {
       child: InkWell(
         onTap: () {
           Get.toNamed(
-            RouteHelper.getRestaurantRoute(restaurant.id),
+            RouteHelper.getRestaurantRoute(restaurant.id, slug: restaurant.slug ?? ''),
             arguments: RestaurantScreen(restaurant: restaurant),
           );
         },
@@ -150,8 +150,8 @@ class RestaurantDetailsSheetWidget extends StatelessWidget {
 
               Text('${(Geolocator.distanceBetween(
                 double.parse(restaurant.latitude!), double.parse(restaurant.longitude!),
-                double.parse(AddressHelper.getAddressFromSharedPref()!.latitude!),
-                double.parse(AddressHelper.getAddressFromSharedPref()!.longitude!),
+                double.parse(AddressHelper.getAddressFromSharedPref()?.latitude??'0'),
+                double.parse(AddressHelper.getAddressFromSharedPref()?.longitude??'0'),
               )/1000).toStringAsFixed(1)} ${'km'.tr}', style: robotoBold.copyWith(fontSize: Dimensions.fontSizeLarge)),
               Text(' ${'away'.tr}', style: robotoBold.copyWith(fontSize: Dimensions.fontSizeSmall)),
 
