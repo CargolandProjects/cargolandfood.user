@@ -4,12 +4,12 @@ import 'package:get/get.dart';
 
 class AppConstants {
   static const String appName = 'Cargolandfood';
-  static const double appVersion = 8.6;
+  static const double appVersion = 8.7;
 
   ///Flutter SDK: 3.38.2
 
   static const String fontFamily = 'Roboto';
-  static const bool payInWevView = false;
+  static const bool payInWevView = true;
   static const String webHostedUrl = 'https:/web.cargolandfood.com';
   static const bool useReactWebsite = false;
   static const String googleServerClientId =
@@ -236,31 +236,35 @@ class AppConstants {
   /// Languages
   static List<LanguageModel> languages = [
     LanguageModel(
-        imageUrl: Images.english,
-        languageName: 'English',
-        countryCode: 'US',
-        languageCode: 'en'),
+      imageUrl: Images.english,
+      languageName: 'English',
+      countryCode: 'US',
+      languageCode: 'en',
+    ),
     LanguageModel(
-        imageUrl: Images.arabic,
-        languageName: 'عربى',
-        countryCode: 'SA',
-        languageCode: 'ar'),
+      imageUrl: Images.arabic,
+      languageName: 'عربى',
+      countryCode: 'SA',
+      languageCode: 'ar',
+    ),
     LanguageModel(
-        imageUrl: Images.spanish,
-        languageName: 'Spanish',
-        countryCode: 'ES',
-        languageCode: 'es'),
+      imageUrl: Images.spanish,
+      languageName: 'Spanish',
+      countryCode: 'ES',
+      languageCode: 'es',
+    ),
     LanguageModel(
-        imageUrl: Images.bengali,
-        languageName: 'Bengali',
-        countryCode: 'BN',
-        languageCode: 'bn'),
+      imageUrl: Images.bengali,
+      languageName: 'Bengali',
+      countryCode: 'BN',
+      languageCode: 'bn',
+    ),
   ];
 
   static List<String> joinDropdown = [
     'join_us',
     'become_a_vendor',
-    'become_a_delivery_man'
+    'become_a_delivery_man',
   ];
 
   ///Wallet

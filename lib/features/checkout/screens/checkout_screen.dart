@@ -549,7 +549,13 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
     ConfigModel? configModel = Get.find<SplashController>().configModel;
 
-    ZoneData zoneData = AddressHelper.getAddressFromSharedPref()!.zoneData!.firstWhere((data) => data.id == restaurant!.zoneId);
+    List<ZoneData> zones = AddressHelper.getAddressFromSharedPref()?.zoneData ?? [];
+    ZoneData? zoneData = zones.where((data) => data.id == restaurant?.zoneId).isNotEmpty
+        ? zones.firstWhere((data) => data.id == restaurant?.zoneId)
+        : null;
+    if(zoneData == null || restaurant == null){
+        return -1;
+    }
     double perKmCharge = restaurant!.selfDeliverySystem == 1 ? restaurant.perKmShippingCharge!
         : zoneData.perKmShippingCharge ?? 0;
 
@@ -616,8 +622,12 @@ class CheckoutScreenState extends State<CheckoutScreen> {
     double variationPrice = 0;
     if(cartList != null) {
       for (var cartModel in cartList) {
+        if (cartModel.isPromo ?? false) {
+          continue;
+        }
 
-        price = price + (cartModel.product!.price! * cartModel.quantity!);
+        final basePrice = cartModel.price ?? cartModel.product!.price!;
+        price = price + (basePrice * cartModel.quantity!);
 
         for(int index = 0; index< cartModel.product!.variations!.length; index++) {
           for(int i=0; i<cartModel.product!.variations![index].variationValues!.length; i++) {
