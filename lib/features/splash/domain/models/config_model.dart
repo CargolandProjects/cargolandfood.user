@@ -74,6 +74,8 @@ class ConfigModel {
   bool? additionalChargeStatus;
   String? additionalChargeName;
   double? additionCharge;
+  String? additionalChargeType;
+  double? additionalChargePercentage;
   BannerData? bannerData;
   bool? offlinePaymentStatus;
   bool? instantOrder;
@@ -174,6 +176,8 @@ class ConfigModel {
     this.additionalChargeStatus,
     this.additionalChargeName,
     this.additionCharge,
+    this.additionalChargeType,
+    this.additionalChargePercentage,
     this.bannerData,
     this.offlinePaymentStatus,
     this.instantOrder,
@@ -300,6 +304,8 @@ class ConfigModel {
     additionalChargeStatus = json['additional_charge_status'] == 1;
     additionalChargeName = json['additional_charge_name'];
     additionCharge = json['additional_charge']?.toDouble() ?? 0;
+    additionalChargeType = json['additional_charge_type'] ?? 'fixed';
+    additionalChargePercentage = json['additional_charge_percentage']?.toDouble() ?? 0;
     bannerData = json['banner_data'] != null && json['banner_data'] != 'null' ? BannerData.fromJson(json['banner_data']) : null;
     offlinePaymentStatus = json['offline_payment_status'] == 1;
     instantOrder = json['instant_order'];
@@ -408,6 +414,8 @@ class ConfigModel {
     data['additional_charge_status'] = additionalChargeStatus;
     data['additional_charge_name'] = additionalChargeName;
     data['additional_charge'] = additionCharge;
+    data['additional_charge_type'] = additionalChargeType;
+    data['additional_charge_percentage'] = additionalChargePercentage;
     data['offline_payment_status'] = offlinePaymentStatus;
     data['instant_order'] = instantOrder;
     data['customer_date_order_sratus'] = customerDateOrderStatus;

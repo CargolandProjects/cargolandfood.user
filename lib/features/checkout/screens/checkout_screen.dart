@@ -365,7 +365,12 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
             bool restaurantSubscriptionActive = false;
             int subscriptionQty = checkoutController.subscriptionOrder ? 0 : 1;
-            double additionalCharge =  Get.find<SplashController>().configModel!.additionalChargeStatus! ? Get.find<SplashController>().configModel!.additionCharge! : 0;
+            double additionalCharge = _calculateAdditionalCharge(
+              subTotal: subTotal,
+              discount: discount,
+              couponDiscount: couponDiscount,
+              referralDiscount: referralDiscount,
+            );
 
             if(checkoutController.restaurant != null) {
 
@@ -446,6 +451,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                 subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList,
                                 price: price, addOns: addOnsPrice, charge: charge, isOfflinePaymentActive: _isOfflinePaymentActive, expansionTileController: expansionTileController,
                                 serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount, extraPackagingAmount: extraPackagingCharge,
+                                additionalCharge: additionalCharge,
                                 guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
                                 guestEmailController: guestEmailController, guestAddressController: guestAddressController,
                                 guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
@@ -478,6 +484,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                             subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList,
                             price: price, addOns: addOnsPrice, charge: charge, isOfflinePaymentActive: _isOfflinePaymentActive, expansionTileController: expansionTileController,
                             serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount, extraPackagingAmount: extraPackagingCharge,
+                            additionalCharge: additionalCharge,
                             guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
                             guestEmailController: guestEmailController, guestAddressController: guestAddressController,
                             guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
@@ -764,6 +771,30 @@ class CheckoutScreenState extends State<CheckoutScreen> {
         + (showTips ? tips : 0) + additionalCharge + extraPackagingCharge;
 
     return PriceConverter.toFixed(total);
+  }
+
+  double _calculateAdditionalCharge({
+    required double subTotal,
+    required double discount,
+    required double couponDiscount,
+    required double referralDiscount,
+  }) {
+    ConfigModel config = Get.find<SplashController>().configModel!;
+    if (config.additionalChargeStatus != true) {
+      return 0;
+    }
+
+    double baseAmount = subTotal - discount - couponDiscount - referralDiscount;
+    if (baseAmount < 0) {
+      baseAmount = 0;
+    }
+
+    if (config.additionalChargeType == 'percentage') {
+      double percentage = config.additionalChargePercentage ?? 0;
+      return PriceConverter.toFixed((baseAmount * percentage) / 100);
+    }
+
+    return config.additionCharge ?? 0;
   }
 
   double _calculateExtraPackagingCharge(CheckoutController checkoutController) {
