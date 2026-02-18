@@ -58,7 +58,7 @@ class _ConversationScreenState extends State<ConversationScreen>  with TickerPro
       Get.find<ProfileController>().getUserInfo();
       Get.find<ChatController>().setType('vendor', willUpdate: false);
       Get.find<ChatController>().getConversationList(1, type: Get.find<ChatController>().type);
-      Get.find<ChatController>().getAdminMessages();
+      Get.find<ChatController>().getAdminConversationList();
     }
   }
 
@@ -155,17 +155,32 @@ class _ConversationScreenState extends State<ConversationScreen>  with TickerPro
 
             SliverToBoxAdapter(child: chatController.conversationModel != null ? Padding(
               padding: const EdgeInsets.only(left: Dimensions.paddingSizeDefault, right: Dimensions.paddingSizeDefault, bottom: Dimensions.paddingSizeSmall, top: Dimensions.paddingSizeExtraSmall),
-              child: MessageCardWidget(
-                userTypeImage: Get.find<SplashController>().configModel?.favIconFullUrl ?? '',
-                userType: Get.find<SplashController>().configModel?.businessName ?? '',
-                count: chatController.adminConversationModel?.unreadMessageCount ?? 0,
-                message: chatController.adminConversationModel?.lastMessage?.message ?? 'chat_with_admin'.tr,
-                time: chatController.adminConversationModel?.lastMessageTime != null ? DateConverter.stringDateTimeToDate(chatController.adminConversationModel!.lastMessageTime!) : '',
-                onTap: () {
-                  Get.toNamed(RouteHelper.getChatRoute(notificationBody: NotificationBodyModel(
-                    notificationType: NotificationType.message, adminId: 0,
-                  )))?.then((value) => Get.find<ChatController>().getConversationList(1, type: chatController.type));
-                },
+              child: Builder(
+                builder: (context) {
+                  int adminUnreadCount = 0;
+                  if(chatController.adminConversationModel != null) {
+                    if(Get.find<ProfileController>().userInfoModel != null && Get.find<ProfileController>().userInfoModel!.userInfo != null
+                        && chatController.adminConversationModel!.lastMessage!.senderId == Get.find<ProfileController>().userInfoModel!.userInfo!.id) {
+                      adminUnreadCount = 0;
+                    } else {
+                      adminUnreadCount = chatController.adminConversationModel!.unreadMessageCount ?? 0;
+                    }
+
+                  }
+                  return MessageCardWidget(
+                    userTypeImage: Get.find<SplashController>().configModel?.favIconFullUrl ?? '',
+                    userType: Get.find<SplashController>().configModel?.businessName ?? '',
+                    count: adminUnreadCount,
+                    // count: chatController.adminConversationModel?.conversation?.unreadMessageCount ?? 0,
+                    message: chatController.adminConversationModel?.lastMessage?.message ?? 'chat_with_admin'.tr,
+                    time: chatController.adminConversationModel?.lastMessageTime != null ? DateConverter.stringDateTimeToDate(chatController.adminConversationModel!.lastMessageTime!) : '',
+                    onTap: () {
+                      Get.toNamed(RouteHelper.getChatRoute(notificationBody: NotificationBodyModel(
+                        notificationType: NotificationType.message, adminId: 0,
+                      )))?.then((value) => Get.find<ChatController>().getConversationList(1, type: chatController.type));
+                    },
+                  );
+                }
               ),
             ) : const SizedBox()),
 
@@ -209,7 +224,9 @@ class _ConversationScreenState extends State<ConversationScreen>  with TickerPro
             ),
 
             SliverToBoxAdapter(
-              child: conversation.conversations != null ? conversation.conversations!.isNotEmpty ? conversationCart(chatController, conversation) : Padding(
+              child: conversation.conversations != null ? conversation.conversations!.isNotEmpty
+                  ? conversationCart(chatController, conversation)
+                  : Padding(
                 padding: const EdgeInsets.only(top: 100),
                 child: Center(child: Column(
                   children: [

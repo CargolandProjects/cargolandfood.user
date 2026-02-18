@@ -3,14 +3,14 @@ import 'package:stackfood_multivendor/util/images.dart';
 import 'package:get/get.dart';
 
 class AppConstants {
-  static const String appName = 'Cargolandfood';
-  static const double appVersion = 8.7;
+  static const String appName = 'CargolandFood';
+  static const double appVersion = 8.8;
 
-  ///Flutter SDK: 3.38.2
+  ///Flutter SDK: 3.38.9
 
   static const String fontFamily = 'Roboto';
-  static const bool payInWevView = true;
-  static const String webHostedUrl = 'https:/web.cargolandfood.com';
+  static const bool payInWevView = false;
+  static const String webHostedUrl = 'https://web.cargolandfood.com';
   static const bool useReactWebsite = false;
   static const String googleServerClientId =
       '491987943015-agln6biv84krpnngdphj87jkko7r9lb8.apps.googleusercontent.com';
@@ -44,6 +44,7 @@ class AppConstants {
       '/api/v1/customer/address/delete?address_id=';
   static const String addAddressUri = '/api/v1/customer/address/add';
   static const String updateAddressUri = '/api/v1/customer/address/update/';
+  static const String markDefaultUri = '/api/v1/customer/address/set-default';
   static const String setMenuUri = '/api/v1/products/set-menu';
   static const String customerInfoUri = '/api/v1/customer/info';
   static const String couponUri = '/api/v1/coupon/list';
@@ -117,6 +118,7 @@ class AppConstants {
       '/api/v1/products/recommended';
   static const String vehicleChargeUri = '/api/v1/vehicle/extra_charge';
   static const String vehiclesUri = '/api/v1/get-vehicles';
+  static const String shiftsUri = '/api/v1/dm-shifts';
   static const String productListWithIdsUri = '/api/v1/customer/food-list';
   static const String recentlyViewedRestaurantUri =
       '/api/v1/restaurants/recently-viewed-restaurants';
@@ -171,9 +173,6 @@ class AppConstants {
   static const String removeItemCartUri = '/api/v1/customer/cart/remove-item';
   static const String addMultipleItemCartUri =
       '/api/v1/customer/cart/add-multiple';
-  static const String promoStatusUri = '/api/v1/promo/status';
-  static const String promoSeenUri = '/api/v1/promo/seen';
-  static const int promoRestaurantId = 47;
 
   /// Shared Key
   static const String theme = 'theme';
@@ -212,6 +211,8 @@ class AppConstants {
   static const String maintenanceModeTopic = 'maintenance_mode_user_app';
   static const String demoResetTopic = 'stackfood_demo_reset';
   static const String configCacheKey = 'stackfood_config_cache';
+  static const String suggestLogin = 'stackfood_login_suggestion';
+  static const String searchCuisineHistory = 'search_cuisine_history';
 
   ///Refer & Earn work flow list..
   static final dataList = [
@@ -230,8 +231,8 @@ class AppConstants {
   ];
 
   /// Deep Links
-  static const String yourScheme = 'StackFood';
-  static const String yourHost = 'stackfood.com';
+  static const String yourScheme = 'CargolandFood';
+  static const String yourHost = 'cargolandfood.com';
 
   /// Languages
   static List<LanguageModel> languages = [

@@ -3,6 +3,7 @@ import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:just_the_tooltip/just_the_tooltip.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_app_bar_widget.dart';
+import 'package:stackfood_multivendor/common/widgets/custom_bottom_sheet_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/custom_loader_widget.dart';
 import 'package:stackfood_multivendor/common/widgets/validate_check.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
@@ -10,6 +11,7 @@ import 'package:stackfood_multivendor/features/order/controllers/order_controlle
 import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/features/profile/domain/models/update_user_model.dart';
 import 'package:stackfood_multivendor/features/profile/widgets/account_deletion_bottom_sheet.dart';
+import 'package:stackfood_multivendor/features/profile/widgets/verification_bottom_sheet.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/helper/custom_validator.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
@@ -225,8 +227,14 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                         child: !profileController.userInfoModel!.isPhoneVerified! && Get.find<SplashController>().configModel!.centralizeLoginSetup!.phoneVerificationStatus! ? InkWell(
                           onTap: () async {
                             if(!profileController.userInfoModel!.isPhoneVerified! && Get.find<SplashController>().configModel!.centralizeLoginSetup!.phoneVerificationStatus!) {
-                              Get.dialog(CustomLoaderWidget());
-                              await _updateProfile(profileController: profileController, fromButton: false, fromPhone: true);
+                              showCustomBottomSheet(child: VerificationBottomSheet(
+                                isEmail: false,
+                                onTap: () async {
+                                  Get.back();
+                                  Get.dialog(CustomLoaderWidget());
+                                  await _updateProfile(profileController: profileController, fromButton: false, fromPhone: true);
+                                },
+                              ));
                             }
                           },
                           child: Image.asset(Images.unVerifiedIcon, height: 20, width: 20, fit: BoxFit.cover),
@@ -251,8 +259,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                         ? Images.unVerifiedIcon : null,
                     suffixOnPressed: () async {
                       if(!profileController.userInfoModel!.isEmailVerified! || profileController.userInfoModel!.email != _emailController.text) {
-                        Get.dialog(CustomLoaderWidget());
-                        await _updateProfile(profileController: profileController, fromButton: false, fromPhone: false);
+                        showCustomBottomSheet(child: VerificationBottomSheet(
+                          onTap: () async {
+                            Get.back();
+                            Get.dialog(CustomLoaderWidget());
+                            await _updateProfile(profileController: profileController, fromButton: false, fromPhone: false);
+                          },
+                        ));
                       }
                     },
                   ),

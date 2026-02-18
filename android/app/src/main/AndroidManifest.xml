@@ -36,14 +36,14 @@
     </queries>
 
     <application
-        android:label="Cargolandfood"
+        android:label="CargolandFood"
         android:name="${applicationName}"
         android:extractNativeLibs="true"
         android:requestLegacyExternalStorage="true"
         android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher">
         <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDMo4Rr5E2h6u6IXwvIgBhYEC_zrLZARtk"/>
+            android:value="AIzaSyDAhUkijK6eDpl_0arN_uK05yO2lo6LIb4"/>
 
         <activity
             android:name=".MainActivity"
@@ -68,7 +68,7 @@
                  Flutter's first frame. -->
             <meta-data
                 android:name="com.google.firebase.messaging.default_notification_channel_id"
-                android:value="stackfood" />
+                android:value="cargolandfood" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -85,8 +85,8 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!-- Accepts URIs that begin with YOUR_SCHEME://YOUR_HOST -->
                 <data
-                    android:scheme="StackFood"
-                    android:host="stackfood.com" />
+                    android:scheme="Cargolandfood"
+                    android:host="cargolandfood.com" />
             </intent-filter>
 
         </activity>

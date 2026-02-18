@@ -45,7 +45,7 @@ class FavouriteScreenState extends State<FavouriteScreen> with SingleTickerProvi
         actions: [
           TextButton(
             onPressed: (){
-              showCustomBottomSheet(child: ClearAllBottomSheet());
+              showCustomBottomSheet(child: ClearAllBottomSheet(isFood: _tabController!.index == 0));
             },
             child: Text('clear_all'.tr, style: robotoMedium.copyWith(color: Theme.of(context).colorScheme.error)),
           ),

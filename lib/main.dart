@@ -49,14 +49,16 @@ Future<void> main() async {
 
   if (GetPlatform.isWeb) {
     await Firebase.initializeApp(
-        options: const FirebaseOptions(
-            apiKey: "AIzaSyDO49neTt19NA2iXCiAuVUV99_pQdQluD4",
-            authDomain: "cargoland-project.firebaseapp.com",
-            projectId: "cargoland-project",
-            storageBucket: "cargoland-project.firebasestorage.app",
-            messagingSenderId: "194583925856",
-            appId: "1:194583925856:web:d9e169bd0b6d2ad2491f05",
-            measurementId: "G-XHDR7ZJGMX"));
+      options: const FirebaseOptions(
+        apiKey: "AIzaSyDO49neTt19NA2iXCiAuVUV99_pQdQluD4",
+        authDomain: "cargoland-project.firebaseapp.com",
+        projectId: "cargoland-project",
+        storageBucket: "cargoland-project.firebasestorage.app",
+        messagingSenderId: "194583925856",
+        appId: "1:194583925856:web:d9e169bd0b6d2ad2491f05",
+        measurementId: "G-XHDR7ZJGMX",
+      ),
+    );
   } else if (GetPlatform.isAndroid) {
     await Firebase.initializeApp(
       options: const FirebaseOptions(
@@ -75,8 +77,8 @@ Future<void> main() async {
   NotificationBodyModel? body;
   try {
     if (GetPlatform.isMobile) {
-      final RemoteMessage? remoteMessage =
-          await FirebaseMessaging.instance.getInitialMessage();
+      final RemoteMessage? remoteMessage = await FirebaseMessaging.instance
+          .getInitialMessage();
       if (remoteMessage != null) {
         body = NotificationHelper.convertNotification(remoteMessage.data);
       }
@@ -100,11 +102,12 @@ class MyApp extends StatefulWidget {
   final Map<String, Map<String, String>>? languages;
   final NotificationBodyModel? body;
   final DeepLinkBody? linkBody;
-  const MyApp(
-      {super.key,
-      required this.languages,
-      required this.body,
-      required this.linkBody});
+  const MyApp({
+    super.key,
+    required this.languages,
+    required this.body,
+    required this.linkBody,
+  });
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -123,7 +126,7 @@ class _MyAppState extends State<MyApp> {
       Get.find<SplashController>().initSharedData();
       if (!Get.find<AuthController>().isLoggedIn() &&
           !Get.find<AuthController>()
-              .isGuestLoggedIn() /*&& !ResponsiveHelper.isDesktop(Get.context!)*/) {
+              .isGuestLoggedIn() /*&& !ResponsiveHelper.isDesktop(Get.context!)*/ ) {
         await Get.find<AuthController>().guestLogin();
       }
       if (Get.find<AuthController>().isLoggedIn() ||
@@ -140,65 +143,89 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder<ThemeController>(builder: (themeController) {
-      return GetBuilder<LocalizationController>(builder: (localizeController) {
-        return GetBuilder<SplashController>(builder: (splashController) {
-          return (GetPlatform.isWeb && splashController.configModel == null)
-              ? const SizedBox()
-              : GetMaterialApp(
-                  title: AppConstants.appName,
-                  debugShowCheckedModeBanner: false,
-                  navigatorKey: Get.key,
-                  scrollBehavior: const MaterialScrollBehavior().copyWith(
-                    dragDevices: {
-                      PointerDeviceKind.mouse,
-                      PointerDeviceKind.touch
-                    },
-                  ),
-                  theme: themeController.darkTheme ? dark : light,
-                  locale: localizeController.locale,
-                  translations: Messages(languages: widget.languages),
-                  fallbackLocale: Locale(
-                      AppConstants.languages[0].languageCode!,
-                      AppConstants.languages[0].countryCode),
-                  initialRoute: GetPlatform.isWeb
-                      ? RouteHelper.getInitialRoute()
-                      : RouteHelper.getSplashRoute(
-                          widget.body, widget.linkBody),
-                  getPages: RouteHelper.routes,
-                  defaultTransition: Transition.topLevel,
-                  transitionDuration: const Duration(milliseconds: 500),
-                  builder: (BuildContext context, widget) {
-                    return MediaQuery(
-                      data: MediaQuery.of(context)
-                          .copyWith(textScaler: const TextScaler.linear(1)),
-                      child: Material(
-                          child: SafeArea(
-                        top: false,
-                        bottom: GetPlatform.isAndroid,
-                        child: Stack(children: [
-                          widget!,
-                          GetBuilder<SplashController>(
-                              builder: (splashController) {
-                            if (!splashController.savedCookiesData ||
-                                !splashController.getAcceptCookiesStatus(
-                                    splashController.configModel?.cookiesText ??
-                                        "")) {
-                              return ResponsiveHelper.isWeb()
-                                  ? const Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: CookiesViewWidget())
-                                  : const SizedBox();
-                            } else {
-                              return const SizedBox();
-                            }
-                          })
-                        ]),
-                      )),
-                    );
-                  });
-        });
-      });
-    });
+    return GetBuilder<ThemeController>(
+      builder: (themeController) {
+        return GetBuilder<LocalizationController>(
+          builder: (localizeController) {
+            return GetBuilder<SplashController>(
+              builder: (splashController) {
+                return (GetPlatform.isWeb &&
+                        splashController.configModel == null)
+                    ? const SizedBox()
+                    : GetMaterialApp(
+                        title: AppConstants.appName,
+                        debugShowCheckedModeBanner: false,
+                        navigatorKey: Get.key,
+                        scrollBehavior: const MaterialScrollBehavior().copyWith(
+                          dragDevices: {
+                            PointerDeviceKind.mouse,
+                            PointerDeviceKind.touch,
+                          },
+                        ),
+                        theme: themeController.darkTheme ? dark : light,
+                        locale: localizeController.locale,
+                        translations: Messages(languages: widget.languages),
+                        fallbackLocale: Locale(
+                          AppConstants.languages[0].languageCode!,
+                          AppConstants.languages[0].countryCode,
+                        ),
+                        initialRoute: GetPlatform.isWeb
+                            ? RouteHelper.getInitialRoute()
+                            : RouteHelper.getSplashRoute(
+                                widget.body,
+                                widget.linkBody,
+                              ),
+                        getPages: RouteHelper.routes,
+                        defaultTransition: Transition.topLevel,
+                        transitionDuration: const Duration(milliseconds: 500),
+                        builder: (BuildContext context, widget) {
+                          return MediaQuery(
+                            data: MediaQuery.of(
+                              context,
+                            ).copyWith(textScaler: const TextScaler.linear(1)),
+                            child: Material(
+                              child: SafeArea(
+                                top: false,
+                                bottom: GetPlatform.isAndroid,
+                                child: Stack(
+                                  children: [
+                                    widget!,
+
+                                    GetBuilder<SplashController>(
+                                      builder: (splashController) {
+                                        if (!splashController
+                                                .savedCookiesData ||
+                                            !splashController
+                                                .getAcceptCookiesStatus(
+                                                  splashController
+                                                          .configModel
+                                                          ?.cookiesText ??
+                                                      "",
+                                                )) {
+                                          return ResponsiveHelper.isWeb()
+                                              ? const Align(
+                                                  alignment:
+                                                      Alignment.bottomCenter,
+                                                  child: CookiesViewWidget(),
+                                                )
+                                              : const SizedBox();
+                                        } else {
+                                          return const SizedBox();
+                                        }
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      );
+              },
+            );
+          },
+        );
+      },
+    );
   }
 }

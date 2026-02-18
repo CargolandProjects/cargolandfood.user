@@ -141,6 +141,7 @@ class CustomTextFieldWidgetState extends State<CustomTextFieldWidget> {
             focusNode: widget.focusNode,
             textAlign: widget.textAlign,
             validator: widget.validator,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
             style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeLarge),
             textInputAction: widget.inputAction,
             keyboardType: widget.isAmount ? TextInputType.number : widget.inputType,

@@ -126,6 +126,15 @@ class SplashController extends GetxController implements GetxService {
     splashServiceInterface.disableIntro();
   }
 
+  bool showLoginSuggestion() {
+    return splashServiceInterface.showLoginSuggestion();
+  }
+
+  void disableLoginSuggestion() {
+    splashServiceInterface.disableLoginSuggestion();
+  }
+
+
   void setFirstTimeConnectionCheck(bool isChecked) {
     _firstTimeConnectionCheck = isChecked;
   }

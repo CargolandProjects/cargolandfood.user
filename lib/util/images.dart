@@ -230,6 +230,15 @@ class Images {
   static const String trackLocationIcon = 'assets/image/track_location_icon.png';
   static const String orderIcon = 'assets/image/order_icon.png';
   static const String pictureIcon = 'assets/image/picture_icon.png';
+  static const String verificationIcon = 'assets/image/verification_icon.png';
+  static const String filterIcon = 'assets/image/filter.png';
+  static const String cartIcon = 'assets/image/cart_icon.png';
+  static const String loginSuggestionBg = 'assets/image/login_suggestion_bg.png';
+  static const String dmType = 'assets/image/dm_type.png';
+  static const String dmZone = 'assets/image/dm_zone.png';
+  static const String vehicleType = 'assets/image/vehicle_type.png';
+  static const String workingShift = 'assets/image/working_shift.png';
+  static const String identityType = 'assets/image/identity_type.png';
 
   static const String onboarding_1 = 'assets/image/onboard_1.svg';
   static const String onboarding_2 = 'assets/image/onboard_2.svg';

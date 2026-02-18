@@ -19,9 +19,7 @@ import 'package:stackfood_multivendor/helper/route_helper.dart';
 
 class CartController extends GetxController implements GetxService {
   final CartServiceInterface cartServiceInterface;
-
   CartController({required this.cartServiceInterface});
-
 
   List<CartModel> _cartList = [];
   List<CartModel> get cartList => _cartList;
@@ -90,12 +88,6 @@ class CartController extends GetxController implements GetxService {
     double variationWithoutDiscountPrice = 0;
     double variationPrice = 0;
     for (var cartModel in _cartList) {
-
-      if (cartModel.isPromo ?? false) {
-        _addOnsList.add([]);
-        _availableList.add(true);
-        continue;
-      }
 
       variationWithoutDiscountPrice = 0;
       variationPrice = 0;
@@ -278,15 +270,11 @@ class CartController extends GetxController implements GetxService {
   }
 
   Future<void> updateCartQuantityOnline(int cartId, double price, int quantity) async {
-    // _isLoading = true;
-    // update();
     bool success = await cartServiceInterface.updateCartQuantityOnline(cartId, price, quantity, AuthHelper.isLoggedIn() ? null : AuthHelper.getGuestId());
     if(success) {
       getCartDataOnline();
       calculationCart();
     }
-    // _isLoading = false;
-    // update();
   }
 
   Future<void> getCartDataOnline() async {

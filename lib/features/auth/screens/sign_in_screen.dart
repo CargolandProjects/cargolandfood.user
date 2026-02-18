@@ -71,7 +71,7 @@ class SignInScreenState extends State<SignInScreen> {
           icon: Icon(Icons.arrow_back_ios_rounded, color: Theme.of(context).textTheme.bodyLarge!.color),
         ), elevation: 0, backgroundColor: Theme.of(context).cardColor) : null,
         body: SafeArea(child: Align(
-          alignment: Alignment.center,
+          alignment: Alignment.topCenter,
           child: Container(
             width: context.width > 700 ? 500 : context.width,
             padding: context.width > 700 ? const EdgeInsets.all(50) : const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraLarge),

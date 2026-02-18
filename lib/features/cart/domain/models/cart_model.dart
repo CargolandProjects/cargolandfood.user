@@ -13,7 +13,6 @@ class CartModel {
   Product? _product;
   int? _quantityLimit;
   List<List<int?>>? _variationsStock;
-  bool? _isPromo;
 
   CartModel(
       int? id,
@@ -27,8 +26,7 @@ class CartModel {
       Product? product,
       List<List<bool?>> variations,
       int? quantityLimit,
-      List<List<int?>> variationsStock,
-      {bool isPromo = false}) {
+      List<List<int?>> variationsStock) {
     _id = id;
     _price = price;
     _discountedPrice = discountedPrice;
@@ -41,7 +39,6 @@ class CartModel {
     _variations = variations;
     _quantityLimit = quantityLimit;
     _variationsStock = variationsStock;
-    _isPromo = isPromo;
   }
 
   int? get id => _id;
@@ -59,7 +56,6 @@ class CartModel {
   List<List<bool?>>? get variations => _variations;
   int? get quantityLimit => _quantityLimit;
   List<List<int?>>? get variationsStock => _variationsStock;
-  bool? get isPromo => _isPromo;
 
   CartModel.fromJson(Map<String, dynamic> json) {
     _id = json['cart_id'];
@@ -104,7 +100,6 @@ class CartModel {
         }
       }
     }
-    _isPromo = json['is_promo'] ?? false;
   }
 
   Map<String, dynamic> toJson() {
@@ -123,7 +118,6 @@ class CartModel {
     data['product'] = _product!.toJson();
     data['variations'] = _variations;
     data['quantity_limit'] = _quantityLimit?.toString();
-    data['is_promo'] = _isPromo;
     return data;
   }
 }

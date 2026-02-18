@@ -75,11 +75,6 @@ import 'package:stackfood_multivendor/features/restaurant/domain/repositories/re
 import 'package:stackfood_multivendor/features/restaurant/domain/repositories/restaurant_repository_interface.dart';
 import 'package:stackfood_multivendor/features/restaurant/domain/services/restaurant_service.dart';
 import 'package:stackfood_multivendor/features/restaurant/domain/services/restaurant_service_interface.dart';
-import 'package:stackfood_multivendor/features/promo/controllers/promo_controller.dart';
-import 'package:stackfood_multivendor/features/promo/domain/repositories/promo_repository.dart';
-import 'package:stackfood_multivendor/features/promo/domain/repositories/promo_repository_interface.dart';
-import 'package:stackfood_multivendor/features/promo/domain/services/promo_service.dart';
-import 'package:stackfood_multivendor/features/promo/domain/services/promo_service_interface.dart';
 import 'package:stackfood_multivendor/features/search/controllers/search_controller.dart';
 import 'package:stackfood_multivendor/features/search/domain/repositories/search_repository.dart';
 import 'package:stackfood_multivendor/features/search/domain/repositories/search_repository_interface.dart';
@@ -229,7 +224,7 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => chatRepositoryInterface);
   ChatServiceInterface chatServiceInterface = ChatService(chatRepositoryInterface: Get.find());
   Get.lazyPut(() => chatServiceInterface);
-  CuisineRepositoryInterface cuisineRepositoryInterface = CuisineRepository(apiClient: Get.find());
+  CuisineRepositoryInterface cuisineRepositoryInterface = CuisineRepository(apiClient: Get.find(), sharedPreferences: Get.find());
   Get.lazyPut(() => cuisineRepositoryInterface);
   CuisineServiceInterface cuisineServiceInterface = CuisineService(cuisineRepositoryInterface: Get.find());
   Get.lazyPut(() => cuisineServiceInterface);
@@ -317,10 +312,6 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => dineInRepositoryInterface);
   DineInServiceInterface dineInServiceInterface = DineInService(dineInRepositoryInterface: Get.find());
   Get.lazyPut(() => dineInServiceInterface);
-  PromoRepositoryInterface promoRepositoryInterface = PromoRepository(apiClient: Get.find());
-  Get.lazyPut(() => promoRepositoryInterface);
-  PromoServiceInterface promoServiceInterface = PromoService(promoRepositoryInterface: Get.find());
-  Get.lazyPut(() => promoServiceInterface);
 
 
   /// Controller
@@ -359,7 +350,6 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => CheckoutController(checkoutServiceInterface: Get.find()));
   Get.lazyPut(() => AdvertisementController(advertisementServiceInterface: Get.find()));
   Get.lazyPut(() => DineInController(dineInServiceInterface: Get.find()));
-  Get.lazyPut(() => PromoController(promoServiceInterface: Get.find()));
 
 
   /// Retrieving localized data

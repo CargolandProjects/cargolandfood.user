@@ -8,6 +8,7 @@ import 'package:stackfood_multivendor/features/auth/domain/centralize_login_enum
 import 'package:stackfood_multivendor/features/auth/widgets/auth_dialog_widget.dart';
 import 'package:stackfood_multivendor/features/cart/controllers/cart_controller.dart';
 import 'package:stackfood_multivendor/features/language/controllers/localization_controller.dart';
+import 'package:stackfood_multivendor/features/loyalty/controllers/loyalty_controller.dart';
 import 'package:stackfood_multivendor/features/profile/controllers/profile_controller.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
@@ -330,6 +331,7 @@ class SignUpWidgetState extends State<SignUpWidget> {
     String email = _emailController.text.trim();
 
     if (status.isSuccess) {
+      Get.find<LoyaltyController>().saveEarningPoint('');
       if(ResponsiveHelper.isDesktop(context)) {
         Get.find<CartController>().getCartDataOnline();
       }

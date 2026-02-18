@@ -19,12 +19,7 @@ class CheckoutRepository implements CheckoutRepositoryInterface {
     int mostDmTipAmount = 0;
     Response response = await apiClient.getData(AppConstants.mostTipsUri);
     if(response.statusCode == 200){
-      if(response.body is Map && (response.body as Map).containsKey('most_tips_amount')){
-        final val = (response.body as Map)['most_tips_amount'];
-        if(val != null){
-          mostDmTipAmount = int.tryParse(val.toString()) ?? 0;
-        }
-      }
+      mostDmTipAmount = response.body['most_tips_amount'];
     }
     return mostDmTipAmount;
   }
@@ -34,9 +29,7 @@ class CheckoutRepository implements CheckoutRepositoryInterface {
     List<OfflineMethodModel> offlineMethodList = [];
     Response response = await apiClient.getData(AppConstants.offlineMethodListUri);
     if (response.statusCode == 200) {
-      if(response.body is List){
-        response.body.forEach((method) => offlineMethodList.add(OfflineMethodModel.fromJson(method)));
-      }
+      response.body.forEach((method) => offlineMethodList.add(OfflineMethodModel.fromJson(method)));
     }
     return offlineMethodList;
   }
@@ -46,7 +39,7 @@ class CheckoutRepository implements CheckoutRepositoryInterface {
     double? extraCharge;
     Response response = await apiClient.getData('${AppConstants.vehicleChargeUri}?distance=$distance');
     if (response.statusCode == 200) {
-      extraCharge = double.tryParse(response.body.toString()) ?? 0;
+      extraCharge = double.parse(response.body.toString());
     } else {
       extraCharge = 0;
     }

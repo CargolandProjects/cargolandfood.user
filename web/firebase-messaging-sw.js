@@ -1,6 +1,6 @@
 importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js");
 importScripts(
-  "https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"
+  "https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js",
 );
 
 firebase.initializeApp({
@@ -11,6 +11,7 @@ firebase.initializeApp({
   messagingSenderId: "194583925856",
   appId: "1:194583925856:web:d9e169bd0b6d2ad2491f05",
   measurementId: "G-XHDR7ZJGMX",
+
   databaseURL: "...",
 });
 

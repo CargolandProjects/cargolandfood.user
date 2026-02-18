@@ -36,12 +36,11 @@ class _CartProductWidgetState extends State<CartProductWidget> {
 
   @override
   Widget build(BuildContext context) {
-    bool isPromo = widget.cart.isPromo ?? false;
     String addOnText = CartHelper.setupAddonsText(cart: widget.cart) ?? '';
     String variationText = CartHelper.setupVariationText(cart: widget.cart).$1;
 
-    double? discount = isPromo ? 0 : widget.cart.product!.discount;
-    String? discountType = isPromo ? 'percent' : widget.cart.product!.discountType;
+    double? discount = widget.cart.product!.discount;
+    String? discountType = widget.cart.product!.discountType;
 
     int addonCount = widget.cart.addOnIds?.length ?? 0;
     int variationCount = CartHelper.setupVariationText(cart: widget.cart).$2;
@@ -142,28 +141,15 @@ class _CartProductWidgetState extends State<CartProductWidget> {
                                 ]),
                                 const SizedBox(height: 5),
 
-                                isPromo ? Container(
-                                  margin: const EdgeInsets.only(bottom: Dimensions.paddingSizeExtraSmall),
-                                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
-                                    borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                                  ),
-                                  child: Text('Promo reward', style: robotoMedium.copyWith(
-                                    color: Theme.of(context).primaryColor, fontSize: Dimensions.fontSizeExtraSmall,
-                                  )),
-                                ) : const SizedBox(),
-
                                 Wrap(
                                   children: [
                                     Text(
-                                      isPromo ? 'free'.tr : PriceConverter.convertPrice(widget.cart.product!.price, discount: discount, discountType: discountType),
-                                      style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall, color: isPromo ? Theme.of(context).primaryColor : null),
-                                      textDirection: TextDirection.ltr,
+                                      PriceConverter.convertPrice(widget.cart.product!.price, discount: discount, discountType: discountType),
+                                      style: robotoMedium.copyWith(fontSize: Dimensions.fontSizeSmall), textDirection: TextDirection.ltr,
                                     ),
-                                    SizedBox(width: discount! > 0 && !isPromo ? Dimensions.paddingSizeExtraSmall : 0),
+                                    SizedBox(width: discount! > 0 ? Dimensions.paddingSizeExtraSmall : 0),
 
-                                    discount > 0 && !isPromo ? Text(
+                                    discount > 0 ? Text(
                                       PriceConverter.convertPrice(widget.cart.product!.price), textDirection: TextDirection.ltr,
                                       style: robotoMedium.copyWith(color: Theme.of(context).disabledColor, fontSize: Dimensions.fontSizeSmall, decoration: TextDecoration.lineThrough),
                                     ) : const SizedBox(),
@@ -204,7 +190,7 @@ class _CartProductWidgetState extends State<CartProductWidget> {
                                 child: Row(children: [
 
                                   QuantityButton(
-                                    onTap: cartController.isLoading || isPromo ? () {} : () {
+                                    onTap: cartController.isLoading ? () {} : () {
                                       if (widget.cart.quantity! > 1) {
                                         cartController.setQuantity(false, widget.cart);
                                       }else {
@@ -215,14 +201,21 @@ class _CartProductWidgetState extends State<CartProductWidget> {
                                     showRemoveIcon: widget.cart.quantity! == 1,
                                   ),
 
-                                   AnimatedFlipCounter(
-                                    duration: const Duration(milliseconds: 500),
-                                    value: widget.cart.quantity!.toDouble(),
-                                    textStyle: robotoMedium.copyWith(fontSize: Dimensions.fontSizeExtraLarge),
-                                  ),
+                                   Container(
+                                     padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeExtraSmall),
+                                     decoration: BoxDecoration(
+                                       borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
+                                       border: Border.all(color: Theme.of(context).disabledColor.withValues(alpha: 0.5)),
+                                     ),
+                                     child: AnimatedFlipCounter(
+                                      duration: const Duration(milliseconds: 500),
+                                      value: widget.cart.quantity!.toDouble(),
+                                      textStyle: robotoMedium.copyWith(fontSize: Dimensions.fontSizeLarge),
+                                     ),
+                                   ),
 
                                   QuantityButton(
-                                    onTap: cartController.isLoading || isPromo ? (){} : () => cartController.setQuantity(true, widget.cart),
+                                    onTap: cartController.isLoading ? (){} : () => cartController.setQuantity(true, widget.cart),
                                     isIncrement: true,
                                     color: cartController.isLoading ? Theme.of(context).disabledColor : null,
                                   ),
@@ -290,3 +283,4 @@ class _CartProductWidgetState extends State<CartProductWidget> {
     );
   }
 }
+

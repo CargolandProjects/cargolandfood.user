@@ -70,7 +70,9 @@ class _SignInViewState extends State<SignInView> {
 
     if (!kIsWeb) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        FocusScope.of(context).requestFocus(_phoneFocus);
+        Future.delayed(const Duration(milliseconds: 800), () {
+          FocusScope.of(Get.context!).requestFocus(_phoneFocus);
+        });
       });
     }
   }

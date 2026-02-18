@@ -14,7 +14,6 @@ class OnlineCartModel {
   String? createdAt;
   String? updatedAt;
   Product? product;
-  bool? isPromo;
 
   OnlineCartModel(
       {this.id,
@@ -50,7 +49,6 @@ class OnlineCartModel {
     createdAt = json['created_at'];
     updatedAt = json['updated_at'];
     product = json['item'] != null ? Product.fromJson(json['item']) : null;
-    isPromo = json['is_promo'] ?? false;
   }
 
   Map<String, dynamic> toJson() {
@@ -72,7 +70,6 @@ class OnlineCartModel {
     if (product != null) {
       data['item'] = product!.toJson();
     }
-    data['is_promo'] = isPromo;
     return data;
   }
 }

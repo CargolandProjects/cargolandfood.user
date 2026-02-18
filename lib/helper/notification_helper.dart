@@ -62,7 +62,8 @@ class NotificationHelper {
       }
       if(message.data['type'] == 'message' && Get.currentRoute.startsWith(RouteHelper.messages)) {
         if(Get.find<AuthController>().isLoggedIn()) {
-          Get.find<ChatController>().getConversationList(1, fromTab: false);
+          Get.find<ChatController>().getConversationList(1, type: Get.find<ChatController>().type);
+          Get.find<ChatController>().getAdminConversationList();
           if(Get.find<ChatController>().messageModel!.conversation!.id.toString() == message.data['conversation_id'].toString()) {
             Get.find<ChatController>().getMessages(
               1, NotificationBodyModel(
@@ -78,7 +79,8 @@ class NotificationHelper {
         }
       }else if(message.data['type'] == 'message' && Get.currentRoute.startsWith(RouteHelper.conversation)) {
         if(Get.find<AuthController>().isLoggedIn()) {
-          Get.find<ChatController>().getConversationList(1, fromTab: false);
+          Get.find<ChatController>().getConversationList(1, type: Get.find<ChatController>().type);
+          Get.find<ChatController>().getAdminConversationList();
         }
         NotificationHelper.showNotification(message, flutterLocalNotificationsPlugin);
       }else if(message.data['type'] == 'add_fund'){

@@ -551,7 +551,6 @@ class CheckoutController extends GetxController implements GetxService {
   void _callback(bool isSuccess, String? message, String orderID, int? zoneID, double amount, double? maximumCodOrderAmount, bool fromCart, bool isCashOnDeliveryActive,
       String? contactNumber, bool isDineInOrder, bool isDeliveryOrder) async {
     if(isSuccess) {
-      // Get.find<OrderController>().getRunningOrders(1, notify: false);
       if(fromCart) {
         Get.find<CartController>().clearCartList();
       }
@@ -595,7 +594,6 @@ class CheckoutController extends GetxController implements GetxService {
 
   void clearPrevData() {
     _distance = null;
-    //_addressIndex = 0;
     _paymentMethodIndex = -1;
     _selectedDateSlot = 0;
     _selectedTimeSlot = 0;

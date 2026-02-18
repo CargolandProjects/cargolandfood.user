@@ -20,7 +20,6 @@ class OrderProductWidget extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    bool isPromo = orderDetails.isPromo ?? false;
     String addOnText = '';
     for (var addOn in orderDetails.addOns!) {
       addOnText = '$addOnText${(addOnText.isEmpty) ? '' : ',  '}${addOn.name} (${addOn.quantity})';
@@ -89,14 +88,6 @@ class OrderProductWidget extends StatelessWidget {
 
                   ]),
                 ),
-                isPromo ? Container(
-                  padding: const EdgeInsets.symmetric(horizontal: Dimensions.paddingSizeSmall, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColor.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(Dimensions.radiusSmall),
-                  ),
-                  child: Text('Promo reward', style: robotoMedium.copyWith(color: Theme.of(context).primaryColor, fontSize: Dimensions.fontSizeExtraSmall)),
-                ) : const SizedBox(),
                 const SizedBox(width: Dimensions.paddingSizeDefault),
 
                 Text('${'quantity'.tr}: ', style: robotoRegular.copyWith(fontSize: Dimensions.fontSizeSmall)),
@@ -109,9 +100,8 @@ class OrderProductWidget extends StatelessWidget {
               Row(children: [
 
                 Expanded(child: Text(
-                  isPromo ? 'free'.tr : PriceConverter.convertPrice(orderDetails.price),
-                  style: robotoMedium.copyWith(color: isPromo ? Theme.of(context).primaryColor : null),
-                  textDirection: TextDirection.ltr,
+                  PriceConverter.convertPrice(orderDetails.price),
+                  style: robotoMedium, textDirection: TextDirection.ltr,
                 )),
 
                 SizedBox(width: orderDetails.foodDetails!.isRestaurantHalalActive! && orderDetails.foodDetails!.isHalalFood! ? Dimensions.paddingSizeExtraSmall : 0),

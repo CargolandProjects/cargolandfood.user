@@ -6,7 +6,7 @@ A new Flutter application.
 
 This project is a starting point for a Flutter application.
 
-This project will run in  [Flutter SDK 3.38.2]
+This project will run in  [Flutter SDK 3.38.9]
 
 A few resources to get you started if this is your first Flutter project:
 

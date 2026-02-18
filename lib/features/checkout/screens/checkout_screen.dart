@@ -135,10 +135,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
       if(Get.find<ProfileController>().userInfoModel == null && Get.find<ProfileController>().userInfoModel?.userInfo == null) {
         Get.find<ProfileController>().getUserInfo();
       }
-
-      if(Get.find<AddressController>().addressList == null) {
-        Get.find<AddressController>().getAddressList(canInsertAddress: true);
-      }
+      Get.find<AddressController>().getAddressList(canInsertAddress: true);
     }
 
     checkoutController.setRestaurantDetails(restaurantId: _cartList![0].product!.restaurantId);
@@ -365,12 +362,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
             bool restaurantSubscriptionActive = false;
             int subscriptionQty = checkoutController.subscriptionOrder ? 0 : 1;
-            double additionalCharge = _calculateAdditionalCharge(
-              subTotal: subTotal,
-              discount: discount,
-              couponDiscount: couponDiscount,
-              referralDiscount: referralDiscount,
-            );
+            double additionalCharge =  Get.find<SplashController>().configModel!.additionalChargeStatus! ? Get.find<SplashController>().configModel!.additionCharge! : 0;
 
             if(checkoutController.restaurant != null) {
 
@@ -399,7 +391,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
             checkoutController.setTotalAmount(total - (checkoutController.isPartialPay ? Get.find<ProfileController>().userInfoModel?.walletBalance ?? 0 : 0));
 
-            if(_payableAmount != checkoutController.viewTotalPrice && checkoutController.distance != null && isLoggedIn && Get.find<HomeController>().cashBackOfferList != null && Get.find<HomeController>().cashBackOfferList!.isNotEmpty) {
+            if(checkoutController.isFirstTime && _payableAmount != checkoutController.viewTotalPrice && checkoutController.distance != null && isLoggedIn && Get.find<HomeController>().cashBackOfferList != null && Get.find<HomeController>().cashBackOfferList!.isNotEmpty) {
               _payableAmount = checkoutController.viewTotalPrice;
               showCashBackSnackBar();
             }
@@ -451,7 +443,6 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                 subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList,
                                 price: price, addOns: addOnsPrice, charge: charge, isOfflinePaymentActive: _isOfflinePaymentActive, expansionTileController: expansionTileController,
                                 serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount, extraPackagingAmount: extraPackagingCharge,
-                                additionalCharge: additionalCharge,
                                 guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
                                 guestEmailController: guestEmailController, guestAddressController: guestAddressController,
                                 guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
@@ -484,7 +475,6 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                             subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList,
                             price: price, addOns: addOnsPrice, charge: charge, isOfflinePaymentActive: _isOfflinePaymentActive, expansionTileController: expansionTileController,
                             serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount, extraPackagingAmount: extraPackagingCharge,
-                            additionalCharge: additionalCharge,
                             guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
                             guestEmailController: guestEmailController, guestAddressController: guestAddressController,
                             guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
@@ -556,13 +546,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
     ConfigModel? configModel = Get.find<SplashController>().configModel;
 
-    List<ZoneData> zones = AddressHelper.getAddressFromSharedPref()?.zoneData ?? [];
-    ZoneData? zoneData = zones.where((data) => data.id == restaurant?.zoneId).isNotEmpty
-        ? zones.firstWhere((data) => data.id == restaurant?.zoneId)
-        : null;
-    if(zoneData == null || restaurant == null){
-        return -1;
-    }
+    ZoneData zoneData = AddressHelper.getAddressFromSharedPref()!.zoneData!.firstWhere((data) => data.id == restaurant!.zoneId);
     double perKmCharge = restaurant!.selfDeliverySystem == 1 ? restaurant.perKmShippingCharge!
         : zoneData.perKmShippingCharge ?? 0;
 
@@ -629,12 +613,8 @@ class CheckoutScreenState extends State<CheckoutScreen> {
     double variationPrice = 0;
     if(cartList != null) {
       for (var cartModel in cartList) {
-        if (cartModel.isPromo ?? false) {
-          continue;
-        }
 
-        final basePrice = cartModel.price ?? cartModel.product!.price!;
-        price = price + (basePrice * cartModel.quantity!);
+        price = price + (cartModel.product!.price! * cartModel.quantity!);
 
         for(int index = 0; index< cartModel.product!.variations!.length; index++) {
           for(int i=0; i<cartModel.product!.variations![index].variationValues!.length; i++) {
@@ -771,30 +751,6 @@ class CheckoutScreenState extends State<CheckoutScreen> {
         + (showTips ? tips : 0) + additionalCharge + extraPackagingCharge;
 
     return PriceConverter.toFixed(total);
-  }
-
-  double _calculateAdditionalCharge({
-    required double subTotal,
-    required double discount,
-    required double couponDiscount,
-    required double referralDiscount,
-  }) {
-    ConfigModel config = Get.find<SplashController>().configModel!;
-    if (config.additionalChargeStatus != true) {
-      return 0;
-    }
-
-    double baseAmount = subTotal - discount - couponDiscount - referralDiscount;
-    if (baseAmount < 0) {
-      baseAmount = 0;
-    }
-
-    if (config.additionalChargeType == 'percentage') {
-      double percentage = config.additionalChargePercentage ?? 0;
-      return PriceConverter.toFixed((baseAmount * percentage) / 100);
-    }
-
-    return config.additionCharge ?? 0;
   }
 
   double _calculateExtraPackagingCharge(CheckoutController checkoutController) {
