@@ -362,7 +362,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
 
             bool restaurantSubscriptionActive = false;
             int subscriptionQty = checkoutController.subscriptionOrder ? 0 : 1;
-            double additionalCharge =  Get.find<SplashController>().configModel!.additionalChargeStatus! ? Get.find<SplashController>().configModel!.additionCharge! : 0;
+            double additionalCharge = _calculateAdditionalCharge(orderAmount);
 
             if(checkoutController.restaurant != null) {
 
@@ -443,6 +443,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                                 subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList,
                                 price: price, addOns: addOnsPrice, charge: charge, isOfflinePaymentActive: _isOfflinePaymentActive, expansionTileController: expansionTileController,
                                 serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount, extraPackagingAmount: extraPackagingCharge,
+                                additionalCharge: additionalCharge,
                                 guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
                                 guestEmailController: guestEmailController, guestAddressController: guestAddressController,
                                 guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
@@ -475,6 +476,7 @@ class CheckoutScreenState extends State<CheckoutScreen> {
                             subscriptionQty: subscriptionQty, taxPercent: taxPercent!, fromCart: widget.fromCart, cartList: _cartList,
                             price: price, addOns: addOnsPrice, charge: charge, isOfflinePaymentActive: _isOfflinePaymentActive, expansionTileController: expansionTileController,
                             serviceFeeTooltipController: serviceFeeTooltipController, referralDiscount: referralDiscount, extraPackagingAmount: extraPackagingCharge,
+                            additionalCharge: additionalCharge,
                             guestNameController: guestContactPersonNameController, guestNumberController: guestContactPersonNumberController,
                             guestEmailController: guestEmailController, guestAddressController: guestAddressController,
                             guestStreetNumberController: guestStreetNumberController, guestHouseController: guestHouseController, guestFloorController: guestFloorController,
@@ -751,6 +753,24 @@ class CheckoutScreenState extends State<CheckoutScreen> {
         + (showTips ? tips : 0) + additionalCharge + extraPackagingCharge;
 
     return PriceConverter.toFixed(total);
+  }
+
+  double _calculateAdditionalCharge(double orderAmount) {
+    ConfigModel? configModel = Get.find<SplashController>().configModel;
+    if(configModel == null || configModel.additionalChargeStatus != true) {
+      return 0;
+    }
+
+    String chargeType = (configModel.additionalChargeType ?? 'fixed').toLowerCase();
+    if(chargeType == 'percentage' || chargeType == 'percent') {
+      double percentage = configModel.additionalChargePercentage ?? 0;
+      if(percentage <= 0) {
+        percentage = configModel.additionCharge ?? 0;
+      }
+      return PriceConverter.toFixed((orderAmount * percentage) / 100);
+    }
+
+    return PriceConverter.toFixed(configModel.additionCharge ?? 0);
   }
 
   double _calculateExtraPackagingCharge(CheckoutController checkoutController) {

@@ -158,6 +158,8 @@ class AppConstants {
   static const String checkRestaurantValidation =
       '/api/v1/customer/order/check-restaurant-validation';
   static const String getOrderTaxUri = '/api/v1/customer/order/get-Tax';
+  static const String promoPopupNextUri = '/api/v1/promo/popup-next';
+  static const String promoPopupEventUri = '/api/v1/promo/popup-event';
 
   ///Subscription
   static const String businessPlanUri = '/api/v1/vendor/business_plan';

@@ -9,6 +9,9 @@ import 'package:stackfood_multivendor/features/home/screens/home_screen.dart';
 import 'package:stackfood_multivendor/features/menu/screens/menu_screen.dart';
 import 'package:stackfood_multivendor/features/order/controllers/order_controller.dart';
 import 'package:stackfood_multivendor/features/order/screens/order_screen.dart';
+import 'package:stackfood_multivendor/features/promo_popup/controllers/promo_popup_controller.dart';
+import 'package:stackfood_multivendor/features/promo_popup/domain/models/promo_popup_model.dart';
+import 'package:stackfood_multivendor/features/promo_popup/widgets/promo_popup_dialog_widget.dart';
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/order/domain/models/order_model.dart';
 import 'package:stackfood_multivendor/features/auth/controllers/auth_controller.dart';
@@ -44,6 +47,8 @@ class DashboardScreenState extends State<DashboardScreen> {
   bool _canExit = GetPlatform.isWeb ? true : false;
   late bool _isLogin;
   bool active = false;
+  Timer? _promoPopupTimer;
+  bool _isPromoPopupRequestRunning = false;
 
   @override
   void initState() {
@@ -66,6 +71,9 @@ class DashboardScreenState extends State<DashboardScreen> {
       }
       _suggestAddressBottomSheet();
       Get.find<OrderController>().getRunningOrders(1, notify: false);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _startPromoPopupLoop();
+      });
     }
 
     _pageIndex = widget.pageIndex;
@@ -119,6 +127,60 @@ class DashboardScreenState extends State<DashboardScreen> {
         });
       });
     }
+  }
+
+  Future<void> _showPromoPopupIfAvailable() async {
+    debugPrint('PROMO_POPUP: start');
+    if(GetPlatform.isWeb || !_isLogin || _isPromoPopupRequestRunning || !mounted){
+      debugPrint('PROMO_POPUP: skipped (web/not-login/in-progress/unmounted)');
+      return;
+    }
+    if(!Get.isRegistered<PromoPopupController>()) {
+      debugPrint('PROMO_POPUP: PromoPopupController not registered');
+      return;
+    }
+    _isPromoPopupRequestRunning = true;
+    try {
+      PromoPopupModel? popup = await Get.find<PromoPopupController>().getNextPopup();
+      if(!mounted || popup == null || popup.impressionId == null){
+        debugPrint('PROMO_POPUP: no popup payload');
+        return;
+      }
+      debugPrint('PROMO_POPUP: received impression_id=${popup.impressionId}, campaign_id=${popup.campaignId}');
+
+      String? action = await showDialog<String>(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) => PromoPopupDialogWidget(popup: popup),
+      );
+      debugPrint('PROMO_POPUP: action=${action ?? 'dismissed'}');
+
+      if(!mounted){
+        return;
+      }
+
+      await Get.find<PromoPopupController>().sendPopupEvent(
+        impressionId: popup.impressionId!,
+        event: action == 'clicked' ? 'clicked' : 'dismissed',
+      );
+    } finally {
+      _isPromoPopupRequestRunning = false;
+    }
+  }
+
+  void _startPromoPopupLoop() {
+    _promoPopupTimer?.cancel();
+    _showPromoPopupIfAvailable();
+    _promoPopupTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      _showPromoPopupIfAvailable();
+    });
+  }
+
+  @override
+  void dispose() {
+    _promoPopupTimer?.cancel();
+    _pageController?.dispose();
+    super.dispose();
   }
 
   @override

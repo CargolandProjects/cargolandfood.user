@@ -44,6 +44,11 @@ import 'package:stackfood_multivendor/features/product/domain/repositories/campa
 import 'package:stackfood_multivendor/features/product/domain/repositories/campaign_repository_interface.dart';
 import 'package:stackfood_multivendor/features/product/domain/services/campaign_service.dart';
 import 'package:stackfood_multivendor/features/product/domain/services/campaign_service_interface.dart';
+import 'package:stackfood_multivendor/features/promo_popup/controllers/promo_popup_controller.dart';
+import 'package:stackfood_multivendor/features/promo_popup/domain/repositories/promo_popup_repository.dart';
+import 'package:stackfood_multivendor/features/promo_popup/domain/repositories/promo_popup_repository_interface.dart';
+import 'package:stackfood_multivendor/features/promo_popup/domain/services/promo_popup_service.dart';
+import 'package:stackfood_multivendor/features/promo_popup/domain/services/promo_popup_service_interface.dart';
 import 'package:stackfood_multivendor/features/restaurant/controllers/restaurant_controller.dart';
 import 'package:stackfood_multivendor/features/html/controllers/html_controller.dart';
 import 'package:stackfood_multivendor/features/html/domain/repositories/html_repository.dart';
@@ -304,6 +309,10 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => campaignRepositoryInterface);
   CampaignServiceInterface campaignServiceInterface = CampaignService(campaignRepositoryInterface: Get.find());
   Get.lazyPut(() => campaignServiceInterface);
+  PromoPopupRepositoryInterface promoPopupRepositoryInterface = PromoPopupRepository(apiClient: Get.find());
+  Get.lazyPut(() => promoPopupRepositoryInterface);
+  PromoPopupServiceInterface promoPopupServiceInterface = PromoPopupService(promoPopupRepositoryInterface: Get.find());
+  Get.lazyPut(() => promoPopupServiceInterface);
   AdvertisementRepositoryInterface advertisementRepositoryInterface = AdvertisementRepository(apiClient: Get.find());
   Get.lazyPut(() => advertisementRepositoryInterface);
   AdvertisementServiceInterface advertisementServiceInterface = AdvertisementService(advertisementRepositoryInterface: Get.find());
@@ -347,6 +356,7 @@ Future<Map<String, Map<String, String>>> init() async {
   Get.lazyPut(() => CouponController(couponServiceInterface: Get.find()));
   Get.lazyPut(() => OrderController(orderServiceInterface: Get.find()));
   Get.lazyPut(() => CampaignController(campaignServiceInterface: Get.find()));
+  Get.lazyPut(() => PromoPopupController(promoPopupServiceInterface: Get.find()));
   Get.lazyPut(() => CheckoutController(checkoutServiceInterface: Get.find()));
   Get.lazyPut(() => AdvertisementController(advertisementServiceInterface: Get.find()));
   Get.lazyPut(() => DineInController(dineInServiceInterface: Get.find()));

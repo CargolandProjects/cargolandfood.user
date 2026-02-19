@@ -47,6 +47,7 @@ class BottomSectionWidget extends StatelessWidget {
   final JustTheController serviceFeeTooltipController;
   final double referralDiscount;
   final double extraPackagingAmount;
+  final double additionalCharge;
   final TextEditingController guestNameController;
   final TextEditingController guestNumberController;
   final TextEditingController guestEmailController;
@@ -65,6 +66,7 @@ class BottomSectionWidget extends StatelessWidget {
     required this.fromCart, required this.cartList, required this.price, required this.addOns, required this.charge, required this.guestNameController,
     required this.guestNumberController, required this.isOfflinePaymentActive, required this.guestEmailController,
     required this.expansionTileController, required this.serviceFeeTooltipController, required this.referralDiscount, required this.extraPackagingAmount,
+    required this.additionalCharge,
     required this.guestAddressController, required this.guestStreetNumberController, required this.guestHouseController, required this.guestFloorController,
   });
 
@@ -289,7 +291,7 @@ class BottomSectionWidget extends StatelessWidget {
 
                 ]),
                 Text(
-                  '(+) ${PriceConverter.convertPrice(Get.find<SplashController>().configModel!.additionCharge)}',
+                  '(+) ${PriceConverter.convertPrice(additionalCharge)}',
                   style: robotoRegular, textDirection: TextDirection.ltr,
                 ),
               ]) : const SizedBox(),
@@ -381,4 +383,3 @@ class BottomSectionWidget extends StatelessWidget {
     );
   }
 }
-
