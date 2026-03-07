@@ -22,6 +22,7 @@ import 'package:stackfood_multivendor/features/dashboard/widgets/running_order_v
 import 'package:stackfood_multivendor/features/favourite/screens/favourite_screen.dart';
 import 'package:stackfood_multivendor/features/loyalty/controllers/loyalty_controller.dart';
 import 'package:stackfood_multivendor/helper/responsive_helper.dart';
+import 'package:stackfood_multivendor/helper/popup_manager.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
 import 'package:stackfood_multivendor/util/dimensions.dart';
 import 'package:stackfood_multivendor/common/widgets/cart_widget.dart';
@@ -148,20 +149,20 @@ class DashboardScreenState extends State<DashboardScreen> {
       }
       debugPrint('PROMO_POPUP: received impression_id=${popup.impressionId}, campaign_id=${popup.campaignId}');
 
-      String? action = await showDialog<String>(
-        context: context,
-        barrierDismissible: true,
-        builder: (_) => PromoPopupDialogWidget(popup: popup),
-      );
-      debugPrint('PROMO_POPUP: action=${action ?? 'dismissed'}');
+      PopupManager.enqueuePromoDialog(
+        dialog: PromoPopupDialogWidget(popup: popup),
+        dedupeKey: 'promo_${popup.impressionId}',
+        onResult: (dynamic action) async {
+          debugPrint('PROMO_POPUP: action=${action ?? 'dismissed'}');
+          if(!mounted) {
+            return;
+          }
 
-      if(!mounted){
-        return;
-      }
-
-      await Get.find<PromoPopupController>().sendPopupEvent(
-        impressionId: popup.impressionId!,
-        event: action == 'clicked' ? 'clicked' : 'dismissed',
+          await Get.find<PromoPopupController>().sendPopupEvent(
+            impressionId: popup.impressionId!,
+            event: action == 'clicked' ? 'clicked' : 'dismissed',
+          );
+        },
       );
     } finally {
       _isPromoPopupRequestRunning = false;

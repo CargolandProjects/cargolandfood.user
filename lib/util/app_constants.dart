@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 
 class AppConstants {
   static const String appName = 'CargolandFood';
-  static const double appVersion = 8.8;
+  static const double appVersion = 8.9;
 
   ///Flutter SDK: 3.38.9
 

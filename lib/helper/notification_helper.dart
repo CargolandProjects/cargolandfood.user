@@ -11,7 +11,9 @@ import 'package:stackfood_multivendor/features/profile/controllers/profile_contr
 import 'package:stackfood_multivendor/features/splash/controllers/splash_controller.dart';
 import 'package:stackfood_multivendor/features/wallet/controllers/wallet_controller.dart';
 import 'package:stackfood_multivendor/helper/route_helper.dart';
+import 'package:stackfood_multivendor/helper/popup_manager.dart';
 import 'package:stackfood_multivendor/common/enums/user_type.dart';
+import 'package:stackfood_multivendor/common/widgets/in_app_notification_popup_dialog_widget.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -32,21 +34,7 @@ class NotificationHelper {
         NotificationBodyModel payload;
         if(response.payload!.isNotEmpty) {
           payload = NotificationBodyModel.fromJson(jsonDecode(response.payload!));
-          if(payload.notificationType == NotificationType.order) {
-            if(Get.find<AuthController>().isGuestLoggedIn()){
-              Get.to(()=> const DashboardScreen(pageIndex: 3, fromSplash: false));
-            }else {
-              Get.toNamed(RouteHelper.getOrderDetailsRoute(int.parse(payload.orderId.toString()), fromNotification: true));
-            }
-          }else if(payload.notificationType == NotificationType.message) {
-            Get.toNamed(RouteHelper.getChatRoute(notificationBody: payload, conversationID: payload.conversationId, fromNotification: true));
-          }else if(payload.notificationType == NotificationType.block || payload.notificationType == NotificationType.unblock){
-            Get.toNamed(RouteHelper.getSignInRoute(RouteHelper.notification));
-          }else if(payload.notificationType == NotificationType.add_fund || payload.notificationType == NotificationType.referral_earn || payload.notificationType == NotificationType.CashBack){
-            Get.toNamed(RouteHelper.getWalletRoute(fromNotification: true));
-          }else{
-            Get.toNamed(RouteHelper.getNotificationRoute(fromNotification: true));
-          }
+          _navigateFromNotificationPayload(payload);
         }
       }catch (_) {}
       return;
@@ -75,6 +63,7 @@ class NotificationHelper {
             );
           }else {
             NotificationHelper.showNotification(message, flutterLocalNotificationsPlugin);
+            _showInAppPopup(message);
           }
         }
       }else if(message.data['type'] == 'message' && Get.currentRoute.startsWith(RouteHelper.conversation)) {
@@ -83,6 +72,7 @@ class NotificationHelper {
           Get.find<ChatController>().getAdminConversationList();
         }
         NotificationHelper.showNotification(message, flutterLocalNotificationsPlugin);
+            _showInAppPopup(message);
       }else if(message.data['type'] == 'add_fund'){
         if(Get.find<AuthController>().isLoggedIn()) {
           Get.find<ProfileController>().getUserInfo();
@@ -92,6 +82,7 @@ class NotificationHelper {
       }else if(message.data['type'] == AppConstants.demoResetTopic){
       }else {
         NotificationHelper.showNotification(message, flutterLocalNotificationsPlugin);
+            _showInAppPopup(message);
         if(Get.find<AuthController>().isLoggedIn()) {
           Get.find<OrderController>().getRunningOrders(1);
           Get.find<OrderController>().getHistoryOrders(1);
@@ -104,20 +95,83 @@ class NotificationHelper {
       try{
         if(message.data.isNotEmpty) {
           NotificationBodyModel notificationBody = convertNotification(message.data);
-          if(notificationBody.notificationType == NotificationType.order) {
-            Get.toNamed(RouteHelper.getOrderDetailsRoute(int.parse(message.data['order_id']), fromNotification: true));
-          }else if(notificationBody.notificationType == NotificationType.message) {
-            Get.toNamed(RouteHelper.getChatRoute(notificationBody: notificationBody, conversationID: notificationBody.conversationId, fromNotification: true));
-          }else if(notificationBody.notificationType == NotificationType.block || notificationBody.notificationType == NotificationType.unblock){
-            Get.toNamed(RouteHelper.getSignInRoute(RouteHelper.notification));
-          }else if(notificationBody.notificationType == NotificationType.add_fund || notificationBody.notificationType == NotificationType.referral_earn || notificationBody.notificationType == NotificationType.CashBack){
-            Get.toNamed(RouteHelper.getWalletRoute(fromNotification: true));
-          }else{
-            Get.toNamed(RouteHelper.getNotificationRoute(fromNotification: true));
-          }
+          _navigateFromNotificationPayload(notificationBody, data: message.data);
         }
       }catch (_) {}
     });
+  }
+
+
+  static void _showInAppPopup(RemoteMessage message) {
+    if(GetPlatform.isWeb || message.data.isEmpty) {
+      return;
+    }
+
+    final String title = (message.data['title'] ?? message.notification?.title ?? '').toString().trim();
+    final String body = (message.data['body'] ?? message.notification?.body ?? '').toString().trim();
+    if(title.isEmpty && body.isEmpty) {
+      return;
+    }
+
+    final NotificationBodyModel payload = convertNotification(message.data);
+    final String? image = _resolveNotificationImage(message.data);
+    final String dedupeKey = message.messageId ?? '${message.data['type']}_${message.data['order_id'] ?? ''}_${message.sentTime?.millisecondsSinceEpoch ?? DateTime.now().millisecondsSinceEpoch}';
+
+    PopupManager.enqueuePushDialog(
+      dialog: InAppNotificationPopupDialogWidget(
+        title: title.isNotEmpty ? title : 'Notification',
+        body: body,
+        imageUrl: image,
+      ),
+      dedupeKey: dedupeKey,
+      onResult: (dynamic action) {
+        if(action == 'clicked') {
+          _navigateFromNotificationPayload(payload, data: message.data);
+        }
+      },
+    );
+  }
+
+  static String? _resolveNotificationImage(Map<String, dynamic> data) {
+    final dynamic raw = data['image'];
+    if(raw == null) {
+      return null;
+    }
+
+    final String image = raw.toString();
+    if(image.isEmpty) {
+      return null;
+    }
+
+    if(image.startsWith('http')) {
+      return image;
+    }
+
+    return '${AppConstants.baseUrl}/storage/app/public/notification/$image';
+  }
+
+  static void _navigateFromNotificationPayload(NotificationBodyModel payload, {Map<String, dynamic>? data}) {
+    if(payload.notificationType == NotificationType.order) {
+      final int? orderId = payload.orderId ?? int.tryParse((data?['order_id'] ?? '').toString());
+      if(orderId == null) {
+        Get.toNamed(RouteHelper.getNotificationRoute(fromNotification: true));
+        return;
+      }
+
+      if(Get.find<AuthController>().isGuestLoggedIn()) {
+        Get.to(() => const DashboardScreen(pageIndex: 3, fromSplash: false));
+      } else {
+        Get.toNamed(RouteHelper.getOrderDetailsRoute(orderId, fromNotification: true));
+      }
+    } else if(payload.notificationType == NotificationType.message) {
+      Get.toNamed(RouteHelper.getChatRoute(notificationBody: payload, conversationID: payload.conversationId, fromNotification: true));
+    } else if(payload.notificationType == NotificationType.block || payload.notificationType == NotificationType.unblock) {
+      Get.toNamed(RouteHelper.getSignInRoute(RouteHelper.notification));
+    } else if(payload.notificationType == NotificationType.add_fund || payload.notificationType == NotificationType.referral_earn || payload.notificationType == NotificationType.CashBack) {
+      Get.toNamed(RouteHelper.getWalletRoute(fromNotification: true));
+    } else {
+      Get.toNamed(RouteHelper.getNotificationRoute(fromNotification: true));
+    }
   }
 
   static Future<void> showNotification(RemoteMessage message, FlutterLocalNotificationsPlugin fln) async {
